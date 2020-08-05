@@ -24,6 +24,10 @@ let userSchema = new mongoose.Schema({
         type: String,
         required: 'This field is required'
     },
+    createdAt: { 
+        type: Date, 
+        default: Date.now()
+    }, 
 });
 
 mongoose.model('user', userSchema);
