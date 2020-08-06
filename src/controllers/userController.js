@@ -34,7 +34,8 @@ const userController = {
                 throw ERROR_EMAIL_TAKEN;
             }
 
-            let newUser = new User({ username, firstName, lastName, email, password });                
+            let hashedPassword = crypto.hashPassword(password);
+            let newUser = new User({ username, firstName, lastName, email, password: hashedPassword});                
             let newUserDoc = await newUser.save();
             return {
                 id: newUserDoc._id,
@@ -58,9 +59,9 @@ const userController = {
             if(!user)
             {
                 throw ERROR_LOGIN_FAILED;
-            }
-
-            if(user.password != password)
+            }  
+            
+            if(!crypto.validatePassword(password, user.password))
             {
                 throw ERROR_LOGIN_FAILED;                
             }

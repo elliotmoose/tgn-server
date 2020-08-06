@@ -11,10 +11,12 @@ describe('Helpers', function () {
         let secret = 'mooselliot';
         crypto.initialize(secret);
         
-		it('Should accept valid token', () => {						
-            crypto.generateJsonWebToken({userId});
+		it('should accept valid token', () => {						
+            let token = crypto.generateJsonWebToken({userId});
+            let { userId: decryptedUserId } = crypto.decodeJsonWebToken(token);
+            decryptedUserId.should.equal(userId);
 		});
-		it('Should reject expired token', () => {						
+		it('should reject expired token', () => {						
             try {
                 let token = crypto.generateJsonWebToken({userId}, '0m');
                 crypto.decodeJsonWebToken(token);
@@ -23,5 +25,17 @@ describe('Helpers', function () {
                 error.should.equal(ERROR_TOKEN_EXPIRED);
             }
 		});
+        
+        let password = 'hashtestpass12345'
+        let hash = null;
+		it('should hash password', () => {						
+            hash = crypto.hashPassword(password);
+            crypto.validatePassword(password, hash).should.equal(true);
+        });
+        
+        it('should reject wrong password', () => {
+            let wrongPassword = password + '0';
+            crypto.validatePassword(wrongPassword, hash).should.equal(false);
+        });
     })
 });
