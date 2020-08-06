@@ -37,7 +37,7 @@ const helpers = {
             throw {...ERROR_INTERNAL_SERVER, err: errObject}
         }
     },
-    checkRequiredFields(fields) {
+    assertRequiredParams(fields) {
         Object.keys(fields).forEach((key)=>{
             if(fields[key] === undefined || fields[key] === null || fields[key] === '')
             {

@@ -2,6 +2,7 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, throwError } = require('../helpers/apiHelper');
 const { ERROR_USER_NOT_FOUND } = require('../constants/errors');
+const { setAndRequireUser } = require('../middleware/auth');
 const router = express.Router();
 
 
@@ -30,7 +31,7 @@ router.post('/login', async (req, res)=>{
 /**
  * Get user data
  */
-router.post('/:userId', async (req, res)=>{
+router.post('/:userId', setAndRequireUser, async (req, res)=>{
     let userId = req.params.userId;    
 
     try {

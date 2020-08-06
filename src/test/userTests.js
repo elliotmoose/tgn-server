@@ -4,7 +4,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN } = require('../constants/errors');
 let User = mongoose.model('user');
 // let User = require('../models/user.model');
 
@@ -75,17 +75,27 @@ describe('Signup', function () {
 			res.should.have.status(200);
 			res.body.should.have.property('data');			
 			res.body.data.should.have.all.keys('token', 'user');						
-			token = res.body.data.token;
-			token.should.not.be.empty;
-			userData = res.body.data.user;			
-		});
-		// it('should check for authenticated query', async () => {
-		// 	let res = await chai.request(server).post('/user/').set('authorization', `Bearer ${token}`).send({username: templateCredentials.username, password: templateCredentials.password});
-		// 	res.should.have.status(200);
-		// 	res.body.should.have.property('data');
 			
-		// 	//TODO: check jwt
-		// });
+			token = res.body.data.token;
+			userData = res.body.data.user;			
+			
+			token.should.not.be.empty;
+		});
+		it('should reject unauthenticated query', async () => {
+			let res = await chai.request(server).post(`/user/${userData._id}`).send({username: templateCredentials.username, password: templateCredentials.password});
+			res.should.have.status(401);
+			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN);
+		});
+		it('should reject invalid token', async () => {
+			let res = await chai.request(server).post(`/user/${userData._id}`).set('authorization', `Bearer SomeOtherTokenValue`).send({username: templateCredentials.username, password: templateCredentials.password});
+			res.should.have.status(401);
+			res.body.should.have.property('error').eql(ERROR_INVALID_TOKEN);
+		});
+		it('should accept valid token', async () => {
+			let res = await chai.request(server).post(`/user/${userData._id}`).set('authorization', `Bearer ${token}`).send({username: templateCredentials.username, password: templateCredentials.password});
+			res.should.have.status(200);
+			res.body.should.have.property('data');			
+		});
 	});
 
 });

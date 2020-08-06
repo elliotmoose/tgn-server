@@ -1,17 +1,17 @@
 const { respond, checkRequiredFields, throwError } = require('../helpers/apiHelper');
 const crypto = require('../helpers/crypto');
 const userController = require('../controllers/userController');
-const { ERROR_INVALID_TOKEN } = require('../constants/errors');
+const { ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN } = require('../constants/errors');
 
 // Middleware
 exports.setAndRequireUser = async (req, res, next) => {
     try {
         let authorization = req.headers.authorization || null;
         if (!authorization) {
-            return null;
+            throw ERROR_MISSING_TOKEN;
         }
         if (!(typeof authorization === 'string')) {
-            return null;
+            throw ERROR_INVALID_TOKEN;
         }
     
         //Bearer <jwt>

@@ -36,6 +36,12 @@ exports.ERROR_LOGIN_FAILED = {
     message: 'Your username or password is incorrect'
 }
 
+exports.ERROR_MISSING_TOKEN = {
+    status: 401,    
+    code: 'ERROR_MISSING_TOKEN',
+    message: 'No access token provided'
+}
+
 exports.ERROR_INVALID_TOKEN = {
     status: 401,    
     code: 'ERROR_INVALID_TOKEN',
@@ -49,7 +55,7 @@ exports.ERROR_TOKEN_EXPIRED = {
 }
 
 exports.ERROR_NOT_AUTHORISED = {
-    status: 403,
+    status: 401,
     code: 'ERROR_NOT_AUTHORISED',
     message: 'You are not authorised to access this document'
 }
