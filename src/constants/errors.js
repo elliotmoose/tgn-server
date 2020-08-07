@@ -24,6 +24,12 @@ exports.ERROR_USERNAME_TAKEN = {
     message: 'This username is already in use.'
 }
 
+exports.ERROR_ORG_HANDLE_TAKEN = {
+    status: 409,    
+    code: 'ERROR_ORG_HANDLE_TAKEN',
+    message: 'This handle is already in use.'
+}
+
 exports.ERROR_EMAIL_TAKEN = {
     status: 409,    
     code: 'ERROR_EMAIL_TAKEN',

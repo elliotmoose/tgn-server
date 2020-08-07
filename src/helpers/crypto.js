@@ -51,7 +51,7 @@ let crypto = {
         let value = hash.digest('hex');
         return value;
     },
-    validatePassword(password, hash, salt) {
+    verifyPassword(password, hash, salt) {
         this.checkInitialized();
         let verifyHash = this.hashPassword(password, salt);
         return verifyHash === hash;

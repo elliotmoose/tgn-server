@@ -7,6 +7,7 @@ const { Document, Model } = require('mongoose');
 let organisationSchema = new mongoose.Schema({
     handle: {
         type: String,
+        unique: true,
         required: 'This field is required'
     },
     name: {
@@ -15,7 +16,7 @@ let organisationSchema = new mongoose.Schema({
     },
     address: {
         type: String,
-        required: 'This field is required'
+        // required: 'This field is required'
     },
     contact: {
         type: String,

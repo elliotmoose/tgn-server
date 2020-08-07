@@ -19,6 +19,19 @@ Content-Type: application/json
 }
 
 ###
+# Create Organisation
+POST http://localhost:8080/organisation/create
+Content-Type: application/json
+
+{
+    "handle": "organisationA",
+    "name": "Organisation A",
+    "contact": "64001234",
+    "address": "Aljunied Ave 4, S342232"
+}
+
+###
+# Join Organisation
 POST http://localhost:8080/organisation/12345/userJoin
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJjYzVhNzg4MzkxOGFiMmNiNjY5YjIiLCJpYXQiOjE1OTY3Njk3MjZ9.82JFDIqOhKI_012ryr_6TRx1wFbTPHWArguTi8IIXXg

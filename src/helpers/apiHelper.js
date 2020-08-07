@@ -41,7 +41,7 @@ const helpers = {
         });
     },
     assertParamTypeObjectId(param) {
-        if(mongoose.Types.ObjectId.isValid(param))
+        if(!mongoose.Types.ObjectId.isValid(param))
         {
             throw ERROR_INVALID_PARAM('ObjectId');
         }

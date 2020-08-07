@@ -6,16 +6,22 @@ let server = require('../server');
 let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
 let User = mongoose.model('user');
+let Organisation = mongoose.model('organisation');
 // let User = require('../models/user.model');
 
 chai.use(chaiHttp);
 let should = chai.should();
 
-User.deleteMany({}, ()=>{
+describe('Users', function () {
+	before(()=>{
+		Organisation.deleteMany({}, ()=>{});      
+		User.deleteMany({}, ()=>{});      
+	});
+	after(()=>{
+		Organisation.deleteMany({}, ()=>{});      
+		User.deleteMany({}, ()=>{});      
+	});
 
-});      
-
-describe('Signup', function () {
 	let userACredentials = {
 		username: "mooselliot",
 		firstName: "Elliot",
@@ -24,12 +30,10 @@ describe('Signup', function () {
 		password: "12345"
 	}
 	
-	let userBCredentials = {
-		username: "llpofwy",
-		firstName: "Wanyi",
-		lastName: "Tan",
-		email: "elliotmoose@gmail.com",
-		password: "54321"
+	let organisationData = {
+		handle: "organisationA",
+		name: "Organisation A",
+		contact: "64001234",
 	}
 
 	let token = null;
@@ -47,7 +51,7 @@ describe('Signup', function () {
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('email'));
 		});
-		it('should create a new user ', async () => {
+		it('should create a new user ', async () => {			
 			let res = await chai.request(server).post('/user/create').send(userACredentials);
 			res.should.have.status(200);
 			res.body.data.should.have.property('username').eql(userACredentials.username);
@@ -61,7 +65,15 @@ describe('Signup', function () {
 			let res = await chai.request(server).post('/user/create').send({...userACredentials, email: 'abcedf@gmail.com'});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
-			});
+		});
+		it('should not overlap organisation handle', async () => {
+			let createOrgRes = await chai.request(server).post('/organisation/create').send(organisationData);
+			createOrgRes.should.have.status(200);
+
+			let res = await chai.request(server).post('/user/create').send({...userACredentials, username: organisationData.handle});
+			res.should.have.status(409);
+			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
+		});
 		it('should not allow duplicate email', async () => {
 			let res = await chai.request(server).post('/user/create').send({...userACredentials, username: 'abcdefg' });
 			res.should.have.status(409);

@@ -16,6 +16,13 @@ const helpers = {
             throw ERROR_INVALID_PARAM('username');
         }
     },
+    validateHandle(handle) {
+        const re = /^([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){0,28}(?:[A-Za-z0-9_]))?)$/;
+        if(!re.test(handle))
+        {
+            throw ERROR_INVALID_PARAM('handle');
+        }
+    },
     validatePassword(password) {
         //TODO: validation for password
         const re = /.+/;

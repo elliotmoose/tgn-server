@@ -29,16 +29,16 @@ describe('Helpers', function () {
         let hash = null;
 		it('should hash password', () => {						
             hash = crypto.hashPassword(password, salt);
-            crypto.validatePassword(password, hash, salt).should.equal(true);
+            crypto.verifyPassword(password, hash, salt).should.equal(true);
         });
         
         it('should reject wrong password', () => {
             let wrongPassword = password + '0';
-            crypto.validatePassword(wrongPassword, hash, salt).should.equal(false);
+            crypto.verifyPassword(wrongPassword, hash, salt).should.equal(false);
         });
         
         it('should reject wrong salt', () => {
-            crypto.validatePassword(password, hash, crypto.generateSalt(16)).should.equal(false);
+            crypto.verifyPassword(password, hash, crypto.generateSalt(16)).should.equal(false);
         });
     })
 });

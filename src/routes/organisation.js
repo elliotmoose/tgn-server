@@ -39,6 +39,7 @@ router.post('/:orgId/userJoin', setAndRequireUser, async (req, res)=>{
 });
 
 router.get('/:orgId', async (req, res) => {
+    let orgId = req.params.orgId;
     try {
         let org = await organisationController.getOrganisationById(orgId);
         if(!org)
@@ -46,6 +47,19 @@ router.get('/:orgId', async (req, res) => {
             throw ERROR_ORG_NOT_FOUND;
         }
         respond(res, org);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+/**
+ * Create a new organisation
+ */
+router.post('/create', async (req, res) => {
+    
+    try {
+        let org = await organisationController.createOrganisation(req.body);        
+        respond(res, org);        
     } catch (error) {
         respond(res, {}, error);
     }

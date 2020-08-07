@@ -6,8 +6,19 @@ const crypto = require('../helpers/crypto');
 const ROLES = require('../constants/roles');
 
 const User = mongoose.model('user');
+const Organisation = mongoose.model('organisation');
 
 const userController = {
+    usernameTaken: async (username) => {
+        assertRequiredParams({username});
+        let userResult = await User.findOne({username});
+        if(userResult)
+        {
+            return true;
+        }
+
+        return false;
+    },
     getUserById: async (userId) => {
         try {
             assertRequiredParams({userId});
@@ -33,10 +44,11 @@ const userController = {
         validatePassword(password);
 
         //check for duplicate username/email
-        let usernameTaken = await User.findOne({ username }).exec();
-        let emailTaken = await User.findOne({ email }).exec();
+        let usernameTaken = await User.findOne({ username });
+        let handleTaken = await Organisation.findOne({handle: username});
+        let emailTaken = await User.findOne({ email });
 
-        if (usernameTaken) {
+        if (usernameTaken || handleTaken) {
             throw ERROR_USERNAME_TAKEN;
         }
 
@@ -70,7 +82,7 @@ const userController = {
                 throw ERROR_LOGIN_FAILED;
             }  
             
-            if(!crypto.validatePassword(password, userDoc.password, userDoc.passwordSalt))
+            if(!crypto.verifyPassword(password, userDoc.password, userDoc.passwordSalt))
             {
                 throw ERROR_LOGIN_FAILED;                
             }
