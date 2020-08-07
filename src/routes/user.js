@@ -40,23 +40,12 @@ router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
     let userIdOrHandle = req.params.userIdOrHandle;    
     
     try {        
-        if(mongoose.Types.ObjectId.isValid(userIdOrHandle))
-        {
-            let userData = await userController.getUserById(userIdOrHandle);
-            if(userData) {
-                respond(res, {...userData, password: undefined});
-                return;
-            }            
-        }
-        
-        let userData = await userController.getUserByHandle(userIdOrHandle);
-        
-        if(userData) {
-            respond(res, {...userData, password: undefined});
-            return;
+        let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
+        if(!userData) {
+            throw ERROR_USER_NOT_FOUND;             
         }            
 
-        throw ERROR_USER_NOT_FOUND;             
+        respond(res, {...userData, password: undefined});
     } catch (error) {
         respond(res, {}, error);
     }

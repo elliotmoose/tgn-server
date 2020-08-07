@@ -18,23 +18,6 @@ const organisationController = {
 
         return false;
     },
-    getOrganisationById: async (organisationId) => {
-        assertRequiredParams({organisationId});
-        assertParamTypeObjectId(organisationId);
-        let organisation = await Organisation.findById(organisationId);
-        return organisation;
-    },    
-    getOrganisationByHandle: async (handle) => {
-        assertRequiredParams({handle});
-        let organisationDoc = await Organisation.findOne({handle});
-        
-        if(!organisationDoc)
-        {
-            throw ERROR_ORG_NOT_FOUND;
-        }
-
-        return organisationDoc.toJSON();
-    },    
     getOrganisationByIdOrHandle: async (orgIdOrHandle) => {
         assertRequiredParams({orgIdOrHandle});
         

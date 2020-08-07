@@ -19,33 +19,29 @@ const userController = {
 
         return false;
     },
-    getUserById: async (userId) => {
-        try {
-            assertRequiredParams({userId});
-            assertParamTypeObjectId(userId);
-            let user = await User.findById(userId);        
-            if(!user)
-            {
-                throw ERROR_USER_NOT_FOUND;
-            }
+    getUserByIdOrHandle: async (userIdOrHandle) => {
+        assertRequiredParams({userIdOrHandle});
             
-            return sanitizedUserData(user.toJSON());            
-        } catch (error) {
-            console.log(error);
-            throw error;
+        let userDoc = null;
+        if (mongoose.Types.ObjectId.isValid(userIdOrHandle))
+        {
+            userDoc = await User.findOne({$or: [
+                { username: userIdOrHandle },
+                { _id: userIdOrHandle }
+            ]});
         }
-    },
-    getUserByHandle: async (handle) => {
-        assertRequiredParams({handle});
-        let organisationDoc = await Organisation.findOne({username: handle});
-        
-        if(!organisationDoc)
+        else 
+        {
+            userDoc = await User.findOne({ handle: userIdOrHandle });
+        }
+
+        if(!userDoc)
         {
             throw ERROR_USER_NOT_FOUND;
         }
 
-        return organisationDoc.toJSON();
-    },    
+        return sanitizedUserData(userDoc.toJSON());
+    },
     createUser: async (userData) => {
         let { username, email, firstName, lastName, password } = userData;
 

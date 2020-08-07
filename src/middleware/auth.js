@@ -19,7 +19,7 @@ exports.setAndRequireUser = async (req, res, next) => {
         // let decodeJwt
         let { userId } = crypto.decodeJsonWebToken(encryptedJwt);
     
-        let user = await userController.getUserById(userId);
+        let user = await userController.getUserByIdOrHandle(userId);
         if(user)        
         {
             req.user = user;
