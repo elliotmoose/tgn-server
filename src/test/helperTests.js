@@ -8,8 +8,6 @@ let should = chai.should();
 describe('Helpers', function () {
 	describe('Crypto', function () {			
         let userId = 'test_user_id';
-        let secret = 'mooselliot';
-        crypto.initialize(secret);
         
 		it('should accept valid token', () => {						
             let token = crypto.generateJsonWebToken({userId});
@@ -27,15 +25,20 @@ describe('Helpers', function () {
 		});
         
         let password = 'hashtestpass12345'
+        let salt = crypto.generateSalt(16);
         let hash = null;
 		it('should hash password', () => {						
-            hash = crypto.hashPassword(password);
-            crypto.validatePassword(password, hash).should.equal(true);
+            hash = crypto.hashPassword(password, salt);
+            crypto.validatePassword(password, hash, salt).should.equal(true);
         });
         
         it('should reject wrong password', () => {
             let wrongPassword = password + '0';
-            crypto.validatePassword(wrongPassword, hash).should.equal(false);
+            crypto.validatePassword(wrongPassword, hash, salt).should.equal(false);
+        });
+        
+        it('should reject wrong salt', () => {
+            crypto.validatePassword(password, hash, crypto.generateSalt(16)).should.equal(false);
         });
     })
 });

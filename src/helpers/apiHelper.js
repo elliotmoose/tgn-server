@@ -16,26 +16,20 @@ const helpers = {
         let status = 200;
         if(error)
         {
-            body.error = error;
-            status = error.status;
+            //force to fit format
+            let isExternal = error.status && error.message && error.code;
+            let errorFinal = error;
+            if(!isExternal)
+            {
+                console.log(error.stack);
+                errorFinal = {...ERROR_INTERNAL_SERVER, err: `${error}`};
+            }
+            
+            body.error = errorFinal;
+            status = errorFinal.status;
         }
 
         res.status(status).send(body);
-    },
-    /**
-     * Ensures format for error thrown to routes before sending
-     * @param {*} errObject 
-     */
-    throwError(errObject){
-        let isExternal = errObject.status && errObject.message;
-        if(isExternal)
-        {
-            throw errObject;
-        }
-        else 
-        {            
-            throw {...ERROR_INTERNAL_SERVER, err: errObject}
-        }
     },
     assertRequiredParams(fields) {
         Object.keys(fields).forEach((key)=>{

@@ -4,17 +4,14 @@ let cryptoLib = require('crypto');
 
 let crypto = {
     secret: null,    
-    salt: null,    
-    saltLength: 16,
     initialize (secret) {   
         this.secret = secret;
-        this.salt = this.generateSalt();
     },
-    generateSalt() {
+    generateSalt(saltLength) {
         return cryptoLib
-            .randomBytes(Math.ceil(this.saltLength / 2))
+            .randomBytes(Math.ceil(saltLength / 2))
             .toString('hex') /** convert to hexadecimal format */
-            .slice(0, this.saltLength); /** return required number of characters */
+            .slice(0, saltLength); /** return required number of characters */
     },
     checkInitialized (){
         if(this.secret === null || this.secret === null)
@@ -47,16 +44,16 @@ let crypto = {
             }
         }
     },
-    hashPassword (password) {
+    hashPassword (password, salt) {
         this.checkInitialized();
-        let hash = cryptoLib.createHmac('sha512', this.salt); /** Hashing algorithm sha512 */
+        let hash = cryptoLib.createHmac('sha512', salt); /** Hashing algorithm sha512 */
         hash.update(password);
         let value = hash.digest('hex');
         return value;
     },
-    validatePassword(password, hash) {
+    validatePassword(password, hash, salt) {
         this.checkInitialized();
-        let verifyHash = this.hashPassword(password);
+        let verifyHash = this.hashPassword(password, salt);
         return verifyHash === hash;
     }
 }

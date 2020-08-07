@@ -23,6 +23,13 @@ const helpers = {
         {
             throw ERROR_INVALID_PARAM('password');
         }        
+    },
+    sanitizedUserData(userData) {
+        return {
+            ...userData,
+            password: undefined,
+            passwordSalt: undefined
+        }
     }
 }
 

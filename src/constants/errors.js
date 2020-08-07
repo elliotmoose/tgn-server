@@ -65,3 +65,9 @@ exports.ERROR_USER_NOT_FOUND = {
     code: 'ERROR_USER_NOT_FOUND',
     message: 'User does not exist'
 }
+
+exports.ERROR_ORG_NOT_FOUND = {
+    status: 404,    
+    code: 'ERROR_ORG_NOT_FOUND',
+    message: 'Organisation does not exist'
+}

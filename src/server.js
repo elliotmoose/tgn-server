@@ -5,6 +5,10 @@ const config = require('./config.js');
 const app = express();
 const bodyParser = require('body-parser');
 
+const crypto = require('./helpers/crypto.js');
+let secret = 'mooselliot';
+crypto.initialize(secret);
+
 //controllers
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -13,6 +17,8 @@ app.use(bodyParser.json());
 require('./models/db');
 
 const userRouter = require('./routes/user');
+const organisationRouter = require('./routes/organisation');
+
 
 app.get('/test', (req,res) => {
     res.status(200);
@@ -20,6 +26,7 @@ app.get('/test', (req,res) => {
 });
 
 app.use('/user', userRouter);
+app.use('/organisation', organisationRouter);
 
 app.listen(config.PORT, ()=>console.log(`server started on port: ${config.PORT}`));
 

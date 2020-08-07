@@ -1,7 +1,7 @@
-const { respond, checkRequiredFields, throwError } = require('../helpers/apiHelper');
+const { respond, checkRequiredFields } = require('../helpers/apiHelper');
 const crypto = require('../helpers/crypto');
 const userController = require('../controllers/userController');
-const { ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN } = require('../constants/errors');
+const { ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
 
 // Middleware
 exports.setAndRequireUser = async (req, res, next) => {
@@ -34,9 +34,18 @@ exports.setAndRequireUser = async (req, res, next) => {
     }
 }
 
-exports.authLoggedInUser = (req, res, next) => {
-    // if(!req.user)
-    // {
-    //     respond(res, {}, )
-    // }
+exports.authRole = (role) => {
+    return (req, res, next) => {
+        if(!req.user)
+        {
+            respond(res, {}, ERROR_NOT_AUTHORISED);
+        }
+        
+        if(req.user.role != role)
+        {
+            respond(res, {message: 'Does not have role permission'}, ERROR_NOT_AUTHORISED);            
+        }
+        
+        next();
+    }
 }

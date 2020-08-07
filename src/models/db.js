@@ -11,3 +11,4 @@ mongoose.connect('mongodb://localhost:27017/TGN', {useNewUrlParser: true}, (err)
 });
 
 require('./user.model');
+require('./organisation.model');

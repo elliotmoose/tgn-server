@@ -17,3 +17,5 @@ Content-Type: application/json
     "username": "mooselliot",
     "password": "12345"
 }
+
+# eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJjYzFiNDRiN2RlN2E4YTk2MWRjZTMiLCJpYXQiOjE1OTY3NjkyMDh9.orBEsXJjZ8HOFMlF18EqcEBgKjuTqHZGrqgprCqbTBM

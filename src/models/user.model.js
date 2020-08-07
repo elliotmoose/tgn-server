@@ -24,6 +24,25 @@ let userSchema = new mongoose.Schema({
         type: String,
         required: 'This field is required'
     },
+    passwordSalt : {
+        type: String,
+        required: 'This field is required'
+    },
+    role: {
+        type: String,
+        required: 'This field is required'
+    },
+    public: {
+        type: Boolean,
+        required: 'This field is required',
+        default: false 
+    },
+    bio : {
+        type: String
+    },
+    organisationId: {
+        type: mongoose.Types.ObjectId        
+    },
     createdAt: { 
         type: Date, 
         default: Date.now()
