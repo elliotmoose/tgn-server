@@ -18,4 +18,9 @@ Content-Type: application/json
     "password": "12345"
 }
 
+###
+POST http://localhost:8080/organisation/12345/userJoin
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJjYzVhNzg4MzkxOGFiMmNiNjY5YjIiLCJpYXQiOjE1OTY3Njk3MjZ9.82JFDIqOhKI_012ryr_6TRx1wFbTPHWArguTi8IIXXg
+
 # eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJjYzFiNDRiN2RlN2E4YTk2MWRjZTMiLCJpYXQiOjE1OTY3NjkyMDh9.orBEsXJjZ8HOFMlF18EqcEBgKjuTqHZGrqgprCqbTBM

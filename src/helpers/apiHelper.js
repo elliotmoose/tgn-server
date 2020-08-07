@@ -1,4 +1,5 @@
-const { ERROR_MISSING_PARAM, ERROR_INTERNAL_SERVER } = require("../constants/errors");
+const { ERROR_MISSING_PARAM, ERROR_INTERNAL_SERVER, ERROR_INVALID_PARAM } = require("../constants/errors");
+const mongoose = require('mongoose');
 
 const helpers = {
     /**
@@ -39,6 +40,12 @@ const helpers = {
             }
         });
     },
+    assertParamTypeObjectId(param) {
+        if(mongoose.Types.ObjectId.isValid(param))
+        {
+            throw ERROR_INVALID_PARAM('ObjectId');
+        }
+    }
 }
 
 module.exports = helpers;

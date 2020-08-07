@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { assertRequiredParams } = require('../helpers/apiHelper');
+const { assertRequiredParams, assertParamTypeObjectId } = require('../helpers/apiHelper');
 const { validateUsername, validateEmail, validatePassword, sanitizedUserData } = require('../helpers/userHelper');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_USER_NOT_FOUND } = require('../constants/errors');
 const crypto = require('../helpers/crypto');
@@ -11,6 +11,7 @@ const userController = {
     getUserById: async (userId) => {
         try {
             assertRequiredParams({userId});
+            assertParamTypeObjectId(userId);
             let user = await User.findById(userId);        
             if(!user)
             {
