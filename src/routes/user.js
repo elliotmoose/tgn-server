@@ -5,7 +5,7 @@ const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_
 const { setAndRequireUser } = require('../middleware/auth');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
-
+const mongoose = require('mongoose');
 
 router.get('/', (req,res)=>{
 
@@ -34,20 +34,29 @@ router.post('/login', async (req, res)=>{
 });
 
 /**
- * Get user data
+ * Get user data by id or by handl
  */
-router.get('/:userId', setAndRequireUser, async (req, res)=>{
-    let userId = req.params.userId;    
+router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
+    let userIdOrHandle = req.params.userIdOrHandle;    
     
-    try {
-        let userData = await userController.getUserById(userId);
+    try {        
+        if(mongoose.Types.ObjectId.isValid(userIdOrHandle))
+        {
+            let userData = await userController.getUserById(userIdOrHandle);
+            if(userData) {
+                respond(res, {...userData, password: undefined});
+                return;
+            }            
+        }
+        
+        let userData = await userController.getUserByHandle(userIdOrHandle);
         
         if(userData) {
             respond(res, {...userData, password: undefined});
-        }
-        else {
-            throw ERROR_USER_NOT_FOUND;
-        }        
+            return;
+        }            
+
+        throw ERROR_USER_NOT_FOUND;             
     } catch (error) {
         respond(res, {}, error);
     }

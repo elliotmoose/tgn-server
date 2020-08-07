@@ -12,70 +12,75 @@ let Organisation = mongoose.model('organisation');
 chai.use(chaiHttp);
 let should = chai.should();
 
+
+let organisationData = {
+	handle: "organisationA",
+	name: "Organisation A",
+	contact: "64001234",
+}
+
+
+let userCredentials = {
+	username: "mooselliot",
+	firstName: "Elliot",
+	lastName: "Koh",
+	email: "kyzelliot@gmail.com",
+	password: "12345"
+}
+
+
 describe('Users', function () {
-	before(()=>{
+	before(async ()=>{
 		Organisation.deleteMany({}, ()=>{});      
 		User.deleteMany({}, ()=>{});      
+
+
+	
+		let createOrgRes = await chai.request(server).post('/organisation/create').send(organisationData);
+		createOrgRes.should.have.status(200);
 	});
 	after(()=>{
 		Organisation.deleteMany({}, ()=>{});      
 		User.deleteMany({}, ()=>{});      
 	});
 
-	let userACredentials = {
-		username: "mooselliot",
-		firstName: "Elliot",
-		lastName: "Koh",
-		email: "kyzelliot@gmail.com",
-		password: "12345"
-	}
-	
-	let organisationData = {
-		handle: "organisationA",
-		name: "Organisation A",
-		contact: "64001234",
-	}
 
 	let token = null;
 	let userData = null;
-	let orgData = null;
 
 	describe('Valid signup', function () {			
 		it('should reject invalid username ', async () => {			
-			let res = await chai.request(server).post('/user/create').send({...userACredentials, username: '__usead.1!'});
+			let res = await chai.request(server).post('/user/create').send({...userCredentials, username: '__usead.1!'});
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('username'));
 		});
 		it('should reject invalid email ', async () => {			
-			let res = await chai.request(server).post('/user/create').send({...userACredentials, email: 'kyzelliot@@gmail.com'});
+			let res = await chai.request(server).post('/user/create').send({...userCredentials, email: 'kyzelliot@@gmail.com'});
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('email'));
 		});
 		it('should create a new user ', async () => {			
-			let res = await chai.request(server).post('/user/create').send(userACredentials);
+			let res = await chai.request(server).post('/user/create').send(userCredentials);
 			res.should.have.status(200);
-			res.body.data.should.have.property('username').eql(userACredentials.username);
-			res.body.data.should.have.property('firstName').eql(userACredentials.firstName);
-			res.body.data.should.have.property('lastName').eql(userACredentials.lastName);
-			res.body.data.should.have.property('email').eql(userACredentials.email);
+			res.body.data.should.have.property('username').eql(userCredentials.username);
+			res.body.data.should.have.property('firstName').eql(userCredentials.firstName);
+			res.body.data.should.have.property('lastName').eql(userCredentials.lastName);
+			res.body.data.should.have.property('email').eql(userCredentials.email);
 			res.body.data.should.not.have.property('password');
 			res.body.data.should.not.have.property('passwordSalt');
 		});
 		it('should not allow duplicate username', async () => {
-			let res = await chai.request(server).post('/user/create').send({...userACredentials, email: 'abcedf@gmail.com'});
+			let res = await chai.request(server).post('/user/create').send({...userCredentials, email: 'abcedf@gmail.com'});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
 		});
 		it('should not overlap organisation handle', async () => {
-			let createOrgRes = await chai.request(server).post('/organisation/create').send(organisationData);
-			createOrgRes.should.have.status(200);
-
-			let res = await chai.request(server).post('/user/create').send({...userACredentials, username: organisationData.handle});
+			let res = await chai.request(server).post('/user/create').send({...userCredentials, username: organisationData.handle});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
 		});
 		it('should not allow duplicate email', async () => {
-			let res = await chai.request(server).post('/user/create').send({...userACredentials, username: 'abcdefg' });
+			let res = await chai.request(server).post('/user/create').send({...userCredentials, username: 'abcdefg' });
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_EMAIL_TAKEN);
 		});		
@@ -83,18 +88,18 @@ describe('Users', function () {
 
 	describe('Auth', ()=>{
 		it('should reject login with wrong password', async () => {
-			let res = await chai.request(server).post('/user/login').send({username: userACredentials.username, password: '54321'});
+			let res = await chai.request(server).post('/user/login').send({username: userCredentials.username, password: '54321'});
 			res.should.have.status(401);
 			res.body.should.have.property('error').eql(ERROR_LOGIN_FAILED);				
 		});
 		it('should reject login with wrong username', async () => {
-			let res = await chai.request(server).post('/user/login').send({username: 'asdfghjk', password: userACredentials.password});
+			let res = await chai.request(server).post('/user/login').send({username: 'asdfghjk', password: userCredentials.password});
 			res.should.have.status(401);
 			res.body.should.have.property('error').eql(ERROR_LOGIN_FAILED);				
 		});
 		
 		it('should login with correct credentials and generate jwt', async () => {
-			let res = await chai.request(server).post('/user/login').send({username: userACredentials.username, password: userACredentials.password});
+			let res = await chai.request(server).post('/user/login').send({username: userCredentials.username, password: userCredentials.password});
 			res.should.have.status(200);
 			res.body.should.have.property('data');			
 			res.body.data.should.have.all.keys('token', 'user');						
@@ -105,10 +110,10 @@ describe('Users', function () {
 						
 			//set user for testing later
 			userData = res.body.data.user;			
-			res.body.data.user.should.have.property('username').eql(userACredentials.username);
-			res.body.data.user.should.have.property('firstName').eql(userACredentials.firstName);
-			res.body.data.user.should.have.property('lastName').eql(userACredentials.lastName);
-			res.body.data.user.should.have.property('email').eql(userACredentials.email);
+			res.body.data.user.should.have.property('username').eql(userCredentials.username);
+			res.body.data.user.should.have.property('firstName').eql(userCredentials.firstName);
+			res.body.data.user.should.have.property('lastName').eql(userCredentials.lastName);
+			res.body.data.user.should.have.property('email').eql(userCredentials.email);
 			res.body.data.user.should.not.have.property('password');
 			res.body.data.user.should.not.have.property('passwordSalt');
 			

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 // mongoose.pluralize(null);
+mongoose.set('useFindAndModify', false);
 
 mongoose.connect('mongodb://localhost:27017/TGN', {useNewUrlParser: true}, (err)=> {
     if (err) {

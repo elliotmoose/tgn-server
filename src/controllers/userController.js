@@ -35,6 +35,17 @@ const userController = {
             throw error;
         }
     },
+    getUserByHandle: async (handle) => {
+        assertRequiredParams({handle});
+        let organisationDoc = await Organisation.findOne({username: handle});
+        
+        if(!organisationDoc)
+        {
+            throw ERROR_USER_NOT_FOUND;
+        }
+
+        return organisationDoc.toJSON();
+    },    
     createUser: async (userData) => {
         let { username, email, firstName, lastName, password } = userData;
 
@@ -102,7 +113,7 @@ const userController = {
     },
     update: async (userId, newUserData) => {
         try {
-            let updatedUserDoc = await User.findOneAndUpdate({_id: userId}, newUserData, {new: true}).exec();            
+            let updatedUserDoc = await User.findOneAndUpdate({_id: userId}, newUserData, {new: true}); 
             return sanitizedUserData(updatedUserDoc.toJSON());
         } catch (error) {
             console.log('====== to find out what error formating is for mongoose when cannot find relevant doc');

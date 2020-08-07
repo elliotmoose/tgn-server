@@ -5,48 +5,54 @@ const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_
 const { setAndRequireUser } = require('../middleware/auth');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
-
+const mongoose = require('mongoose');
 
 /**
  * Join org by updating user organisationId
  */
-router.post('/:orgId/userJoin', setAndRequireUser, async (req, res)=>{
-    let orgId = req.params.orgId;    
+router.post('/:orgIdOrHandle/userJoin', setAndRequireUser, async (req, res)=>{
+    let orgIdOrHandle = req.params.orgIdOrHandle;    
     let userId = req.user._id;    
 
     try {          
-        //org exists
-        let org = await organisationController.getOrganisationById(orgId);
-        if(!org)
+        let orgData = await organisationController.getOrganisationByIdOrHandle(orgIdOrHandle);
+        if(!orgData)
         {
             throw ERROR_ORG_NOT_FOUND;
-        }
-        
+        }        
+
         //TODO: check if org is private or public, to see if it requires a pending approval process
 
         //user exists and update
-        let userData = await userController.update(userId, {
-            organisationId: orgId
+        let newUserData = await userController.update(userId, {
+            organisationId: orgData._id
         })     
         
-        if(!userData)
+        if(!newUserData)
         {
             throw ERROR_INTERNAL_SERVER;
         }
+
+        respond(res, newUserData);
     } catch (error) {
         respond(res, {}, error);
     }
 });
 
-router.get('/:orgId', async (req, res) => {
-    let orgId = req.params.orgId;
+router.get('/:orgIdOrHandle', async (req, res) => {
+    let orgIdOrHandle = req.params.orgIdOrHandle;
     try {
-        let org = await organisationController.getOrganisationById(orgId);
-        if(!org)
-        {
-            throw ERROR_ORG_NOT_FOUND;
-        }
-        respond(res, org);
+        // if(mongoose.Types.ObjectId.isValid(orgIdOrHandle))
+        // {
+        //     let orgData = await organisationController.getOrganisationById(orgIdOrHandle);
+        //     if(orgData) {
+        //         respond(res, orgData);
+        //         return;
+        //     }            
+        // }
+        
+        let orgData = await organisationController.getOrganisationByIdOrHandle(orgIdOrHandle);
+        respond(res, orgData);       
     } catch (error) {
         respond(res, {}, error);
     }
