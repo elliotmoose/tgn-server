@@ -43,9 +43,9 @@ const userController = {
         return sanitizedUserData(userDoc.toJSON());
     },
     createUser: async (userData) => {
-        let { username, email, firstName, lastName, password } = userData;
+        let { username, email, fullName, password } = userData;
 
-        assertRequiredParams({ username, email, firstName, lastName, password });
+        assertRequiredParams({ username, email, fullName, password });
         validateUsername(username);
         validateEmail(email);
         validatePassword(password);
@@ -67,7 +67,7 @@ const userController = {
         let hashedPassword = crypto.hashPassword(password, passwordSalt);
 
         let newUser = new User({
-            username, firstName, lastName, email,
+            username, fullName, email,
             password: hashedPassword,
             passwordSalt,
             role: ROLES.STANDARD

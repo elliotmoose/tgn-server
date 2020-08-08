@@ -4,7 +4,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_MISSING_PARAM, ERROR_ORG_HANDLE_TAKEN, ERROR_ORG_NOT_FOUND } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_MISSING_PARAM, ERROR_ORG_HANDLE_TAKEN, ERROR_ORG_NOT_FOUND, ERROR_ALREADY_JOINED_ORG } = require('../constants/errors');
 let Organisation = mongoose.model('organisation');
 let User = mongoose.model('user');
 
@@ -13,8 +13,7 @@ let should = chai.should();
 
 let userCredentials = {
 	username: "mooselliot",
-	firstName: "Elliot",
-	lastName: "Koh",
+	fullName: "Elliot Koh",
 	email: "kyzelliot@gmail.com",
 	password: "12345"
 }
@@ -125,9 +124,10 @@ describe('Organisation', function () {
 		});
 	});
 
-	describe('Join Organisation', ()=>{	
+	describe('Join or Leave Organisation', ()=>{	
 		it('should join by org id and return userData', async ()=>{
 			let res = await chai.request(server).post(`/organisation/${orgData._id}/userJoin/`).set('authorization', `Bearer ${token}`).send();
+			console.log(res.body.error);
 			res.should.have.status(200);
 			res.body.should.have.property('data');
 			res.body.data.should.have.property('username').eql(userData.username);
@@ -136,7 +136,22 @@ describe('Organisation', function () {
 			let getUserRes = await chai.request(server).get(`/user/${userData._id}`).set('authorization', `Bearer ${token}`).send();
 			getUserRes.should.have.status(200);
 			getUserRes.body.should.have.property('data');
-			getUserRes.body.data.should.have.property('organisationId').eql(orgData._id);
+			getUserRes.body.data.should.have.property('organisationIds');
+			getUserRes.body.data.organisationIds.should.contain(orgData._id);
+		});
+		it('shoud leave org by handle or id', async ()=> {
+			let res = await chai.request(server).post(`/organisation/${orgData._id}/userLeave/`).set('authorization', `Bearer ${token}`).send();
+			console.log(res.body.error);
+			res.should.have.status(200);
+			res.body.should.have.property('data');
+			res.body.data.should.have.property('username').eql(userData.username);
+			res.body.data.should.not.have.property('password');
+			
+			let getUserRes = await chai.request(server).get(`/user/${userData._id}`).set('authorization', `Bearer ${token}`).send();
+			getUserRes.should.have.status(200);
+			getUserRes.body.should.have.property('data');
+			getUserRes.body.data.should.have.property('organisationIds');
+			getUserRes.body.data.organisationIds.should.not.contain(orgData._id);
 		});
 		it('should join by org handle and return userData', async ()=>{
 			let res = await chai.request(server).post(`/organisation/${orgData.handle}/userJoin/`).set('authorization', `Bearer ${token}`).send();
@@ -148,7 +163,13 @@ describe('Organisation', function () {
 			let getUserRes = await chai.request(server).get(`/user/${userData._id}`).set('authorization', `Bearer ${token}`).send();
 			getUserRes.should.have.status(200);
 			getUserRes.body.should.have.property('data');
-			getUserRes.body.data.should.have.property('organisationId').eql(orgData._id);
+			getUserRes.body.data.should.have.property('organisationIds');
+			getUserRes.body.data.organisationIds.should.contain(orgData._id);
+		});
+		it('should reject joining twice', async ()=>{
+			let res = await chai.request(server).post(`/organisation/${orgData.handle}/userJoin/`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(409);
+			res.body.should.have.property('error').eql(ERROR_ALREADY_JOINED_ORG);
 		});
 		it('should handle invalid org id', async ()=>{
 			let res = await chai.request(server).post(`/organisation/${orgData._id}x/userJoin/`).set('authorization', `Bearer ${token}`).send();

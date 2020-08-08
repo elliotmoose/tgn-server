@@ -7,7 +7,6 @@ let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
-// let User = require('../models/user.model');
 
 chai.use(chaiHttp);
 let should = chai.should();
@@ -19,11 +18,9 @@ let organisationData = {
 	contact: "64001234",
 }
 
-
 let userCredentials = {
 	username: "mooselliot",
-	firstName: "Elliot",
-	lastName: "Koh",
+	fullName: "Elliot Koh",
 	email: "kyzelliot@gmail.com",
 	password: "12345"
 }
@@ -63,8 +60,7 @@ describe('Users', function () {
 			let res = await chai.request(server).post('/user/create').send(userCredentials);
 			res.should.have.status(200);
 			res.body.data.should.have.property('username').eql(userCredentials.username);
-			res.body.data.should.have.property('firstName').eql(userCredentials.firstName);
-			res.body.data.should.have.property('lastName').eql(userCredentials.lastName);
+			res.body.data.should.have.property('fullName').eql(userCredentials.fullName);
 			res.body.data.should.have.property('email').eql(userCredentials.email);
 			res.body.data.should.not.have.property('password');
 			res.body.data.should.not.have.property('passwordSalt');
@@ -111,8 +107,7 @@ describe('Users', function () {
 			//set user for testing later
 			userData = res.body.data.user;			
 			res.body.data.user.should.have.property('username').eql(userCredentials.username);
-			res.body.data.user.should.have.property('firstName').eql(userCredentials.firstName);
-			res.body.data.user.should.have.property('lastName').eql(userCredentials.lastName);
+			res.body.data.user.should.have.property('fullName').eql(userCredentials.fullName);
 			res.body.data.user.should.have.property('email').eql(userCredentials.email);
 			res.body.data.user.should.not.have.property('password');
 			res.body.data.user.should.not.have.property('passwordSalt');
@@ -134,23 +129,5 @@ describe('Users', function () {
 			res.body.should.have.property('data');			
 		});
 	});
-	
-	// describe('Creating organisation', () =>  {
-	// 	it('should assert required parameters', async ()=>{
-			
-	// 	});
-	// 	it('should create organisation', async ()=>{
-
-	// 	});
-	// })
-
-	// describe('Joining organisation', ()=>{
-		
-
-	// 	it('should accept request from owner user', async()=>{
-	// 		let res = await chai.request(server).post(`/organisation/${orgData._id}/userJoin/`).set('authorization', `Bearer ${token}`).send();
-	// 		res.should.have.status(200);
-	// 	});
-	// });
 
 });

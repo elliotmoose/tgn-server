@@ -72,6 +72,18 @@ exports.ERROR_USER_NOT_FOUND = {
     message: 'User does not exist'
 }
 
+exports.ERROR_ALREADY_JOINED_ORG = {
+    status: 409,    
+    code: 'ERROR_ALREADY_JOINED_ORG',
+    message: 'You have already joined this organisation'
+}
+
+exports.ERROR_NOT_ORG_MEMBER = {
+    status: 401,    
+    code: 'ERROR_NOT_ORG_MEMBER',
+    message: 'You cannot perform this action as you are not a member of this organisation'
+}
+
 exports.ERROR_ORG_NOT_FOUND = {
     status: 404,    
     code: 'ERROR_ORG_NOT_FOUND',

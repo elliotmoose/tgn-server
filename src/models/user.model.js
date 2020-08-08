@@ -4,11 +4,7 @@ const mongoose = require('mongoose');
  * @class User
  */
 let userSchema = new mongoose.Schema({
-    firstName : {
-        type: String,
-        required: 'This field is required'
-    },
-    lastName : {
+    fullName : {
         type: String,
         required: 'This field is required'
     },
@@ -42,8 +38,10 @@ let userSchema = new mongoose.Schema({
     bio : {
         type: String
     },
-    organisationId: {
-        type: mongoose.Types.ObjectId        
+    organisationIds: {
+        type: [mongoose.Types.ObjectId],
+        required: 'This field is required',
+        default: []        
     },
     createdAt: { 
         type: Date, 

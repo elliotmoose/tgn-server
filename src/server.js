@@ -28,7 +28,7 @@ app.get('/test', (req,res) => {
 app.use('/user', userRouter);
 app.use('/organisation', organisationRouter);
 
-app.listen(config.PORT, ()=>console.log(`server started on port: ${config.PORT}`));
+app.listen(config.PORT, ()=>console.log(`========server started on port: ${config.PORT} env: ${process.env.NODE_ENV}========`));
 
 //for tests
 module.exports = app;
