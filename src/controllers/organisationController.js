@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { assertRequiredParams, assertParamTypeObjectId } = require('../helpers/apiHelper');
-const { validateHandle } = require('../helpers/userHelper');
+const { validateHandle, sanitizedUserData } = require('../helpers/userHelper');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_ORG_HANDLE_TAKEN, ERROR_ORG_NOT_FOUND, ERROR_USER_NOT_FOUND } = require('../constants/errors');
 const { search } = require('../server');
 
@@ -8,7 +8,7 @@ const Organisation = mongoose.model('organisation');
 const User = mongoose.model('user');
 
 const organisationController = {
-    organisationHandleTaken: async (handle) => {
+    async organisationHandleTaken (handle) {
         assertRequiredParams({handle});
         let org = await Organisation.findOne({handle});
         if(org)
@@ -18,7 +18,7 @@ const organisationController = {
 
         return false;
     },
-    getOrganisationByIdOrHandle: async (orgIdOrHandle) => {
+    async getOrganisationByIdOrHandle (orgIdOrHandle) {
         assertRequiredParams({orgIdOrHandle});
         
         let organisationDoc = null;
@@ -41,7 +41,7 @@ const organisationController = {
 
         return organisationDoc.toJSON();
     },
-    createOrganisation: async (orgData) => {
+    async createOrganisation (orgData) {
         let { handle, name, address, contact, description, website} = orgData;
         assertRequiredParams({name, contact, handle});
         validateHandle(handle);
@@ -57,10 +57,11 @@ const organisationController = {
         let newOrgDoc = await newOrg.save();
         return newOrgDoc;
     },
-    orgMembers: async (orgId) => {
-        assertRequiredParams(orgId);        
-        let users = await User.find({ organisationIds: orgId });
-        return users;
+    async getOrgMembers (orgIdOrHandle) {
+        assertRequiredParams(orgIdOrHandle);        
+        let orgData = await this.getOrganisationByIdOrHandle(orgIdOrHandle);
+        let users = await User.find({ organisationIds: mongoose.Types.ObjectId(orgData._id)});
+        return users.map((user)=>sanitizedUserData(user.toJSON()));
     }
 }
 

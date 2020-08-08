@@ -63,9 +63,9 @@ router.post('/:orgIdOrHandle/userLeave', setAndRequireUser, async (req, res)=>{
 
         //check if user already joined
         let userData = await userController.getUserByIdOrHandle(userId);
-        let isMember = userData.organisationIds.indexOf(orgData._id) != -1;
+        let isMember = (userData.organisationIds.findIndex((id) => id.equals(orgData._id)) != -1);
 
-        if(isMember)
+        if(!isMember)
         {
             throw ERROR_NOT_ORG_MEMBER;
         }
@@ -90,17 +90,20 @@ router.post('/:orgIdOrHandle/userLeave', setAndRequireUser, async (req, res)=>{
 
 router.get('/:orgIdOrHandle', async (req, res) => {
     let orgIdOrHandle = req.params.orgIdOrHandle;
-    try {
-        // if(mongoose.Types.ObjectId.isValid(orgIdOrHandle))
-        // {
-        //     let orgData = await organisationController.getOrganisationById(orgIdOrHandle);
-        //     if(orgData) {
-        //         respond(res, orgData);
-        //         return;
-        //     }            
-        // }
-        
+    try {        
         let orgData = await organisationController.getOrganisationByIdOrHandle(orgIdOrHandle);
+        respond(res, orgData);       
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+router.get('/:orgIdOrHandle/members', setAndRequireUser, async (req, res) => {
+    let orgIdOrHandle = req.params.orgIdOrHandle;
+    try {        
+        //TODO: check if org is private
+        //TODO: if private, check if user is member        
+        let orgData = await organisationController.getOrgMembers(orgIdOrHandle);
         respond(res, orgData);       
     } catch (error) {
         respond(res, {}, error);
@@ -115,7 +118,7 @@ router.post('/create', async (req, res) => {
     try {
         let org = await organisationController.createOrganisation(req.body);        
         respond(res, org);        
-    } catch (error) {
+    } catch (error) {        
         respond(res, {}, error);
     }
 });
