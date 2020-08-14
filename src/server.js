@@ -18,6 +18,7 @@ require('./models/db');
 
 const userRouter = require('./routes/user');
 const organisationRouter = require('./routes/organisation');
+const postRouter = require('./routes/post');
 
 
 app.get('/test', (req,res) => {
@@ -27,6 +28,7 @@ app.get('/test', (req,res) => {
 
 app.use('/user', userRouter);
 app.use('/organisation', organisationRouter);
+app.use('/post', postRouter);
 
 app.listen(config.PORT, ()=>console.log(`========server started on port: ${config.PORT} env: ${process.env.NODE_ENV}========`));
 

@@ -10,6 +10,10 @@ let organisationSchema = new mongoose.Schema({
         unique: true,
         required: 'This field is required'
     },
+    // ownerId: {
+    //     type: mongoose.Types.ObjectId,
+    //     required: 'This field is required'
+    // },
     name: {
         type: String,
         required: 'This field is required'

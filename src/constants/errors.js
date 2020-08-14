@@ -89,3 +89,16 @@ exports.ERROR_ORG_NOT_FOUND = {
     code: 'ERROR_ORG_NOT_FOUND',
     message: 'Organisation does not exist'
 }
+
+
+exports.ERROR_POST_NOT_FOUND = {
+    status: 404,    
+    code: 'ERROR_POST_NOT_FOUND',
+    message: 'The requested post does not exist'
+}
+
+exports.ERROR_ALREADY_REACTED_TO_POST = {
+    status: 409,    
+    code: 'ERROR_ALREADY_REACTED_TO_POST',
+    message: 'You have already given this reaction to this post'
+}

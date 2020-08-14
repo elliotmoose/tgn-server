@@ -14,3 +14,4 @@ mongoose.connect(config.DB, {useNewUrlParser: true}, (err)=> {
 
 require('./user.model');
 require('./organisation.model');
+require('./post.model');

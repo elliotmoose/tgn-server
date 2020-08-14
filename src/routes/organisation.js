@@ -116,6 +116,9 @@ router.get('/:orgIdOrHandle/members', setAndRequireUser, async (req, res) => {
 router.post('/create', async (req, res) => {
     
     try {
+        // let user = await userController.createUser({
+
+        // });
         let org = await organisationController.createOrganisation(req.body);        
         respond(res, org);        
     } catch (error) {        

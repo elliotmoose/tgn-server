@@ -9,7 +9,7 @@ const User = mongoose.model('user');
 const Organisation = mongoose.model('organisation');
 
 const userController = {
-    usernameTaken: async (username) => {
+    async usernameTaken (username) {
         assertRequiredParams({username});
         let userResult = await User.findOne({username});
         if(userResult)
@@ -19,7 +19,7 @@ const userController = {
 
         return false;
     },
-    getUserByIdOrHandle: async (userIdOrHandle) => {
+    async getUserByIdOrHandle (userIdOrHandle) {
         assertRequiredParams({userIdOrHandle});
             
         let userDoc = null;
@@ -42,7 +42,7 @@ const userController = {
 
         return sanitizedUserData(userDoc.toJSON());
     },
-    createUser: async (userData) => {
+    async createUser (userData) {
         let { username, email, fullName, password } = userData;
 
         assertRequiredParams({ username, email, fullName, password });
@@ -76,7 +76,7 @@ const userController = {
         let newUserDoc = await newUser.save();
         return sanitizedUserData(newUserDoc.toJSON());
     },
-    login : async (credentials) => {
+    async login (credentials) {
         try {
             let { username, password } = credentials;            
             assertRequiredParams({username, password});
@@ -107,7 +107,7 @@ const userController = {
             throw error;
         }
     },
-    update: async (userId, newUserData) => {
+    async update (userId, newUserData) {
         try {
             let updatedUserDoc = await User.findOneAndUpdate({_id: userId}, newUserData, {new: true}); 
             return sanitizedUserData(updatedUserDoc.toJSON());
