@@ -28,6 +28,22 @@ let postSchema = new mongoose.Schema({
         }],
         default: []
     },
+    loveReactionCount: {
+        type: Number,
+        default: 0
+    },
+    likeReactionCount: {
+        type: Number,
+        default: 0
+    },
+    prayReactionCount: {
+        type: Number,
+        default: 0
+    },
+    praiseReactionCount: {
+        type: Number,
+        default: 0
+    },
     reactions: {
         type: [{
             userId: mongoose.Types.ObjectId,

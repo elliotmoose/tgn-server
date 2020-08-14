@@ -15,12 +15,8 @@ let postTemplateData = {
 	content: "Hi everyone!! Nice to finally catch up with all of you. "
 }
 
-let reactTemplateData = {
-	reactionType: "HEART"
-}
-
 let commentTemplateData = {
 	content: "Hey I'm just here to comment"
 }
 
-module.exports = {organisationData, userCredentials, postTemplateData, reactTemplateData, commentTemplateData};
+module.exports = {organisationData, userCredentials, postTemplateData, commentTemplateData};
