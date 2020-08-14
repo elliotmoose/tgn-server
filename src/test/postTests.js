@@ -63,7 +63,9 @@ describe('Posts', function () {
 		
 	describe('Retrieving Posts', function () {			
 		it('should get posts', async () => {			
-
+			let res = await chai.request(server).get(`/user/${userCredentials.username}/posts`).set('authorization', `Bearer ${token}`).send();
+			res.body.data.should.have.lengthOf.at.least(1);
+			res.body.data[0].should.be.like(postTemplateData);
 		});
 	});
 	
@@ -72,26 +74,39 @@ describe('Posts', function () {
 			let res = await chai.request(server).post(`/post/${postData._id}/react`).set('authorization', `Bearer ${token}`).send({reactionType: "LOVE"});
 			res.should.have.status(200);
 			res.body.data.should.have.property('success').eql(true);
-			// res.body.data.should.have.property('loveReactionCount').eql(1);
+
+			let getPostRes = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
+			getPostRes.should.have.status(200);
+			getPostRes.body.data.should.have.property('loveReactionCount').eql(1);
 		});
 		it('should not react same twice', async () => {			
 			let res = await chai.request(server).post(`/post/${postData._id}/react`).set('authorization', `Bearer ${token}`).send({reactionType: "LOVE"});
 			res.should.have.status(200);
+			
+			let getPostRes = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
+			getPostRes.should.have.status(200);
+			getPostRes.body.data.should.have.property('loveReactionCount').eql(1);
 		});
 		it('should allow different reaction', async () => {			
 			let res = await chai.request(server).post(`/post/${postData._id}/react`).set('authorization', `Bearer ${token}`).send({reactionType: 'LIKE'});
 			res.should.have.status(200);
 			res.body.data.should.have.property('success').eql(true);
-			// res.body.data.should.have.property('likeReactionCount').eql(1);
+			
+			let getPostRes = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
+			getPostRes.should.have.status(200);
+			getPostRes.body.data.should.have.property('likeReactionCount').eql(1);
 		});
 		it('should un-react', async () => {			
 			let res = await chai.request(server).post(`/post/${postData._id}/unreact`).set('authorization', `Bearer ${token}`).send({reactionType: 'LIKE'});
 			res.should.have.status(200);
-			res.body.data.should.have.property('success').eql(true);
-			// res.body.data.should.have.property('likeReactionCount').eql(0);
+			res.body.data.should.have.property('success').eql(true);			
+			
+			let getPostRes = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
+			getPostRes.should.have.status(200);
+			getPostRes.body.data.should.have.property('likeReactionCount').eql(0);
 		});
 		it('should comment on post', async () => {			
-			
+			throw 'to implement';
 		});
 	});
 });

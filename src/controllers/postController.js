@@ -29,6 +29,13 @@ const postController = {
     
         return newPostDoc.toJSON();
     },
+    async getPost (postId) {
+        assertRequiredParams({postId});
+        assertParamTypeObjectId(postId);
+        let post = await Post.findOne({_id: postId});
+    
+        return post.toJSON();
+    },
     reactionCounterKeyFromType(reactionType) {
         let counterKeyPrefixes = ['love', 'like', 'pray', 'praise'];
         let prefixIndex = counterKeyPrefixes.indexOf(reactionType.toLowerCase());
@@ -121,9 +128,9 @@ const postController = {
         
         return updatedPostDoc.toJSON();
     },
-    async getPostsByUser (userId) {
+    async getPostsByUserId (userId) {        
         assertRequiredParams({userId});
-        let posts = await Post.find({userId});
+        let posts = await Post.find({userId}).select('-comments -reactions');
         
         if(!posts)
         {

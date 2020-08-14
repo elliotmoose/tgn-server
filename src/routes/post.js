@@ -20,6 +20,21 @@ router.post('/', setAndRequireUser, async (req, res)=>{
     }
 });
 
+router.get('/:postId', setAndRequireUser, async (req, res)=>{    
+    let postId =  req.params.postId;
+
+    try {          
+        let post = await postController.getPost(postId);
+        respond(res, post);
+    } catch (error) {
+        if(error == ERROR_REACTION_EXISTS) {
+            respond(res, error);            
+            return;
+        }
+        respond(res, {}, error);
+    }
+});
+
 router.post('/:postId/react', setAndRequireUser, async (req, res)=>{    
     let userId =  req.user._id;
     let postId =  req.params.postId;

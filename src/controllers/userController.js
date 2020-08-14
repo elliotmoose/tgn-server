@@ -32,14 +32,15 @@ const userController = {
         }
         else 
         {
-            userDoc = await User.findOne({ handle: userIdOrHandle });
+            userDoc = await User.findOne({ username: userIdOrHandle });
         }
-
+        
         if(!userDoc)
         {
             throw ERROR_USER_NOT_FOUND;
-        }
-
+        }        
+        
+        
         return sanitizedUserData(userDoc.toJSON());
     },
     async createUser (userData) {

@@ -6,6 +6,7 @@ const { setAndRequireUser } = require('../middleware/auth');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
 const mongoose = require('mongoose');
+const postController = require('../controllers/postController');
 
 router.get('/', (req,res)=>{
 
@@ -45,7 +46,31 @@ router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
             throw ERROR_USER_NOT_FOUND;             
         }            
 
-        respond(res, {...userData, password: undefined});
+        respond(res, userData);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+
+/**
+ * Get user data by id or by handl
+ */
+router.get('/:userIdOrHandle/posts', setAndRequireUser, async (req, res)=>{
+    let userIdOrHandle = req.params.userIdOrHandle;    
+    
+    try {        
+        
+        let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
+        
+        if(!userData) {
+            console.log('no')
+            throw ERROR_USER_NOT_FOUND;             
+        }            
+        
+        let posts = await postController.getPostsByUserId(userData._id);
+
+        respond(res, posts);
     } catch (error) {
         respond(res, {}, error);
     }

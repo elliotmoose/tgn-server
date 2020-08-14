@@ -17,6 +17,11 @@ Content-Type: application/json
     "password": "12345"
 }
 
+### GET user profile
+GET http://localhost:8080/user/mooselliot
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+
 ###
 # Create Organisation
 POST http://localhost:8080/organisation/create

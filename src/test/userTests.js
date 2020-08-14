@@ -114,4 +114,20 @@ describe('Users', function () {
 		});
 	});
 
+	describe('User Profile', ()=>{
+		it('should get user data by username', async () => {
+			let res = await chai.request(server).get(`/user/${userCredentials.username}`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);
+			res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});
+		});
+		it('should get user data by id', async () => {
+			let res = await chai.request(server).get(`/user/${userData._id}`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);
+			res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});
+		});
+		it('should only allow friends to get user data', async () => {
+			throw 'to implement'
+		});
+	});
+
 });
