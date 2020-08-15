@@ -137,7 +137,16 @@ const postController = {
             return [];
         }
         return posts;
+    },
+    async getFeed(userIds) {
+        //get posts that are posted by the users
+        let posts = await Post.find({userId: {$in: userIds}}).sort({'date': -1}).limit(20);
+
+        //TODO: needs to filter out posts useer does not have access to
+        return posts;
     }
 }
+
+
 
 module.exports = postController;

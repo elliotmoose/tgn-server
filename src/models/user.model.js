@@ -38,6 +38,16 @@ let userSchema = new mongoose.Schema({
     bio : {
         type: String
     },
+    following: {
+        type: [mongoose.Types.ObjectId],
+        required: 'This field is required',
+        default: []        
+    },
+    followers: {
+        type: [mongoose.Types.ObjectId],
+        required: 'This field is required',
+        default: []        
+    },
     organisationIds: {
         type: [mongoose.Types.ObjectId],
         required: 'This field is required',

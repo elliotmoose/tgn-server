@@ -72,6 +72,18 @@ exports.ERROR_USER_NOT_FOUND = {
     message: 'User does not exist'
 }
 
+exports.ERROR_CANNOT_FOLLOW_SELF = {
+    status: 403,    
+    code: 'ERROR_CANNOT_FOLLOW_SELF',
+    message: 'You cannot follow yourself'
+}
+
+exports.ERROR_ALREADY_FOLLOWING_USER = {
+    status: 409,    
+    code: 'ERROR_ALREADY_FOLLOWING_USER',
+    message: 'You are already following this user'
+}
+
 exports.ERROR_ALREADY_JOINED_ORG = {
     status: 409,    
     code: 'ERROR_ALREADY_JOINED_ORG',

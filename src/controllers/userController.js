@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { assertRequiredParams, assertParamTypeObjectId } = require('../helpers/apiHelper');
 const { validateUsername, validateEmail, validatePassword, sanitizedUserData } = require('../helpers/userHelper');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_USER_NOT_FOUND } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_USER_NOT_FOUND, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER } = require('../constants/errors');
 const crypto = require('../helpers/crypto');
 const ROLES = require('../constants/roles');
 
@@ -117,6 +117,50 @@ const userController = {
             console.log(error);
             throw error;
         }
+    },
+    async getFollowingUserIds(userId) {
+        assertRequiredParams({userId});
+        assertParamTypeObjectId(userId);
+
+        let user = await User.findOne({_id: userId}).select('following');
+        if(!user)
+        {
+            throw ERROR_USER_NOT_FOUND;
+        }
+
+        let following = user.toJSON().following;
+
+        return following;
+    },
+    async follow(isFollowingUserId, toFollowUserId) {
+        assertRequiredParams({isFollowingUserId,toFollowUserId});
+        assertParamTypeObjectId(isFollowingUserId);
+        assertParamTypeObjectId(toFollowUserId);
+        
+        if(mongoose.Types.ObjectId(isFollowingUserId).equals(toFollowUserId)) {
+            throw ERROR_CANNOT_FOLLOW_SELF;
+        }
+
+        let followingUserExists = await User.exists({_id: isFollowingUserId});
+        let toFollowUserExists = await User.exists({_id: toFollowUserId});
+        
+        if(!followingUserExists || !toFollowUserExists) {
+            throw ERROR_USER_NOT_FOUND;
+        }
+        
+        let alreadyFollowing = await User.exists({_id: toFollowUserId, following: {$eq: isFollowingUserId}});
+        let alreadyFollowedBy = await User.exists({_id: toFollowUserId, followers: {$eq: isFollowingUserId}});
+        
+        if(alreadyFollowedBy || alreadyFollowing)
+        {
+            throw ERROR_ALREADY_FOLLOWING_USER;
+        }
+        
+        let user = await User.findOneAndUpdate({_id: isFollowingUserId}, {$push: {following: toFollowUserId}});
+        let userToFollow = await User.findOneAndUpdate({_id: toFollowUserId}, {$push: {followers: isFollowingUserId}}); 
+        
+        console.log('follow 3');
+        return true;
     }
 }
 

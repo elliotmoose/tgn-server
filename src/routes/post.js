@@ -82,4 +82,32 @@ router.post('/:postId/comment', setAndRequireUser, async (req, res)=>{
     }
 });
 
+/**
+ * loads feed for user provided by token
+ */
+router.post('/feed/', setAndRequireUser, async (req, res)=>{        
+    let userId =  req.user._id;
+
+    try {          
+        //feed should load all posts that this user has access to
+        //1. organisation
+        //2. follows
+        //3. organisation members
+
+        //naive approach:
+        //get all follows
+        //get all organisations
+        //get all organisation members
+        //aggregate into single list of all users
+        //get posts that are by this users
+
+        // let uesrFollows = await userController.getFollowingUserIds(userId);
+
+        // let updatedPost = await postController.commentOnPost(commentData, postId, userId);
+        // respond(res, updatedPost);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
 module.exports = router;

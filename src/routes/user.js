@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
-const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED } = require('../constants/errors');
+const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF } = require('../constants/errors');
 const { setAndRequireUser } = require('../middleware/auth');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
@@ -64,13 +64,34 @@ router.get('/:userIdOrHandle/posts', setAndRequireUser, async (req, res)=>{
         let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
         
         if(!userData) {
-            console.log('no')
             throw ERROR_USER_NOT_FOUND;             
         }            
         
         let posts = await postController.getPostsByUserId(userData._id);
 
         respond(res, posts);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+
+/**
+ * Get user data by id or by handl
+ */
+router.post('/:userIdOrHandle/follow', setAndRequireUser, async (req, res)=>{
+    let toFollowUserIdOrHandle = req.params.userIdOrHandle;    
+    let isFollowingUserId = req.user._id;    
+    
+    try {                            
+        let toFollowUserData = await userController.getUserByIdOrHandle(toFollowUserIdOrHandle);
+        
+        if(!toFollowUserData) {
+            throw ERROR_USER_NOT_FOUND;             
+        }                    
+
+        let success = await userController.follow(isFollowingUserId, toFollowUserData._id);                
+        respond(res, {success});
     } catch (error) {
         respond(res, {}, error);
     }
