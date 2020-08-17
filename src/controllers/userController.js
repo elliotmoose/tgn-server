@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { assertRequiredParams, assertParamTypeObjectId } = require('../helpers/apiHelper');
 const { validateUsername, validateEmail, validatePassword, sanitizedUserData } = require('../helpers/userHelper');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_USER_NOT_FOUND, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_USER_NOT_FOUND, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
 const crypto = require('../helpers/crypto');
 const ROLES = require('../constants/roles');
 
@@ -132,35 +132,66 @@ const userController = {
 
         return following;
     },
-    async follow(isFollowingUserId, toFollowUserId) {
-        assertRequiredParams({isFollowingUserId,toFollowUserId});
-        assertParamTypeObjectId(isFollowingUserId);
+    async follow(followerUserId, toFollowUserId) {
+        assertRequiredParams({isFollowingUserId: followerUserId,toFollowUserId});
+        assertParamTypeObjectId(followerUserId);
         assertParamTypeObjectId(toFollowUserId);
         
-        if(mongoose.Types.ObjectId(isFollowingUserId).equals(toFollowUserId)) {
+        if(mongoose.Types.ObjectId(followerUserId).equals(toFollowUserId)) {
             throw ERROR_CANNOT_FOLLOW_SELF;
         }
 
-        let followingUserExists = await User.exists({_id: isFollowingUserId});
+        let followingUserExists = await User.exists({_id: followerUserId});
         let toFollowUserExists = await User.exists({_id: toFollowUserId});
         
         if(!followingUserExists || !toFollowUserExists) {
             throw ERROR_USER_NOT_FOUND;
         }
         
-        let alreadyFollowing = await User.exists({_id: toFollowUserId, following: {$eq: isFollowingUserId}});
-        let alreadyFollowedBy = await User.exists({_id: toFollowUserId, followers: {$eq: isFollowingUserId}});
+        // let alreadyFollowing = await User.exists({_id: toFollowUserId, following: {$eq: isFollowingUserId}});
+        // let alreadyFollowedBy = await User.exists({_id: toFollowUserId, followers: {$eq: isFollowingUserId}});
+        let alreadyFollowing = await this.isFollowing(followerUserId, toFollowUserId);
         
-        if(alreadyFollowedBy || alreadyFollowing)
+        if(alreadyFollowing)
         {
             throw ERROR_ALREADY_FOLLOWING_USER;
         }
         
-        let user = await User.findOneAndUpdate({_id: isFollowingUserId}, {$push: {following: toFollowUserId}});
-        let userToFollow = await User.findOneAndUpdate({_id: toFollowUserId}, {$push: {followers: isFollowingUserId}}); 
+        await User.findOneAndUpdate({_id: followerUserId}, {$push: {following: toFollowUserId}});
+        await User.findOneAndUpdate({_id: toFollowUserId}, {$push: {followers: followerUserId}});         
+        // return sanitizedUserData(userToFollow.toJSON());
+    },
+    async unfollow(followerUserId, toFollowUserId) {
+        assertRequiredParams({isFollowingUserId: followerUserId,toFollowUserId});
+        assertParamTypeObjectId(followerUserId);
+        assertParamTypeObjectId(toFollowUserId);
         
-        console.log('follow 3');
-        return true;
+        if(mongoose.Types.ObjectId(followerUserId).equals(toFollowUserId)) {
+            throw ERROR_CANNOT_FOLLOW_SELF;
+        }
+
+        let followingUserExists = await User.exists({_id: followerUserId});
+        let toFollowUserExists = await User.exists({_id: toFollowUserId});
+        
+        if(!followingUserExists || !toFollowUserExists) {
+            throw ERROR_USER_NOT_FOUND;
+        }
+        
+        let alreadyFollowing = await this.isFollowing(followerUserId, toFollowUserId);
+        
+        if(!alreadyFollowing)
+        {
+            throw ERROR_NOT_FOLLOWING_USER; 
+        }
+        
+        let user = await User.findOneAndUpdate({_id: followerUserId}, {$pull: {following: toFollowUserId}});
+        let userToFollow = await User.findOneAndUpdate({_id: toFollowUserId}, {$pull: {followers: followerUserId}}); 
+    },
+    async isFollowing(userId, targetUserId)
+    {
+        let isFollowing = await User.exists({_id: userId, following: {$eq: targetUserId}});
+        let isFollowedBy = await User.exists({_id: targetUserId, followers: {$eq: userId}});
+        return isFollowing && isFollowedBy;
     }
 }
 

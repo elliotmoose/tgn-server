@@ -78,10 +78,22 @@ exports.ERROR_CANNOT_FOLLOW_SELF = {
     message: 'You cannot follow yourself'
 }
 
+exports.ERROR_CANNOT_UNFOLLOW_SELF = {
+    status: 403,    
+    code: 'ERROR_CANNOT_UNFOLLOW_SELF',
+    message: 'You cannot unfollow yourself'
+}
+
 exports.ERROR_ALREADY_FOLLOWING_USER = {
     status: 409,    
     code: 'ERROR_ALREADY_FOLLOWING_USER',
     message: 'You are already following this user'
+}
+
+exports.ERROR_NOT_FOLLOWING_USER = {
+    status: 403,    
+    code: 'ERROR_NOT_FOLLOWING_USER',
+    message: 'You are not following this user'
 }
 
 exports.ERROR_ALREADY_JOINED_ORG = {

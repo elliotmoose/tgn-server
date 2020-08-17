@@ -1,22 +1,29 @@
-let organisationData = {
+exports.organisationData = {
 	handle: "organisationA",
 	name: "Organisation A",
 	contact: "64001234",
 }
 
-let userCredentials = {
+exports.userCredentials = {
 	username: "mooselliot",
 	fullName: "Elliot Koh",
 	email: "kyzelliot@gmail.com",
 	password: "12345"
 }
 
-let postTemplateData = {
+exports.secondUserCredentials = {
+	username: "llpofwy",
+	fullName: "Tan Wanyi",
+	email: "llpofwy@gmail.com",
+	password: "12345"
+}
+
+exports.postTemplateData = {
 	content: "Hi everyone!! Nice to finally catch up with all of you. "
 }
 
-let commentTemplateData = {
+exports.commentTemplateData = {
 	content: "Hey I'm just here to comment"
 }
 
-module.exports = {organisationData, userCredentials, postTemplateData, commentTemplateData};
+// module.exports = {organisationData, userCredentials, postTemplateData, commentTemplateData};

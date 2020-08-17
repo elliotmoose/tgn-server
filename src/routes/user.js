@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
-const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF } = require('../constants/errors');
+const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_CANNOT_UNFOLLOW_SELF, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
 const { setAndRequireUser } = require('../middleware/auth');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
@@ -90,8 +90,63 @@ router.post('/:userIdOrHandle/follow', setAndRequireUser, async (req, res)=>{
             throw ERROR_USER_NOT_FOUND;             
         }                    
 
-        let success = await userController.follow(isFollowingUserId, toFollowUserData._id);                
-        respond(res, {success});
+        await userController.follow(isFollowingUserId, toFollowUserData._id);                
+        respond(res, {});
+    } catch (error) {
+        if(error == ERROR_ALREADY_FOLLOWING_USER)
+        {
+            respond(res, error);
+            return;
+        }
+        respond(res, {}, error);
+    }
+});
+
+/**
+ * Get user data by id or by handl
+ */
+router.post('/:userIdOrHandle/unfollow', setAndRequireUser, async (req, res)=>{
+    let toFollowUserIdOrHandle = req.params.userIdOrHandle;    
+    let isFollowingUserId = req.user._id;    
+    
+    try {                            
+        let toFollowUserData = await userController.getUserByIdOrHandle(toFollowUserIdOrHandle);
+        
+        if(!toFollowUserData) {
+            throw ERROR_USER_NOT_FOUND;             
+        }                    
+
+        await userController.unfollow(isFollowingUserId, toFollowUserData._id);                
+        respond(res, {});
+    } catch (error) {
+        switch (error) {
+            case ERROR_CANNOT_UNFOLLOW_SELF:
+            case ERROR_NOT_FOLLOWING_USER:
+                respond(res, error);
+                break;        
+            default:
+                respond(res, {}, error);
+                break;
+        }
+    }
+});
+
+/**
+ * Get user data by id or by handl
+ */
+router.get('/:userIdOrHandle/isFollowing', setAndRequireUser, async (req, res)=>{
+    let toFollowUserIdOrHandle = req.params.userIdOrHandle;    
+    let followerUserId = req.user._id;    
+    
+    try {                            
+        let toFollowUserData = await userController.getUserByIdOrHandle(toFollowUserIdOrHandle);
+        
+        if(!toFollowUserData) {
+            throw ERROR_USER_NOT_FOUND;             
+        }                    
+
+        let isFollowing = await userController.isFollowing(followerUserId, toFollowUserData._id);                
+        respond(res, isFollowing);
     } catch (error) {
         respond(res, {}, error);
     }

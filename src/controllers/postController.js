@@ -9,6 +9,8 @@ const User = mongoose.model('user');
 const Organisation = mongoose.model('organisation');
 const Post = mongoose.model('post');
 
+const reactionCountKeyPrefixes = ['love', 'like', 'pray', 'praise'];
+
 const postController = {
     /**
      * 
@@ -33,19 +35,42 @@ const postController = {
         assertRequiredParams({postId});
         assertParamTypeObjectId(postId);
         let post = await Post.findOne({_id: postId});
-    
-        return post.toJSON();
+
+        //most reacted
+        let postData = post.toJSON();
+        
+        let maxReactionType = null;
+        let maxReactionCount = 0;
+        let totalReactionCount = 0;
+
+
+        for(let reaction of reactionCountKeyPrefixes)
+        {
+            let key = reaction + 'ReactionCount';
+            let reactionCount = postData[key];
+            totalReactionCount += reactionCount;
+            
+            if(reactionCount > maxReactionCount &&  reactionCount != 0)
+            {
+                maxReactionCount = reactionCount;
+                maxReactionType = reaction;
+            }
+        }
+        
+        postData.maxReactionType = maxReactionType;
+        postData.reactionCount = totalReactionCount;
+
+        return postData;
     },
     reactionCounterKeyFromType(reactionType) {
-        let counterKeyPrefixes = ['love', 'like', 'pray', 'praise'];
-        let prefixIndex = counterKeyPrefixes.indexOf(reactionType.toLowerCase());
+        let prefixIndex = reactionCountKeyPrefixes.indexOf(reactionType.toLowerCase());
         
         if(prefixIndex == -1)
         {
             throw ERROR_INVALID_PARAM('Reaction Type');
         }
 
-        return counterKeyPrefixes[prefixIndex] + 'ReactionCount';
+        return reactionCountKeyPrefixes[prefixIndex] + 'ReactionCount';
     },
     async reactToPost (reactionType, postId, userId) {
         assertRequiredParams({reaction: reactionType, postId, userId});

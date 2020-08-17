@@ -66,7 +66,7 @@ describe('Posts', function () {
 			let res = await chai.request(server).get(`/user/${userCredentials.username}/posts`).set('authorization', `Bearer ${token}`).send();
 			res.body.data.should.have.lengthOf.at.least(1);
 			res.body.data[0].should.be.like(postTemplateData);
-		});
+		});		
 	});
 	
 	describe('Interacting with Posts', function () {			
@@ -96,6 +96,11 @@ describe('Posts', function () {
 			getPostRes.should.have.status(200);
 			getPostRes.body.data.should.have.property('likeReactionCount').eql(1);
 		});
+		it('should get reaction count', async () => {			
+			let res = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);
+			res.body.data.reactionCount.should.be.eql(2);			
+		});
 		it('should un-react', async () => {			
 			let res = await chai.request(server).post(`/post/${postData._id}/unreact`).set('authorization', `Bearer ${token}`).send({reactionType: 'LIKE'});
 			res.should.have.status(200);
@@ -104,6 +109,11 @@ describe('Posts', function () {
 			let getPostRes = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
 			getPostRes.should.have.status(200);
 			getPostRes.body.data.should.have.property('likeReactionCount').eql(0);
+		});
+		it('should get most common reaction', async () => {			
+			let res = await chai.request(server).get(`/post/${postData._id}`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);
+			res.body.data.maxReactionType.should.be.eql('love');			
 		});
 		it('should comment on post', async () => {			
 			throw 'to implement';
