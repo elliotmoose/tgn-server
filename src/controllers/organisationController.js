@@ -55,7 +55,7 @@ const organisationController = {
 
         let newOrg = new Organisation({handle, name, address, contact, description, website});
         let newOrgDoc = await newOrg.save();
-        return newOrgDoc;
+        return newOrgDoc.toJSON();
     },
     async getOrgMembers (orgIdOrHandle) {
         assertRequiredParams(orgIdOrHandle);        

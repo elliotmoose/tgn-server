@@ -1,4 +1,4 @@
-exports.organisationData = {
+exports.organisationTemplateData = {
 	handle: "organisationA",
 	name: "Organisation A",
 	contact: "64001234",
@@ -19,11 +19,12 @@ exports.secondUserCredentials = {
 }
 
 exports.postTemplateData = {
-	content: "Hi everyone!! Nice to finally catch up with all of you. "
+	content: "Hi everyone!! Nice to finally catch up with all of you. ",
+	postType: 'Testimony'
 }
 
 exports.commentTemplateData = {
-	content: "Hey I'm just here to comment"
+	content: "Hey I'm just here to comment",
 }
 
 // module.exports = {organisationData, userCredentials, postTemplateData, commentTemplateData};

@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let server = require('../server');
 let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
-const { organisationData, userCredentials, secondUserCredentials } = require('./templateData');
+const { organisationTemplateData, userCredentials, secondUserCredentials } = require('./templateData');
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
 
@@ -18,7 +18,7 @@ describe('Users', function () {
 		Organisation.deleteMany({}, ()=>{});      
 		User.deleteMany({}, ()=>{});      
 		
-		let createOrgRes = await chai.request(server).post('/organisation/create').send(organisationData);
+		let createOrgRes = await chai.request(server).post('/organisation/create').send(organisationTemplateData);
 		createOrgRes.should.have.status(200);
 
 
@@ -61,7 +61,7 @@ describe('Users', function () {
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
 		});
 		it('should not overlap organisation handle', async () => {
-			let res = await chai.request(server).post('/user/create').send({...userCredentials, username: organisationData.handle});
+			let res = await chai.request(server).post('/user/create').send({...userCredentials, username: organisationTemplateData.handle});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
 		});
@@ -132,7 +132,7 @@ describe('Users', function () {
 			res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});
 		});
 		it('should only allow friends to get user data', async () => {
-			throw 'to implement'
+			throw new Error('to implement');
 		});
 	});
 	
@@ -156,7 +156,7 @@ describe('Users', function () {
 			res.body.should.have.property('data').eql(ERROR_ALREADY_FOLLOWING_USER);
 		});
 		it('should get followers and following', async () => {
-			throw 'to implement'
+			throw new Error('to implement');
 			// let res = await chai.request(server).get(`/user/${userCredentials.username}`).set('authorization', `Bearer ${token}`).send();
 			// res.should.have.status(200);
 			// res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});

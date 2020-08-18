@@ -4,9 +4,14 @@ const mongoose = require('mongoose');
  * @class Post
  */
 let postSchema = new mongoose.Schema({
-    userId: {
+    user: {
         type: mongoose.Types.ObjectId,
+        ref: 'user',
         required: 'This field is required',
+    },
+    postType : {
+        type: String,
+        required: 'This field is required'
     },
     content : {
         type: String,
@@ -55,8 +60,9 @@ let postSchema = new mongoose.Schema({
         }],
         default: []
     },
-    organisationId: {
+    target: {
         type: mongoose.Types.ObjectId,
+        ref: 'organisation',
         default: null
     },
     datePosted: { 

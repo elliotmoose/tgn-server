@@ -14,17 +14,20 @@ const reactionCountKeyPrefixes = ['love', 'like', 'pray', 'praise'];
 const postController = {
     /**
      * 
-     * @param {{content}} postData 
+     * @param {{content, postType, target}} postData 
      * @param {*} userId 
-     * @param {*} targets 
      */
-    async makePost (postData, userId, targets) {
-        let {content} = postData;
+    async makePost (postData, userId) {
+        let {content, postType, target} = postData;
 
-        assertRequiredParams({content, userId});
+        assertRequiredParams({content, postType, userId});
+        if(target)
+        {
+            assertParamTypeObjectId(target);
+        }
 
         let newPost = new Post({
-            userId, content,     
+            user: userId, content, postType, target     
         });
 
         let newPostDoc = await newPost.save();
@@ -34,7 +37,9 @@ const postController = {
     async getPost (postId) {
         assertRequiredParams({postId});
         assertParamTypeObjectId(postId);
-        let post = await Post.findOne({_id: postId});
+        let post = await Post.findOne({_id: postId})
+        .populate({path: 'user', select: 'username'})
+        .populate({path: 'target', select: 'name handle'});
 
         //most reacted
         let postData = post.toJSON();
@@ -42,7 +47,6 @@ const postController = {
         let maxReactionType = null;
         let maxReactionCount = 0;
         let totalReactionCount = 0;
-
 
         for(let reaction of reactionCountKeyPrefixes)
         {
@@ -155,7 +159,7 @@ const postController = {
     },
     async getPostsByUserId (userId) {        
         assertRequiredParams({userId});
-        let posts = await Post.find({userId}).select('-comments -reactions');
+        let posts = await Post.find({user: userId}).select('-comments -reactions');
         
         if(!posts)
         {
@@ -165,7 +169,7 @@ const postController = {
     },
     async getFeed(userIds) {
         //get posts that are posted by the users
-        let posts = await Post.find({userId: {$in: userIds}}).sort({'date': -1}).limit(20).select('_id');
+        let posts = await Post.find({user: {$in: userIds}}).sort({'date': -1}).limit(20).select('_id');
 
         //TODO: needs to filter out posts useer does not have access to
 

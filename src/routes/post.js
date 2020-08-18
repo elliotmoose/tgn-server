@@ -10,10 +10,10 @@ const postController = require('../controllers/postController');
 
 router.post('/', setAndRequireUser, async (req, res)=>{    
     let userId =  req.user._id;
-    let postData = req.body;
+    let {content, postType, target} = req.body;
 
     try {          
-        let newPost = await postController.makePost(postData, userId, []);
+        let newPost = await postController.makePost({content, postType, target}, userId);
         respond(res, newPost);
     } catch (error) {
         respond(res, {}, error);
