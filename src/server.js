@@ -19,16 +19,15 @@ require('./models/db');
 const userRouter = require('./routes/user');
 const organisationRouter = require('./routes/organisation');
 const postRouter = require('./routes/post');
+const feedRouter = require('./routes/feed');
 
+const v1 = express.Router();
+v1.use('/user', userRouter);
+v1.use('/organisation', organisationRouter);
+v1.use('/post', postRouter);
+v1.use('/feed', feedRouter);
 
-app.get('/test', (req,res) => {
-    res.status(200);
-    res.send("hello");
-});
-
-app.use('/user', userRouter);
-app.use('/organisation', organisationRouter);
-app.use('/post', postRouter);
+app.use('/', v1);
 
 app.listen(config.PORT, ()=>console.log(`========server started on port: ${config.PORT} env: ${process.env.NODE_ENV}========`));
 

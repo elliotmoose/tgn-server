@@ -165,10 +165,11 @@ const postController = {
     },
     async getFeed(userIds) {
         //get posts that are posted by the users
-        let posts = await Post.find({userId: {$in: userIds}}).sort({'date': -1}).limit(20);
+        let posts = await Post.find({userId: {$in: userIds}}).sort({'date': -1}).limit(20).select('_id');
 
         //TODO: needs to filter out posts useer does not have access to
-        return posts;
+
+        return posts.map(post => post._id);
     }
 }
 

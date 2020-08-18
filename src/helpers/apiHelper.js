@@ -43,7 +43,8 @@ const helpers = {
     assertParamTypeObjectId(param) {
         if(!mongoose.Types.ObjectId.isValid(param))
         {
-            throw ERROR_INVALID_PARAM('ObjectId');
+            console.log(`Invalid object id: ${param}`);
+            throw ERROR_INVALID_PARAM(`ObjectId`);
         }
     }
 }
