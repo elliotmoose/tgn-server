@@ -1,3 +1,7 @@
+@userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+@username = mooselliot
+@organisationHandle = organisationA
+
 POST http://localhost:8080/user/create
 Content-Type: application/json
 
@@ -18,9 +22,9 @@ Content-Type: application/json
 }
 
 ### GET user profile
-GET http://localhost:8080/user/mooselliot
+GET http://localhost:8080/user/{{username}}
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+Authorization: Bearer {{userToken}}
 
 ###
 # Create Organisation
@@ -36,25 +40,25 @@ Content-Type: application/json
 
 ###
 # Join Organisation
-POST http://localhost:8080/organisation/organisationA/userJoin
+POST http://localhost:8080/organisation/{{organisationHandle}}/userJoin
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+Authorization: Bearer {{userToken}}
 
 ###
 # Leave Organisation
-POST http://localhost:8080/organisation/organisationA/userLeave
+POST http://localhost:8080/organisation/{{organisationHandle}}/userLeave
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+Authorization: Bearer {{userToken}}
 
 ###
 # Get Organisation Members
-GET http://localhost:8080/organisation/organisationA/members
+GET http://localhost:8080/organisation/{{organisationHandle}}/members
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+Authorization: Bearer {{userToken}}
 
 ### follow user
-POST http://localhost:8080/user/mooselliot/follow
+POST http://localhost:8080/user/{{username}}/follow
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
+Authorization: Bearer {{userToken}}
 
 

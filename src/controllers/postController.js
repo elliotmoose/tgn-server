@@ -182,7 +182,7 @@ const postController = {
         //get posts that are posted by the users
         let PAGE_SIZE = parseInt(pageSize) || 10;
         let DATE_BEFORE = dateBefore || Date.now();
-
+        
         let posts = await Post.find({user: {$in: userIds}, datePosted: {$lt : DATE_BEFORE}})
         .sort('-datePosted')        
         .limit(PAGE_SIZE)
@@ -190,9 +190,8 @@ const postController = {
         .populate({path: 'target', select: 'name handle'})
         // .populate({path: 'reactions.user', select: 'username'})
         .select('-reactions -comments')
-
+        
         //TODO: needs to filter out posts useer does not have access to
-
         return posts.map(post => post.toJSON());
     }
 }
