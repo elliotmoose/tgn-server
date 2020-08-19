@@ -13,7 +13,7 @@ const postController = require('../controllers/postController');
  */
 router.get('/', setAndRequireUser, async (req, res)=>{        
     let userId =  req.user._id;
-    let pageIndex = req.query.page;
+    let dateBefore = req.query.before; //gets posts that were before this date
     let pageSize = req.query.limit;
 
     try {          
@@ -30,7 +30,7 @@ router.get('/', setAndRequireUser, async (req, res)=>{
         //get posts that are by this users
 
         let userFollows = await userController.getFollowingUserIds(userId);
-        let posts = await postController.getFeed(userFollows, pageIndex, pageSize);
+        let posts = await postController.getFeed(userFollows, dateBefore, pageSize);
         respond(res, posts);
     } catch (error) {
         respond(res, {}, error);

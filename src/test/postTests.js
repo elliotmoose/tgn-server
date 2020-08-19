@@ -109,7 +109,7 @@ describe('Posts', function () {
 	});
 	
 	describe('Feed', function() {
-		it('should get feed with pagination', async () => {
+		it('should get feed with date pagination', async () => {
 			
 			//second user
 			let createUserRes = await chai.request(server).post('/user/create').send(secondUserCredentials);
@@ -123,18 +123,27 @@ describe('Posts', function () {
 			//follow
 			let followRes = await chai.request(server).post(`/user/${secondUserCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
 
+			let checkPoint = 3;
 			//make posts	
 			for(let i=0;i<5;i++)
 			{
-				await chai.request(server).post(`/post`).set('authorization', `Bearer ${secondUserToken}`).send({...postTemplateData, content: `POST ${i}`});
+				let postData = await chai.request(server).post(`/post`).set('authorization', `Bearer ${secondUserToken}`).send({...postTemplateData, content: `POST ${i}`});				
 			}
 
-			for(let i=0;i<5;i++)
-			{
-				let res = await chai.request(server).get(`/feed?page=${i}&limit=1`).set('authorization', `Bearer ${token}`).send();
-				res.should.have.status(200);
-				res.body.data[0].content.should.eql(`POST ${4-i}`);
-			}
+			let res = await chai.request(server).get(`/feed?limit=3`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);
+			res.body.data.should.have.lengthOf(3);
+			res.body.data[0].content.should.eql('POST 4');
+			res.body.data[1].content.should.eql('POST 3');
+			res.body.data[2].content.should.eql('POST 2');
+			
+			let lastPostDate = res.body.data[2].datePosted;
+			
+			let loadMoreRes = await chai.request(server).get(`/feed?limit=3&before=${lastPostDate}`).set('authorization', `Bearer ${token}`).send();
+			loadMoreRes.should.have.status(200);
+			loadMoreRes.body.data.should.have.lengthOf(2);
+			loadMoreRes.body.data[0].content.should.eql('POST 1');
+			loadMoreRes.body.data[1].content.should.eql('POST 0');
 		});
 	})
 	

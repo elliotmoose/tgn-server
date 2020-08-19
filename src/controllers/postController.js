@@ -173,22 +173,16 @@ const postController = {
         }
         return posts;
     },
-    async getFeed(userIds, pageIndex, pageSize) {
+    async getFeed(userIds, dateBefore, pageSize) {
         //get posts that are posted by the users
         let PAGE_SIZE = parseInt(pageSize) || 10;
-        let PAGE_INDEX = parseInt(pageIndex) || 0;
+        let DATE_BEFORE = dateBefore || Date.now();
 
-
-        // console.log(PAGE_INDEX * PAGE_SIZE);
-        let posts = await Post.find({user: {$in: userIds}})
+        let posts = await Post.find({user: {$in: userIds}, datePosted: {$lt : DATE_BEFORE}})
         .sort('-datePosted')        
-        .skip(PAGE_INDEX * PAGE_SIZE)
         .limit(PAGE_SIZE)
         .populate({path: 'user', select: 'username'})
         .populate({path: 'target', select: 'name handle'})
-        
-        
-        // console.log(PAGE_INDEX * PAGE_SIZE);
         // .populate({path: 'reactions.user', select: 'username'})
         .select('-reactions -comments')
 
