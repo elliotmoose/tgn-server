@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:watch": "nodemon --exec \"mocha src/test/index.js\"",
+    "test:min": "nodemon --exec \"mocha min src/test/index.js\"",
     "dev": "NODE_ENV=DEV nodemon src/server.js",
     "prod": "NODE_ENV=PROD nodemon src/server.js"
   },

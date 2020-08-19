@@ -22,13 +22,17 @@ let postSchema = new mongoose.Schema({
         required: 'This field is required',
         default: false 
     },
+    commentCount: {
+        type: Number,
+        default: 0
+    },
     comments: {
         type: [{
             userId: mongoose.Types.ObjectId,
             content: String,
             date: {
                 type: Date, 
-                default: Date.now()
+                default: ()=>Date.now()
             },
         }],
         default: []
@@ -51,11 +55,14 @@ let postSchema = new mongoose.Schema({
     },
     reactions: {
         type: [{
-            userId: mongoose.Types.ObjectId,
+            user: {
+                type: mongoose.Types.ObjectId,
+                ref: 'user'
+            },
             reactionType: String,
             date: {
                 type: Date, 
-                default: Date.now()
+                default: ()=>Date.now()
             },
         }],
         default: []
@@ -67,7 +74,7 @@ let postSchema = new mongoose.Schema({
     },
     datePosted: { 
         type: Date, 
-        default: Date.now()
+        default: ()=>Date.now()
     }, 
 });
 

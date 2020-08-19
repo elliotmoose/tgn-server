@@ -72,10 +72,10 @@ router.post('/:postId/unreact', setAndRequireUser, async (req, res)=>{
 router.post('/:postId/comment', setAndRequireUser, async (req, res)=>{    
     let userId =  req.user._id;
     let postId =  req.params.postId;
-    let commentData = req.body;
+    let {comment} = req.body;
 
     try {          
-        let updatedPost = await postController.commentOnPost(commentData, postId, userId);
+        let updatedPost = await postController.commentOnPost(comment, postId, userId);
         respond(res, updatedPost);
     } catch (error) {
         respond(res, {}, error);

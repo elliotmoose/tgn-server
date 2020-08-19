@@ -9,7 +9,7 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkN
 }
 
 ### Get post
-GET http://localhost:8080/post/5f3bed203c2b6944c76864e5
+GET http://localhost:8080/post/5f36419471ff754d4cf1936f
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
 
@@ -37,7 +37,7 @@ Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
 
 ### Get user feed
-GET http://localhost:8080/feed
+GET http://localhost:8080/feed?page=4
 Content-Type: application/json
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
 

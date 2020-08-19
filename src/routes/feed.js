@@ -13,6 +13,8 @@ const postController = require('../controllers/postController');
  */
 router.get('/', setAndRequireUser, async (req, res)=>{        
     let userId =  req.user._id;
+    let pageIndex = req.query.page;
+    let pageSize = req.query.limit;
 
     try {          
         //feed should load all posts that this user has access to
@@ -28,7 +30,7 @@ router.get('/', setAndRequireUser, async (req, res)=>{
         //get posts that are by this users
 
         let userFollows = await userController.getFollowingUserIds(userId);
-        let posts = await postController.getFeed(userFollows);
+        let posts = await postController.getFeed(userFollows, pageIndex, pageSize);
         respond(res, posts);
     } catch (error) {
         respond(res, {}, error);

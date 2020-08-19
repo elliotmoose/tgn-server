@@ -27,7 +27,7 @@ const postController = {
         }
 
         let newPost = new Post({
-            user: userId, content, postType, target     
+            user: userId, content, postType, target, 
         });
 
         let newPostDoc = await newPost.save();
@@ -39,7 +39,8 @@ const postController = {
         assertParamTypeObjectId(postId);
         let post = await Post.findOne({_id: postId})
         .populate({path: 'user', select: 'username'})
-        .populate({path: 'target', select: 'name handle'});
+        .populate({path: 'target', select: 'name handle'})
+        .select('-reactions -comments');
 
         //most reacted
         let postData = post.toJSON();
@@ -80,12 +81,12 @@ const postController = {
         assertRequiredParams({reaction: reactionType, postId, userId});
 
         let reactionData = {
-            userId, 
+            user: userId, 
             reactionType
         };
 
         //should not react the same type twice, but can react other types
-        let existingReactionPost = await Post.findOne({'reactions.userId': userId, 'reactions.reactionType': reactionType})
+        let existingReactionPost = await Post.findOne({'reactions.user': userId, 'reactions.reactionType': reactionType})
         if(existingReactionPost)
         {
             throw ERROR_REACTION_EXISTS;
@@ -117,11 +118,11 @@ const postController = {
         assertRequiredParams({reaction: reactionType, postId, userId});
 
         let reactionData = {
-            userId, 
+            user: userId, 
             reactionType
         };
 
-        let existingReaction = await Post.findOne({'reactions.userId': userId, 'reactions.reactionType': reactionType})
+        let existingReaction = await Post.findOne({'reactions.user': userId, 'reactions.reactionType': reactionType})
         if(!existingReaction)
         {
             throw ERROR_REACTION_NOT_FOUND;
@@ -151,9 +152,14 @@ const postController = {
             content: comment
         };
 
-        let updatedPostDoc = await Post.findOneAndUpdate({postId}, {$push: {
-            comments: commentData
-        }}, {new: true});
+        let updatedPostDoc = await Post.findOneAndUpdate({postId}, {
+            $inc: {
+                commentCount: 1
+            },
+            $push: {
+                comments: commentData
+            }
+        }, {new: true});
         
         return updatedPostDoc.toJSON();
     },
@@ -167,13 +173,28 @@ const postController = {
         }
         return posts;
     },
-    async getFeed(userIds) {
+    async getFeed(userIds, pageIndex, pageSize) {
         //get posts that are posted by the users
-        let posts = await Post.find({user: {$in: userIds}}).sort({'date': -1}).limit(20).select('_id');
+        let PAGE_SIZE = parseInt(pageSize) || 10;
+        let PAGE_INDEX = parseInt(pageIndex) || 0;
+
+
+        // console.log(PAGE_INDEX * PAGE_SIZE);
+        let posts = await Post.find({user: {$in: userIds}})
+        .sort('-datePosted')        
+        .skip(PAGE_INDEX * PAGE_SIZE)
+        .limit(PAGE_SIZE)
+        .populate({path: 'user', select: 'username'})
+        .populate({path: 'target', select: 'name handle'})
+        
+        
+        // console.log(PAGE_INDEX * PAGE_SIZE);
+        // .populate({path: 'reactions.user', select: 'username'})
+        .select('-reactions -comments')
 
         //TODO: needs to filter out posts useer does not have access to
 
-        return posts.map(post => post._id);
+        return posts.map(post => post.toJSON());
     }
 }
 

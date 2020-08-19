@@ -6,7 +6,7 @@ let chaiLike = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
-const { organisationTemplateData, userCredentials, postTemplateData, commentTemplateData } = require('./templateData');
+const { organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials } = require('./templateData');
 
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
@@ -105,8 +105,38 @@ describe('Posts', function () {
 			let res = await chai.request(server).get(`/user/${userCredentials.username}/posts`).set('authorization', `Bearer ${token}`).send();
 			res.body.data.should.have.lengthOf.at.least(2);
 			res.body.data[0].should.be.like(postTemplateData);
-		});		
+		});				
 	});
+	
+	describe('Feed', function() {
+		it('should get feed with pagination', async () => {
+			
+			//second user
+			let createUserRes = await chai.request(server).post('/user/create').send(secondUserCredentials);
+			createUserRes.should.have.status(200);
+	
+			let loginRes = await chai.request(server).post('/user/login').send({username: secondUserCredentials.username, password: secondUserCredentials.password});
+			loginRes.should.have.status(200);
+
+			let secondUserToken = loginRes.body.data.token;
+
+			//follow
+			let followRes = await chai.request(server).post(`/user/${secondUserCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
+
+			//make posts	
+			for(let i=0;i<5;i++)
+			{
+				await chai.request(server).post(`/post`).set('authorization', `Bearer ${secondUserToken}`).send({...postTemplateData, content: `POST ${i}`});
+			}
+
+			for(let i=0;i<5;i++)
+			{
+				let res = await chai.request(server).get(`/feed?page=${i}&limit=1`).set('authorization', `Bearer ${token}`).send();
+				res.should.have.status(200);
+				res.body.data[0].content.should.eql(`POST ${4-i}`);
+			}
+		});
+	})
 	
 	describe('Interacting with Posts', function () {			
 		it('should react to post', async () => {			
