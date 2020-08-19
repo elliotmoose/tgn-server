@@ -19,21 +19,28 @@ const userController = {
 
         return false;
     },
-    async getUserByIdOrHandle (userIdOrHandle) {
+    async getUserByIdOrHandle (userIdOrHandle, populateFollows=false) {
         assertRequiredParams({userIdOrHandle});
             
-        let userDoc = null;
+        let query = null;
         if (mongoose.Types.ObjectId.isValid(userIdOrHandle))
-        {
-            userDoc = await User.findOne({$or: [
+        {            
+            query = User.findOne({$or: [
                 { username: userIdOrHandle },
                 { _id: userIdOrHandle }
             ]});
         }
         else 
         {
-            userDoc = await User.findOne({ username: userIdOrHandle });
+            query = User.findOne({ username: userIdOrHandle });
         }
+
+        let userDoc = populateFollows ? 
+        await query 
+        : 
+        await query
+        .populate({path: 'following', select: 'username'})
+        .populate({path: 'followers', select: 'username'});
         
         if(!userDoc)
         {

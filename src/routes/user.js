@@ -131,6 +131,40 @@ router.post('/:userIdOrHandle/unfollow', setAndRequireUser, async (req, res)=>{
     }
 });
 
+router.get('/:userIdOrHandle/followers', setAndRequireUser, async (req, res)=>{
+    let toFollowUserIdOrHandle = req.params.userIdOrHandle;    
+    let followerUserId = req.user._id;    
+    
+    try {                            
+        let userData = await userController.getUserByIdOrHandle(toFollowUserIdOrHandle, true);
+        
+        if(!userData) {
+            throw ERROR_USER_NOT_FOUND;             
+        }                    
+        
+        respond(res, userData.followers);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+router.get('/:userIdOrHandle/following', setAndRequireUser, async (req, res)=>{
+    let toFollowUserIdOrHandle = req.params.userIdOrHandle;    
+    let followerUserId = req.user._id;    
+    
+    try {                            
+        let userData = await userController.getUserByIdOrHandle(toFollowUserIdOrHandle, true);
+        
+        if(!userData) {
+            throw ERROR_USER_NOT_FOUND;             
+        }                    
+        
+        respond(res, userData.following);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
 /**
  * Get user data by id or by handl
  */

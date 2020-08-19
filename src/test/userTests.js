@@ -6,6 +6,7 @@ let server = require('../server');
 let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
 const { organisationTemplateData, userCredentials, secondUserCredentials } = require('./templateData');
+const { follow } = require('../controllers/userController');
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
 
@@ -31,6 +32,7 @@ describe('Users', function () {
 
 	let token = null;
 	let userData = null;
+	let secondUserData = null;
 
 	describe('Valid signup', function () {			
 		it('should reject invalid username ', async () => {			
@@ -53,7 +55,8 @@ describe('Users', function () {
 			res.body.data.should.not.have.property('passwordSalt');
 			
 			//create second user
-			await chai.request(server).post('/user/create').send(secondUserCredentials);
+			let createUserRes = await chai.request(server).post('/user/create').send(secondUserCredentials);
+			secondUserData = createUserRes.body.data;
 		});
 		it('should not allow duplicate username', async () => {
 			let res = await chai.request(server).post('/user/create').send({...userCredentials, email: 'abcedf@gmail.com'});
@@ -155,11 +158,14 @@ describe('Users', function () {
 			res.should.have.status(200);
 			res.body.should.have.property('data').eql(ERROR_ALREADY_FOLLOWING_USER);
 		});
-		it('should get followers and following', async () => {
-			throw new Error('to implement');
-			// let res = await chai.request(server).get(`/user/${userCredentials.username}`).set('authorization', `Bearer ${token}`).send();
-			// res.should.have.status(200);
-			// res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});
+		it('should get followers and following', async () => {			
+			let followingRes = await chai.request(server).get(`/user/${userCredentials.username}/following`).set('authorization', `Bearer ${token}`).send();
+			followingRes.should.have.status(200);
+			followingRes.body.data[0].should.eql(secondUserData._id);
+			
+			let followersRes = await chai.request(server).get(`/user/${secondUserCredentials.username}/followers`).set('authorization', `Bearer ${token}`).send();
+			followersRes.should.have.status(200);
+			followersRes.body.data[0].should.eql(userData._id);
 		});
 		it('should not allow to follow ownself', async () => {
 			let res = await chai.request(server).post(`/user/${userCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
