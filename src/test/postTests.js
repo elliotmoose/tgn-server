@@ -139,11 +139,17 @@ describe('Posts', function () {
 			
 			let lastPostDate = res.body.data[2].datePosted;
 			
+			//check with mongoose given date format
 			let loadMoreRes = await chai.request(server).get(`/feed?limit=3&before=${lastPostDate}`).set('authorization', `Bearer ${token}`).send();
 			loadMoreRes.should.have.status(200);
 			loadMoreRes.body.data.should.have.lengthOf(2);
 			loadMoreRes.body.data[0].content.should.eql('POST 1');
 			loadMoreRes.body.data[1].content.should.eql('POST 0');
+			
+			//check with epoch dates
+			let epochDateRes = await chai.request(server).get(`/feed?limit=5&before=${Date.now()}`).set('authorization', `Bearer ${token}`).send();
+			epochDateRes.should.have.status(200);
+			epochDateRes.body.data.should.have.lengthOf(5);			
 		});
 	})
 	
