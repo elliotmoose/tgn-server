@@ -2,7 +2,7 @@
 @username = mooselliot
 @userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
 #Make post
-POST http://localhost:8080/post
+POST http://localhost:8080/posts
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
@@ -12,12 +12,12 @@ Authorization: Bearer {{userToken}}
 }
 
 ### Get post
-GET http://localhost:8080/post/{{postId}}
+GET http://localhost:8080/posts/{{postId}}
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
 ### Comment on post
-POST http://localhost:8080/post/{{postId}}/comment
+POST http://localhost:8080/posts/{{postId}}/comment
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
@@ -26,7 +26,7 @@ Authorization: Bearer {{userToken}}
 }
 
 ### React to post
-POST http://localhost:8080/post/{{postId}}/react
+POST http://localhost:8080/posts/{{postId}}/react
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
@@ -35,7 +35,7 @@ Authorization: Bearer {{userToken}}
 }
 
 ### unreact to post
-POST http://localhost:8080/post/{{postId}}/unreact
+POST http://localhost:8080/posts/{{postId}}/unreact
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 
@@ -44,7 +44,7 @@ Authorization: Bearer {{userToken}}
 }
 
 ### Get user posts by id
-GET http://localhost:8080/user/{{username}}/posts
+GET http://localhost:8080/users/{{username}}/posts
 Content-Type: application/json
 Authorization: Bearer {{userToken}}
 

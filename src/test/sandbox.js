@@ -29,14 +29,14 @@ describe('Posts', function () {
 		User.deleteMany({}, ()=>{});    
 		Post.deleteMany({}, ()=>{});      
   
-		let createOrgRes = await chai.request(server).post('/organisation/create').send(organisationTemplateData);
+		let createOrgRes = await chai.request(server).post('/organisations/create').send(organisationTemplateData);
 		createOrgRes.should.have.status(200);
 		organisationData = createOrgRes.body.data;
 		
-		let createUserRes = await chai.request(server).post('/user/create').send(userCredentials);
+		let createUserRes = await chai.request(server).post('/users/create').send(userCredentials);
 		createUserRes.should.have.status(200);
 	
-		let loginRes = await chai.request(server).post('/user/login').send({username: userCredentials.username, password: userCredentials.password});
+		let loginRes = await chai.request(server).post('/users/login').send({username: userCredentials.username, password: userCredentials.password});
 		loginRes.should.have.status(200);
 		
 		token = loginRes.body.data.token;
@@ -51,21 +51,21 @@ describe('Posts', function () {
 		it('should get feed with pagination', async () => {
 			
 			//second user
-			let createUserRes = await chai.request(server).post('/user/create').send(secondUserCredentials);
+			let createUserRes = await chai.request(server).post('/users/create').send(secondUserCredentials);
 			createUserRes.should.have.status(200);
 	
-			let loginRes = await chai.request(server).post('/user/login').send({username: secondUserCredentials.username, password: secondUserCredentials.password});
+			let loginRes = await chai.request(server).post('/users/login').send({username: secondUserCredentials.username, password: secondUserCredentials.password});
 			loginRes.should.have.status(200);
 
 			let secondUserToken = loginRes.body.data.token;
 
 			//follow
-			let followRes = await chai.request(server).post(`/user/${secondUserCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
+			let followRes = await chai.request(server).post(`/users/${secondUserCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
 
 			//make posts	
 			for(let i=0;i<5;i++)
 			{
-                await chai.request(server).post(`/post`).set('authorization', `Bearer ${secondUserToken}`).send({...postTemplateData, content: `POST ${i}`});
+                await chai.request(server).post(`/posst`).set('authorization', `Bearer ${secondUserToken}`).send({...postTemplateData, content: `POST ${i}`});
             }
 
 			let posts = await Post.find({user: {$in: [createUserRes.body.data._id]}})

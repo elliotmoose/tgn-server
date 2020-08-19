@@ -26,12 +26,12 @@ let should = chai.should();
 
 async function main() {
     await Post.deleteMany({});      
-    let loginRes = await chai.request(server).post('/user/login').send({username: userCredentials.username, password: userCredentials.password});
+    let loginRes = await chai.request(server).post('/users/login').send({username: userCredentials.username, password: userCredentials.password});
     let token = loginRes.body.data.token;
 
     for(let i=0; i< 30; i++)
     {
-        await chai.request(server).post(`/post`).set('authorization', `Bearer ${token}`).send({...postTemplateData, content: `POST ${i}`});    
+        await chai.request(server).post(`/posts`).set('authorization', `Bearer ${token}`).send({...postTemplateData, content: `POST ${i}`});    
     }
 }
 

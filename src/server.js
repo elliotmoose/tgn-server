@@ -16,15 +16,15 @@ app.use(bodyParser.json());
 //connect to model
 require('./models/db');
 
-const userRouter = require('./routes/user');
-const organisationRouter = require('./routes/organisation');
-const postRouter = require('./routes/post');
+const userRouter = require('./routes/users');
+const organisationRouter = require('./routes/organisations');
+const postRouter = require('./routes/posts');
 const feedRouter = require('./routes/feed');
 
 const v1 = express.Router();
-v1.use('/user', userRouter);
-v1.use('/organisation', organisationRouter);
-v1.use('/post', postRouter);
+v1.use('/users', userRouter);
+v1.use('/organisations', organisationRouter);
+v1.use('/posts', postRouter);
 v1.use('/feed', feedRouter);
 
 app.use('/', v1);
