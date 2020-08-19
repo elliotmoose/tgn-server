@@ -152,15 +152,20 @@ const postController = {
             content: comment
         };
 
-        let updatedPostDoc = await Post.findOneAndUpdate({postId}, {
+        let updatedPostDoc = await Post.findOneAndUpdate({_id: postId}, {
             $inc: {
                 commentCount: 1
             },
             $push: {
                 comments: commentData
             }
-        }, {new: true});
+        }, {new: true}).select('-reactions -comments');
         
+        if(!updatedPostDoc)
+        {
+            throw ERROR_POST_NOT_FOUND;
+        }
+
         return updatedPostDoc.toJSON();
     },
     async getPostsByUserId (userId) {        

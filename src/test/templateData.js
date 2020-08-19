@@ -24,7 +24,7 @@ exports.postTemplateData = {
 }
 
 exports.commentTemplateData = {
-	content: "Hey I'm just here to comment",
+	comment: "Hey I'm just here to comment",
 }
 
 // module.exports = {organisationData, userCredentials, postTemplateData, commentTemplateData};

@@ -199,8 +199,12 @@ describe('Posts', function () {
 			res.should.have.status(200);
 			res.body.data.maxReactionType.should.be.eql('love');			
 		});
-		it('should comment on post', async () => {			
-			throw new Error('to implement');
+		it('should comment on post', async () => {						
+			let res = await chai.request(server).post(`/post/${postWithTargetData._id}/comment`).set('authorization', `Bearer ${token}`).send(commentTemplateData);
+			res.should.have.status(200);
+
+			res.body.data.commentCount.should.eql(1);
+			
 		});
 	});
 });
