@@ -26,16 +26,9 @@ let postSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    comments: {
-        type: [{
-            userId: mongoose.Types.ObjectId,
-            content: String,
-            date: {
-                type: Date, 
-                default: ()=>Date.now()
-            },
-        }],
-        default: []
+    reactionCount: {
+        type: Number,
+        default: 0
     },
     loveReactionCount: {
         type: Number,
@@ -53,17 +46,17 @@ let postSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    comments: {
+        type: [{
+            type: mongoose.Types.ObjectId,
+            ref: 'comment'
+        }],
+        default: []
+    },
     reactions: {
         type: [{
-            user: {
-                type: mongoose.Types.ObjectId,
-                ref: 'user'
-            },
-            reactionType: String,
-            date: {
-                type: Date, 
-                default: ()=>Date.now()
-            },
+            type: mongoose.Types.ObjectId,
+            ref: 'reaction'
         }],
         default: []
     },

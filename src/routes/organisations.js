@@ -113,7 +113,7 @@ router.get('/:orgIdOrHandle/members', setAndRequireUser, async (req, res) => {
 /**
  * Create a new organisation
  */
-router.post('/create', async (req, res) => {
+router.post('/', async (req, res) => {
     
     try {
         // let user = await userController.createUser({

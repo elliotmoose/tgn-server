@@ -19,7 +19,7 @@ describe('Users', function () {
 		Organisation.deleteMany({}, ()=>{});      
 		User.deleteMany({}, ()=>{});      
 		
-		let createOrgRes = await chai.request(server).post('/organisations/create').send(organisationTemplateData);
+		let createOrgRes = await chai.request(server).post('/organisations/').send(organisationTemplateData);
 		createOrgRes.should.have.status(200);
 
 
@@ -36,17 +36,17 @@ describe('Users', function () {
 
 	describe('Valid signup', function () {			
 		it('should reject invalid username ', async () => {			
-			let res = await chai.request(server).post('/users/create').send({...userCredentials, username: '__usead.1!'});
+			let res = await chai.request(server).post('/users/').send({...userCredentials, username: '__usead.1!'});
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('username'));
 		});
 		it('should reject invalid email ', async () => {			
-			let res = await chai.request(server).post('/users/create').send({...userCredentials, email: 'kyzelliot@@gmail.com'});
+			let res = await chai.request(server).post('/users/').send({...userCredentials, email: 'kyzelliot@@gmail.com'});
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('email'));
 		});
 		it('should create a new user ', async () => {			
-			let res = await chai.request(server).post('/users/create').send(userCredentials);
+			let res = await chai.request(server).post('/users/').send(userCredentials);
 			res.should.have.status(200);
 			res.body.data.should.have.property('username').eql(userCredentials.username);
 			res.body.data.should.have.property('fullName').eql(userCredentials.fullName);
@@ -55,21 +55,21 @@ describe('Users', function () {
 			res.body.data.should.not.have.property('passwordSalt');
 			
 			//create second user
-			let createUserRes = await chai.request(server).post('/users/create').send(secondUserCredentials);
+			let createUserRes = await chai.request(server).post('/users/').send(secondUserCredentials);
 			secondUserData = createUserRes.body.data;
 		});
 		it('should not allow duplicate username', async () => {
-			let res = await chai.request(server).post('/users/create').send({...userCredentials, email: 'abcedf@gmail.com'});
+			let res = await chai.request(server).post('/users/').send({...userCredentials, email: 'abcedf@gmail.com'});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
 		});
 		it('should not overlap organisation handle', async () => {
-			let res = await chai.request(server).post('/users/create').send({...userCredentials, username: organisationTemplateData.handle});
+			let res = await chai.request(server).post('/users/').send({...userCredentials, username: organisationTemplateData.handle});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
 		});
 		it('should not allow duplicate email', async () => {
-			let res = await chai.request(server).post('/users/create').send({...userCredentials, username: 'abcdefg' });
+			let res = await chai.request(server).post('/users/').send({...userCredentials, username: 'abcdefg' });
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_EMAIL_TAKEN);
 		});		

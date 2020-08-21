@@ -37,8 +37,8 @@ describe('Organisation', function () {
 		Organisation.deleteMany({}, ()=>{});      
 		User.deleteMany({}, ()=>{});      
 
-		//creates a test user for other tests
-		let createUserRes = await chai.request(server).post('/users/create').send(userCredentials);
+		//s a test user for other tests
+		let createUserRes = await chai.request(server).post('/users/').send(userCredentials);
 		createUserRes.should.have.status(200);
 		
 		let loginUserRes = await chai.request(server).post('/users/login').send(userCredentials);
@@ -54,17 +54,17 @@ describe('Organisation', function () {
 
 	describe('Create Organisation', function () {			
 		it('should reject invalid handle', async () => {			
-			let res = await chai.request(server).post('/organisations/create').send({...organisationData, handle: '__usead.1!'});
+			let res = await chai.request(server).post('/organisations/').send({...organisationData, handle: '__usead.1!'});
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('handle'));
 		});
 		it('should reject incomplete details', async () => {			
-			let res = await chai.request(server).post('/organisations/create').send({...organisationData, name: undefined});
+			let res = await chai.request(server).post('/organisations/').send({...organisationData, name: undefined});
 			res.should.have.status(400);
 			res.body.should.have.property('error').eql(ERROR_MISSING_PARAM);
 		});
 		// it('should reject non super user', async () => {			
-		// 	let res = await chai.request(server).post('/organisations/create').send(organisationData);
+		// 	let res = await chai.request(server).post('/organisations/').send(organisationData);
 		// 	res.should.have.status(200);
 		// 	res.body.should.have.property('data');
 		// 	res.body.data.should.have.property('handle');
@@ -72,7 +72,7 @@ describe('Organisation', function () {
 		// 	res.body.data.should.have.property('contact');
 		// });
 		it('should create org', async () => {			
-			let res = await chai.request(server).post('/organisations/create').send(organisationData);
+			let res = await chai.request(server).post('/organisations/').send(organisationData);
 			res.should.have.status(200);
 			res.body.should.have.property('data');
 			res.body.data.should.have.property('handle').eql(organisationData.handle);
@@ -89,12 +89,12 @@ describe('Organisation', function () {
 			getRes.body.data.should.have.property('contact').eql(organisationData.contact);
 		});
 		it('should reject taken handle by org', async () => {			
-			let res = await chai.request(server).post('/organisations/create').send(organisationData);
+			let res = await chai.request(server).post('/organisations/').send(organisationData);
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN);
 		});
 		it('should reject taken handle by username', async () => {						
-			let res = await chai.request(server).post('/organisations/create').send({...organisationData, handle: userCredentials.username});
+			let res = await chai.request(server).post('/organisations/').send({...organisationData, handle: userCredentials.username});
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN);
 		});

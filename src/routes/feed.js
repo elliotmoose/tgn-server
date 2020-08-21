@@ -30,7 +30,7 @@ router.get('/', setAndRequireUser, async (req, res)=>{
         //get posts that are by this users
 
         let userFollows = await userController.getFollowingUserIds(userId);
-        let posts = await postController.getFeed(userFollows, dateBefore, pageSize);
+        let posts = await postController.getFeed(userId, userFollows, dateBefore, pageSize);
         respond(res, posts);
     } catch (error) {
         respond(res, {}, error);

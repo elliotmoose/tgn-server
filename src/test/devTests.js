@@ -16,6 +16,7 @@ const { organisationTemplateData, userCredentials, postTemplateData, commentTemp
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
 let Post = mongoose.model('post');
+let Comment = mongoose.model('comment');
 
 chai.use(chaiHttp);
 chai.use(chaiLike);
@@ -26,13 +27,35 @@ let should = chai.should();
 
 async function main() {
     await Post.deleteMany({});      
+    await Comment.deleteMany({});      
+    
     let loginRes = await chai.request(server).post('/users/login').send({username: userCredentials.username, password: userCredentials.password});
-    let token = loginRes.body.data.token;
+    let tokens = [];
+    tokens.push(loginRes.body.data.token);
+    
+    let login2Res = await chai.request(server).post('/users/login').send({username: secondUserCredentials.username, password: secondUserCredentials.password});
+    tokens.push(login2Res.body.data.token);
 
     for(let i=0; i< 30; i++)
     {
-        await chai.request(server).post(`/posts`).set('authorization', `Bearer ${token}`).send({...postTemplateData, content: `POST ${i}`});    
+        let postRes = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${tokens[0]}`).send({...postTemplateData, content: `POST ${i}`});    
+        let postId = postRes.body.data._id;
+        
+        
+        for(let token of tokens)
+        {
+            for(let i=0; i< 2; i++)
+            {        
+                await chai.request(server).post(`/posts/${postId}/comment`).set('authorization', `Bearer ${token}`).send({...commentTemplateData, content: `COMMENT ${i}`});    
+            }
+            
+            let reactRes = await chai.request(server).post(`/posts/${postId}/react`).set('authorization', `Bearer ${token}`).send({reactionType: 'like'});            
+            reactRes.should.have.status(200);
+            let reactLoveRes = await chai.request(server).post(`/posts/${postId}/react`).set('authorization', `Bearer ${token}`).send({reactionType: 'love'});    
+            reactLoveRes.should.have.status(200);
+        }
     }
+    
 }
 
 main();

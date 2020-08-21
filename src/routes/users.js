@@ -12,7 +12,7 @@ router.get('/', (req,res)=>{
 
 });
 
-router.post('/create', async (req, res)=>{
+router.post('/', async (req, res)=>{
     try {        
         let newUser = await userController.createUser(req.body);      
         respond(res, {...newUser, password: undefined});  

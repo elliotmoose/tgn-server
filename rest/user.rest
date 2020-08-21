@@ -2,7 +2,7 @@
 @username = mooselliot
 @organisationHandle = organisationA
 
-POST http://localhost:8080/users/create
+POST http://localhost:8080/users/
 Content-Type: application/json
 
 {
@@ -28,7 +28,7 @@ Authorization: Bearer {{userToken}}
 
 ###
 # Create Organisation
-POST http://localhost:8080/organisations/create
+POST http://localhost:8080/organisations/
 Content-Type: application/json
 
 {

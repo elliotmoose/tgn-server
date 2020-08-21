@@ -1,91 +1,90 @@
-
-process.env.NODE_ENV = 'TEST';
-let chai = require('chai');
-let chaiHttp = require('chai-http');
-let chaiLike = require('chai-like');
-let server = require('../server');
-let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
-const { organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials } = require('./templateData');
-
-let User = mongoose.model('user');
-let Organisation = mongoose.model('organisation');
-let Post = mongoose.model('post');
-
-chai.use(chaiHttp);
-chai.use(chaiLike);
-let should = chai.should();
+'use strict';
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const assert = require('assert');
 
 
-let token = null;
-let userData = null;
-let organisationData = null;
-let postWithoutTargetData = null;
-let postWithTargetData = null;
+run().catch(console.error);
 
-describe('Posts', function () {
-	before(async ()=>{
-		Organisation.deleteMany({}, ()=>{});      
-		User.deleteMany({}, ()=>{});    
-		Post.deleteMany({}, ()=>{});      
-  
-		let createOrgRes = await chai.request(server).post('/organisations/create').send(organisationTemplateData);
-		createOrgRes.should.have.status(200);
-		organisationData = createOrgRes.body.data;
-		
-		let createUserRes = await chai.request(server).post('/users/create').send(userCredentials);
-		createUserRes.should.have.status(200);
-	
-		let loginRes = await chai.request(server).post('/users/login').send({username: userCredentials.username, password: userCredentials.password});
-		loginRes.should.have.status(200);
-		
-		token = loginRes.body.data.token;
-		userData = loginRes.body.data.user;
-	});
-	after(()=>{
-		Organisation.deleteMany({}, ()=>{});      
-		User.deleteMany({}, ()=>{});      
+async function run() {
+	await mongoose.connect('mongodb://localhost:27017/test', {
+		useNewUrlParser: true,
+		useUnifiedTopology: true
 	});
 
-	describe('Feed', function() {
-		it('should get feed with pagination', async () => {
-			
-			//second user
-			let createUserRes = await chai.request(server).post('/users/create').send(secondUserCredentials);
-			createUserRes.should.have.status(200);
-	
-			let loginRes = await chai.request(server).post('/users/login').send({username: secondUserCredentials.username, password: secondUserCredentials.password});
-			loginRes.should.have.status(200);
+	await mongoose.connection.dropDatabase();
 
-			let secondUserToken = loginRes.body.data.token;
+	const postSchema = new Schema({
+		title: String,
+		comments: [{ 
+			type: Schema.ObjectId, 
+			ref: 'Comment' 
+		}],
+		user : {
+			type: Number,
+			default: 0
+		},
+		date: {
+			type: Date,
+			default: () => Date.now()
+		}
+	});
+	const Post = mongoose.model('Post', postSchema);
 
-			//follow
-			let followRes = await chai.request(server).post(`/users/${secondUserCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
+	const commentSchema = new Schema({ content: String });
+	const Comment = mongoose.model('Comment', commentSchema);
 
-			//make posts	
-			for(let i=0;i<5;i++)
-			{
-                await chai.request(server).post(`/posst`).set('authorization', `Bearer ${secondUserToken}`).send({...postTemplateData, content: `POST ${i}`});
-            }
 
-			let posts = await Post.find({user: {$in: [createUserRes.body.data._id]}})
-			.skip(0)
-			.sort('-datePosted')
-            .limit(1)
+	await createFirstPost(Post, Comment);
+	await createSecondPost(Post, Comment);
 
-			console.log(posts.map(post => post.content));
-			// console.log(posts);
-
-			for(let i=0;i<5;i++)
-			{
-				let res = await chai.request(server).get(`/feed?page=${i}&limit=1`).set('authorization', `Bearer ${token}`).send();
-				res.should.have.status(200);
-				console.log(res.body.data[0].content);
-				res.body.data[0].content.should.eql(`POST ${4-i}`);
-			}
+	// Edited line
+	const posts = await Post.find({user: {$in :[0]}, date: { $lt: Date.now() } })
+		.sort('-date')
+		.limit(2)
+		.populate({
+			path: 'comments',
+			// select: 'content -_id',
+			perDocumentLimit: 2
 		});
-	})
-	
-});
+	console.log(posts);
+	assert.equal(posts[0].comments.length, 2);
+	assert.equal(posts[1].comments.length, 2);
+
+	console.log('All assertions passed.');
+}
 
 
+async function createFirstPost(Post, Comment) {
+	const post = new Post({ title: 'I have 3 comments' });
+
+	const comment1 = new Comment({ content: 'Cool first post' });
+	const comment2 = new Comment({ content: 'Very cool first post' });
+	const comment3 = new Comment({ content: 'Super cool first post' });
+
+	post.comments = [comment1, comment2, comment3].map(comment => comment._id);
+	await Promise.all([
+		post.save(),
+		comment1.save(),
+		comment2.save(),
+		comment3.save()
+	]);
+}
+
+async function createSecondPost(Post, Comment) {
+	const post = new Post({ title: 'I have 4 comments' });
+
+	const comment1 = new Comment({ content: 'Cool second post' });
+	const comment2 = new Comment({ content: 'Very cool second post' });
+	const comment3 = new Comment({ content: 'Super cool second post' });
+	const comment4 = new Comment({ content: 'Absolutely cool second post' });
+
+	post.comments = [comment1, comment2, comment3, comment4].map(comment => comment._id);
+	await Promise.all([
+		post.save(),
+		comment1.save(),
+		comment2.save(),
+		comment3.save(),
+		comment4.save()
+	]);
+}
