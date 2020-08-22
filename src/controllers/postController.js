@@ -7,6 +7,7 @@ const Comment = mongoose.model('comment');
 const Reaction = mongoose.model('reaction');
 
 const reactionTypes = ['love', 'like', 'pray', 'praise'];
+const postTypes = ['testimony', 'pray for me', 'announcement'];
 
 const postController = {
     /**
@@ -16,8 +17,10 @@ const postController = {
      */
     async makePost (postData, userId) {
         let {content, postType, target} = postData;
-
+        
         assertRequiredParams({content, postType, userId});
+        this.assertValidPostType(postType);
+
         if(target)
         {
             assertParamTypeObjectId(target);
@@ -63,6 +66,14 @@ const postController = {
         postData.reactionCount = totalReactionCount;
 
         return postData;
+    },
+    assertValidPostType(postType) {
+        let prefixIndex = postTypes.indexOf(postType);
+        
+        if(prefixIndex == -1)
+        {
+            throw ERROR_INVALID_PARAM('Post Type');
+        }        
     },
     assertValidReactionType(reactionType) {
         let prefixIndex = reactionTypes.indexOf(reactionType);
@@ -202,11 +213,22 @@ const postController = {
         .limit(PAGE_SIZE)
         .populate({path: 'user', select: 'username'})
         .populate({path: 'target', select: 'name handle'})
-        .populate({path: 'comments', perDocumentLimit: 2, options: { sort: { datePosted : -1 }}})
+        .populate({
+            path: 'comments', 
+            perDocumentLimit: 2, 
+            options: { sort: { datePosted : -1 }},
+            populate : {
+                path : 'user',
+                select: 'username'
+            }
+        })        
         .populate({
             path: 'reactions', 
             match: {user: viewerUserId},
         })
+
+        // let commentPopulatedPosts = await Post.populate(posts, {path: 'comments.user', select: 'username'});
+    
         
         // .select('-reactions -comments')
         
