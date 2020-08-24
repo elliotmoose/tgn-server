@@ -69,14 +69,14 @@ router.post('/:postId/unreact', setAndRequireUser, async (req, res)=>{
     }
 });
 
-router.post('/:postId/comment', setAndRequireUser, async (req, res)=>{    
-    let userId =  req.user._id;
+router.get('/:postId/comments', setAndRequireUser, async (req, res)=>{    
     let postId =  req.params.postId;
-    let {content} = req.body;
+    let dateAfter = req.query.after; //gets comments that were before this date
+    let pageSize = req.query.limit;
 
     try {          
-        let updatedPost = await postController.commentOnPost(content, postId, userId);
-        respond(res, updatedPost);
+        let comments = await postController.getComments(postId, dateAfter, pageSize);
+        respond(res, comments);
     } catch (error) {
         respond(res, {}, error);
     }

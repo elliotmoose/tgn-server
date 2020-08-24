@@ -41,7 +41,6 @@ async function main() {
         let postRes = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${tokens[0]}`).send({...postTemplateData, content: `POST ${i}`});    
         let postId = postRes.body.data._id;
         
-        
         for(let token of tokens)
         {
             for(let i=0; i< 2; i++)

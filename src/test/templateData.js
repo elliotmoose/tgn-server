@@ -20,7 +20,7 @@ exports.secondUserCredentials = {
 
 exports.postTemplateData = {
 	content: "Hi everyone!! Nice to finally catch up with all of you. ",
-	postType: 'Testimony'
+	postType: 'testimony'
 }
 
 exports.commentTemplateData = {

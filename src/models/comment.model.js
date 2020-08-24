@@ -14,6 +14,11 @@ let commentSchema = new mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: 'user'
     },
+    post: {
+        type: mongoose.Types.ObjectId,
+        ref: 'post',
+        required: 'This field is required'        
+    },
     reactions: {
         type: [{
             type: mongoose.Types.ObjectId,

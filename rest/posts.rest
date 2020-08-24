@@ -1,4 +1,4 @@
-@postId = 5f3d3ca000cc157005435f5c
+@postId = 5f434ebeb804eeaf33c8d36c
 @username = mooselliot
 @userToken = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1ZjJkNzc3NjI3MzY1YmM1MTY3ZGNkODIiLCJpYXQiOjE1OTY4MTUyMzR9.H5Olylo2PdzhNMS-CcSH5onBMYvMJf78bMwA22-oO3A
 #Make post
@@ -24,6 +24,11 @@ Authorization: Bearer {{userToken}}
 {
     "comment": "Yo this is lit!! 🔥"
 }
+
+### Get comments
+GET http://localhost:8080/posts/{{postId}}/comments
+Content-Type: application/json
+Authorization: Bearer {{userToken}}
 
 ### React to post
 POST http://localhost:8080/posts/{{postId}}/react

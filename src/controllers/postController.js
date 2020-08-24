@@ -34,38 +34,50 @@ const postController = {
     
         return newPostDoc.toJSON();
     },
-    async getPost (postId) {
+    async getPost (postId, viewerUserId) {
         assertRequiredParams({postId});
         assertParamTypeObjectId(postId);
         let post = await Post.findOne({_id: postId})
         .populate({path: 'user', select: 'username'})
         .populate({path: 'target', select: 'name handle'})
-        .select('-reactions -comments');
-
-        //most reacted
-        let postData = post.toJSON();
-        
-        let maxReactionType = null;
-        let maxReactionCount = 0;
-        let totalReactionCount = 0;
-
-        for(let reaction of reactionTypes)
-        {
-            let key = reaction + 'ReactionCount';
-            let reactionCount = postData[key];
-            totalReactionCount += reactionCount;
-            
-            if(reactionCount > maxReactionCount &&  reactionCount != 0)
-            {
-                maxReactionCount = reactionCount;
-                maxReactionType = reaction;
+        .populate({
+            path: 'comments', 
+            limit: 2, 
+            options: { sort: { datePosted : -1 }},
+            populate : {
+                path : 'user',
+                select: 'username'
             }
-        }
-        
-        postData.maxReactionType = maxReactionType;
-        postData.reactionCount = totalReactionCount;
+        })        
+        .populate({
+            path: 'reactions', 
+            match: {user: viewerUserId},
+        })
 
-        return postData;
+        if(!post) {
+            throw ERROR_POST_NOT_FOUND;
+        }
+
+        let json = post.toJSON();
+        json.myReactions = json.reactions.map((reaction)=>reaction.reactionType);
+        return json;
+    },
+    async getComments(postId, dateAfter, pageSize) {
+        assertRequiredParams({postId});
+        assertParamTypeObjectId(postId);
+
+        let PAGE_SIZE = parseInt(pageSize) || 10;
+        let DATE_AFTER = dateAfter || new Date(0);
+
+        let comments = await Comment.find({post: postId, datePosted: {$gt : DATE_AFTER}})
+        .sort('datePosted')        
+        .limit(PAGE_SIZE)
+        .populate({
+            path : 'user',
+            select: 'username'
+        })
+
+        return comments || [];
     },
     assertValidPostType(postType) {
         let prefixIndex = postTypes.indexOf(postType);
@@ -169,7 +181,8 @@ const postController = {
 
         let commentData = {
             user: userId, 
-            content: comment
+            content: comment,
+            post: postId
         };
 
         let newComment = new Comment(commentData);
@@ -226,69 +239,18 @@ const postController = {
             path: 'reactions', 
             match: {user: viewerUserId},
         })
-
-        // let commentPopulatedPosts = await Post.populate(posts, {path: 'comments.user', select: 'username'});
-    
         
-        // .select('-reactions -comments')
-        
-        //my reactions
-        // let results = await Post.aggregate([
-        //     {$match: {
-        //         user: {$in: userIds},
-        //         datePosted: {$lt : DATE_BEFORE}
-        //     }},
-        //     { 
-        //         $project: {
-        //             datePosted: true,
-        //             reactionCount: {
-        //                 $size: '$reactions'
-        //             },
-        //             comments: {
-        //                 $slice: ["$comments", -2, 2]
-        //             },
-        //             myReactions: {
-        //                 $filter: {
-        //                 input: '$reactions',
-        //                 as: 'reaction',
-        //                 cond: {$eq: ['$$reaction.user', viewerUserId]}
-        //             }
-        //         }
-        //     }},
-        //     {$sort: {datePosted: -1}},
-        //     {$limit: PAGE_SIZE}
-        //     // {$unwind: '$reactions'}
-        //     // {$match: {'reactions.user': viewerUserId}}
-        //     // {$group: {_id: '$_id'}}
-        // ]);
-
-        // let populatedComments = await Post.populate(results, {
-        //     path: 'comments.user',
-        //     select: 'username'
-        // });
-        
-        // let populatedPostUser = await Post.populate(results, {
-        //     path: 'user',
-        //     select: 'username'
-        // });
-
-        // let populatedReactions = await Post.populate(results, {
-        //     path: 'reactions.user', 
-        //     select: 'username'
-        // });
-
-        //top comments
-
+        if(!posts) {
+            return [];
+        }
 
         //TODO: needs to filter out posts useer does not have access to
-        // return posts;
         return posts.map((post)=> {
             let json = post.toJSON();
             json.myReactions = json.reactions.map((reaction)=>reaction.reactionType);
             json.reactions = undefined;
             return json
         });
-        // return populatedComments;
     }
 }
 
