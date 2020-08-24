@@ -4,7 +4,7 @@ let chai = require('chai');
 let chaiHttp = require('chai-http');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_NOT_FOLLOWING_USER, ERROR_USER_NOT_FOUND } = require('../constants/errors');
 const { organisationTemplateData, userCredentials, secondUserCredentials } = require('./templateData');
 const { follow } = require('../controllers/userController');
 let User = mongoose.model('user');
@@ -32,6 +32,7 @@ describe('Users', function () {
 
 	let token = null;
 	let userData = null;
+	let secondUserToken = null;
 	let secondUserData = null;
 
 	describe('Valid signup', function () {			
@@ -96,7 +97,7 @@ describe('Users', function () {
 			//set token for testing later
 			token = res.body.data.token;
 			token.should.not.be.empty;
-						
+			
 			//set user for testing later
 			userData = res.body.data.user;			
 			res.body.data.user.should.have.property('username').eql(userCredentials.username);
@@ -105,6 +106,10 @@ describe('Users', function () {
 			res.body.data.user.should.not.have.property('password');
 			res.body.data.user.should.not.have.property('passwordSalt');
 			
+			let secondUserLoginRes = await chai.request(server).post('/users/login').send({username: secondUserCredentials.username, password: secondUserCredentials.password});
+			secondUserLoginRes.should.have.status(200);
+			secondUserData = secondUserLoginRes.body.data.user;
+			secondUserToken = secondUserLoginRes.body.data.token;
 		});
 		it('should reject unauthenticated get', async () => {
 			let res = await chai.request(server).get(`/users/${userData._id}`).send();
@@ -134,8 +139,36 @@ describe('Users', function () {
 			res.should.have.status(200);
 			res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});
 		});
-		it('should only allow friends to get user data', async () => {
-			throw new Error('to implement');
+	});
+	
+	describe('Update Profile', ()=>{
+		it('should update profile public', async () => {
+			let res = await chai.request(server).put(`/users/${userData._id}`).set('authorization', `Bearer ${token}`).send({
+				public: true
+			});
+			res.should.have.status(200);
+			res.body.data.should.be.like({...userData, public: true});
+		});
+		it('should reject if requested without token', async () => {
+			let res = await chai.request(server).put(`/users/${userData._id}`).send({
+				public: true
+			});
+			res.should.have.status(ERROR_MISSING_TOKEN.status);
+			res.body.error.should.eql(ERROR_MISSING_TOKEN);
+		});
+		it('should reject if requested by another user', async () => {
+			let res = await chai.request(server).put(`/users/${userData._id}`).set('authorization', `Bearer ${secondUserToken}`).send({
+				public: true
+			});
+			res.should.have.status(ERROR_NOT_AUTHORISED.status);
+			res.body.error.should.eql(ERROR_NOT_AUTHORISED);
+		});
+		it('should reject if user does not exist', async () => {
+			let res = await chai.request(server).put(`/users/abcdefg`).set('authorization', `Bearer ${secondUserToken}`).send({
+				public: true
+			});
+			res.should.have.status(ERROR_USER_NOT_FOUND.status);
+			res.body.error.should.eql(ERROR_USER_NOT_FOUND);
 		});
 	});
 	

@@ -2,7 +2,7 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
 const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_ALREADY_JOINED_ORG, ERROR_NOT_ORG_MEMBER, ERROR_REACTION_NOT_FOUND, ERROR_REACTION_EXISTS } = require('../constants/errors');
-const { setAndRequireUser } = require('../middleware/auth');
+const { setAndRequireUser } = require('../middleware/user');
 const router = express.Router();
 const mongoose = require('mongoose');
 const postController = require('../controllers/postController');
@@ -68,6 +68,20 @@ router.post('/:postId/unreact', setAndRequireUser, async (req, res)=>{
         respond(res, {}, error);
     }
 });
+
+router.post('/:postId/comment', setAndRequireUser, async (req, res)=>{    
+    let userId =  req.user._id;
+    let postId =  req.params.postId;
+    let {content} = req.body;
+
+    try {          
+        let updatedPost = await postController.commentOnPost(content, postId, userId);
+        respond(res, updatedPost);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
 
 router.get('/:postId/comments', setAndRequireUser, async (req, res)=>{    
     let postId =  req.params.postId;

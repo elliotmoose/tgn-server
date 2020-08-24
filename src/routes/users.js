@@ -2,11 +2,12 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
 const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_CANNOT_UNFOLLOW_SELF, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
-const { setAndRequireUser } = require('../middleware/auth');
+const { setAndRequireUser, resolveUserParam } = require('../middleware/user');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
 const mongoose = require('mongoose');
 const postController = require('../controllers/postController');
+const { isOwner } = require('../middleware/access');
 
 router.get('/', (req,res)=>{
 
@@ -47,6 +48,23 @@ router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
         }            
 
         respond(res, userData);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+/**
+ * Update user data (incomplete: only updates public status of user account)
+ */
+router.put('/:userIdOrHandle', setAndRequireUser, resolveUserParam, isOwner('user'), async (req, res)=>{
+    let userIdOrHandle = req.params.userIdOrHandle;    
+    let userData = req.body;
+    //incomplete
+    let {public} = userData;
+    
+    try {                
+        let newUserData =await userController.update(req.params.user._id, {public});
+        respond(res, newUserData);
     } catch (error) {
         respond(res, {}, error);
     }

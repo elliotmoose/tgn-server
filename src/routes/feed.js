@@ -2,7 +2,7 @@
 
 const express = require('express');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
-const { setAndRequireUser } = require('../middleware/auth');
+const { setAndRequireUser } = require('../middleware/user');
 const router = express.Router();
 const mongoose = require('mongoose');
 const userController = require('../controllers/userController');

@@ -19,6 +19,9 @@ const userController = {
 
         return false;
     },
+    compareEqualUserIds(userIdA, userIdB) {        
+        return mongoose.Types.ObjectId.isValid(userIdA) && mongoose.Types.ObjectId(userIdA).equals(userIdB);
+    },
     async getUserByIdOrHandle (userIdOrHandle, populateFollows=false) {
         assertRequiredParams({userIdOrHandle});
             

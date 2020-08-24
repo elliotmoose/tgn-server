@@ -112,7 +112,6 @@ describe('Posts', function () {
 		it('should react to post', async () => {			
 			let res = await chai.request(server).post(`/posts/${postWithTargetData._id}/react`).set('authorization', `Bearer ${token}`).send({reactionType: "love"});
 			res.should.have.status(200);
-			console.log(res.body.data);
 			res.body.data.should.have.property('success').eql(true);
 
 			let getPostRes = await chai.request(server).get(`/posts/${postWithTargetData._id}`).set('authorization', `Bearer ${token}`).send();
@@ -150,17 +149,11 @@ describe('Posts', function () {
 			getPostRes.should.have.status(200);
 			getPostRes.body.data.should.have.property('likeReactionCount').eql(0);
 		});
-		it('should get most common reaction', async () => {			
-			let res = await chai.request(server).get(`/posts/${postWithTargetData._id}`).set('authorization', `Bearer ${token}`).send();
-			res.should.have.status(200);
-			res.body.data.maxReactionType.should.be.eql('love');			
-		});
 		it('should comment on post', async () => {						
 			let res = await chai.request(server).post(`/posts/${postWithTargetData._id}/comment`).set('authorization', `Bearer ${token}`).send(commentTemplateData);
 			res.should.have.status(200);
 
-			res.body.data.commentCount.should.eql(1);
-			
+			res.body.data.commentCount.should.eql(1);			
 		});
 	});
 
@@ -228,11 +221,19 @@ describe('Posts', function () {
 			
 		});
 		it('should get top comments', async () => {
-			throw new Error('to implement');
-			//check with epoch dates
-			// let epochDateRes = await chai.request(server).get(`/feed?limit=5&before=${Date.now()}`).set('authorization', `Bearer ${token}`).send();
-			// epochDateRes.should.have.status(200);
-			// epochDateRes.body.data.should.have.lengthOf(5);			
+			//create post
+			let makePostRes = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${token}`).send(postTemplateData);
+			let post = makePostRes.body.data;
+			
+			//comment on post			
+			await chai.request(server).post(`/posts/${post._id}/comment`).set('authorization', `Bearer ${token}`).send(commentTemplateData);
+			await chai.request(server).post(`/posts/${post._id}/comment`).set('authorization', `Bearer ${token}`).send(commentTemplateData);
+			await chai.request(server).post(`/posts/${post._id}/comment`).set('authorization', `Bearer ${token}`).send(commentTemplateData);
+
+			//get feed
+			let res = await chai.request(server).get(`/feed?limit=5}`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);	
+			res.body.data[0].comments.should.have.lengthOf(2);
 		});
 	})
 });
