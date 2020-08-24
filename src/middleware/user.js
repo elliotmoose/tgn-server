@@ -33,7 +33,7 @@ exports.setAndRequireUser = async (req, res, next) => {
 }
 
 //finds user from param :userIdOrHandle and injects into params
-exports.resolveUserParam = async (req, res, next) => {
+exports.resolveParamUser = async (req, res, next) => {
     try {
         let userIdOrHandle = req.params.userIdOrHandle;
         let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
@@ -41,7 +41,7 @@ exports.resolveUserParam = async (req, res, next) => {
             throw ERROR_USER_NOT_FOUND;
         }
 
-        req.params.user = userData;
+        req.paramUser = userData;
         next();
     } catch (error) {
         respond(res, {}, error);

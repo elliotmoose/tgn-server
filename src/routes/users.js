@@ -2,12 +2,13 @@ const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
 const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_CANNOT_UNFOLLOW_SELF, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
-const { setAndRequireUser, resolveUserParam } = require('../middleware/user');
+const { setAndRequireUser, resolveParamUser } = require('../middleware/user');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
 const mongoose = require('mongoose');
 const postController = require('../controllers/postController');
 const { isOwner } = require('../middleware/access');
+const rbac = require('../middleware/rbac');
 
 router.get('/', (req,res)=>{
 
@@ -38,16 +39,9 @@ router.post('/login', async (req, res)=>{
 /**
  * Get user data by id or by handl
  */
-router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
-    let userIdOrHandle = req.params.userIdOrHandle;    
-    
+router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), async (req, res)=>{
     try {        
-        let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
-        if(!userData) {
-            throw ERROR_USER_NOT_FOUND;             
-        }            
-
-        respond(res, userData);
+        respond(res, req.paramUser);
     } catch (error) {
         respond(res, {}, error);
     }
@@ -56,14 +50,13 @@ router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
 /**
  * Update user data (incomplete: only updates public status of user account)
  */
-router.put('/:userIdOrHandle', setAndRequireUser, resolveUserParam, isOwner('user'), async (req, res)=>{
-    let userIdOrHandle = req.params.userIdOrHandle;    
+router.put('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('edit', 'user'), async (req, res)=>{
     let userData = req.body;
     //incomplete
-    let {public} = userData;
+    let { public } = userData;
     
     try {                
-        let newUserData =await userController.update(req.params.user._id, {public});
+        let newUserData = await userController.update(req.paramUser._id, { public });
         respond(res, newUserData);
     } catch (error) {
         respond(res, {}, error);
