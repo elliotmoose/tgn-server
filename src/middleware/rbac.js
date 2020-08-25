@@ -62,7 +62,6 @@ const can = (action, resource)=>{
                                 let isMember = viewingUser.organisationIds.findIndex((id)=>id.equals(target._id)) != -1;
                                 
                                 if (!isMember) {
-                                    // console.log('NOT MEMBER')
                                     throw ERROR_NOT_AUTHORISED;
                                 }
                                 
@@ -76,14 +75,13 @@ const can = (action, resource)=>{
                                 return;
                             }
                             else {
-                                let isFollowing = viewingUser.following.findIndex((id)=>id.equals(postUser._id)) != -1;
+                                let isFollowing = viewingUser.following.findIndex((user)=>user._id.equals(postUser._id)) != -1;
                                 
                                 if (isFollowing) {
                                     //allow access: is a follower
                                     return;
                                 }
                                 else {
-                                    // console.log('NOT FOLLOWING')
                                     throw ERROR_NOT_AUTHORISED;
                                 }
                             }
