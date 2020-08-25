@@ -128,20 +128,6 @@ const userController = {
             throw error;
         }
     },
-    async getFollowingUserIds(userId) {
-        assertRequiredParams({userId});
-        assertParamTypeObjectId(userId);
-
-        let user = await User.findOne({_id: userId}).select('following');
-        if(!user)
-        {
-            throw ERROR_USER_NOT_FOUND;
-        }
-
-        let following = user.toJSON().following;
-
-        return following;
-    },
     async follow(followerUserId, toFollowUserId) {
         assertRequiredParams({isFollowingUserId: followerUserId,toFollowUserId});
         assertParamTypeObjectId(followerUserId);

@@ -21,16 +21,9 @@ router.get('/', setAndRequireUser, async (req, res)=>{
         //1. organisation
         //2. follows
         //3. organisation members
-
-        //naive approach:
-        //get all follows
-        //get all organisations
-        //get all organisation members
-        //aggregate into single list of all users
-        //get posts that are by this users
-
-        let userFollows = await userController.getFollowingUserIds(userId);
-        let posts = await postController.getFeed(userId, userFollows, dateBefore, pageSize);
+        let userFollows = req.user.following.map((user)=>user._id);
+        let organisationIds = req.user.organisationIds;
+        let posts = await postController.getFeed(userId, userFollows, organisationIds, dateBefore, pageSize);
         respond(res, posts);
     } catch (error) {
         respond(res, {}, error);

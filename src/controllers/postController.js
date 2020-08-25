@@ -214,14 +214,13 @@ const postController = {
         }
         return posts;
     },
-    async getFeed(viewerUserId, userIds, dateBefore, pageSize) {
+    async getFeed(viewerUserId, userIds, targetIds, dateBefore, pageSize) {
         //get posts that are posted by the users
         let PAGE_SIZE = parseInt(pageSize) || 10;
         let DATE_BEFORE = dateBefore || Date.now();
-
-        //5.9.27
-        // , {comments: {$slice: -2}}
-        let posts = await Post.find({datePosted: {$lt : DATE_BEFORE}})
+        
+        // let posts = await Post.find({datePosted: {$lt : DATE_BEFORE}})
+        let posts = await Post.find({datePosted: {$lt : DATE_BEFORE}, $or: [{target: { $in: targetIds }}, {user: { $in: userIds }, target: null}] })
         .sort('-datePosted')        
         .limit(PAGE_SIZE)
         .populate({path: 'user', select: 'username public'})

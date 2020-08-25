@@ -68,6 +68,12 @@ const getPostResAsUser = async function (postId, user) {
     return postRes;
 }
 
+const getFeedAsUser = async function (user) {
+    let feedRes = await chai.request(server).get(`/feed/`).set('authorization', `Bearer ${user.token}`).send();
+    feedRes.should.have.status(200);
+    return feedRes.body.data;
+}
+
 const updateUser = async function (userKey, userData) {
     let user = users[userKey];
     let updateUserRes = await chai.request(server).put(`/users/${user._id}`).set('authorization', `Bearer ${user.token}`).send(userData);
@@ -112,14 +118,14 @@ describe('Access Control', function () {
         updateUser('public', {public: true});
     });
     
-	after(()=>{
-		Organisation.deleteMany({});      
-        User.deleteMany({});      
-        Post.deleteMany({});      
+	after(async ()=>{
+		await Organisation.deleteMany({});      
+        await User.deleteMany({});      
+        await Post.deleteMany({});      
     });
     
-    beforeEach(()=> {
-        Post.deleteMany({});      
+    beforeEach(async ()=> {
+        await Post.deleteMany({});      
     })
 
 	describe('Access to User Profiles', function () {			
@@ -238,13 +244,14 @@ describe('Access Control', function () {
                 
         //     })            
         // })
-        // describe('Feed Posts', function () {			
-        //     it('should allow MEMBERS to view posts by PUBLIC member with target != organisation', async () => {			
-                    
-        //     });                                    
-        //     it('should not allow MEMBERS to view posts by PRIVATE member with target != organisation UNLESS following PRIVATE member', async () => {			
-            
-        //     });
-        // })        
+        describe('Feed', function () {			            
+            it('should not feed • public poster • private org • non member viewer • follower', async () => {			
+                await follow(users.viewer, users.public);
+                let post = await makeTargetedPost(organisations.private, users.public);
+                let feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(0);
+                await unfollow(users.viewer, users.public);
+            });
+        })        
 	});
 });
