@@ -7,6 +7,7 @@ let server = require('../server');
 let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
 const { secondOrganisationTemplateData, organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials, thirdUserCredentials } = require('./templateData');
+const { post } = require('../server');
 
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
@@ -245,13 +246,161 @@ describe('Access Control', function () {
         //     })            
         // })
         describe('Feed', function () {			            
-            it('should not feed • public poster • private org • non member viewer • follower', async () => {			
-                await follow(users.viewer, users.public);
-                let post = await makeTargetedPost(organisations.private, users.public);
+            //essence: targeted private post: requires member
+            it('should not feed • public/private poster • private org • non member viewer • follower/non follower', async () => {			
+                await makeTargetedPost(organisations.private, users.public);
+                await makeTargetedPost(organisations.private, users.private);
                 let feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(0);
+
+                await follow(users.viewer, users.public);
+                feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(0);
                 await unfollow(users.viewer, users.public);
             });
+
+            //essence: member: should feed
+            it('should feed • public/private poster • public/private org • member viewer • follower/non follower', async () => {			
+                await joinOrg(users.viewer, organisations.private);
+                await joinOrg(users.viewer, organisations.public);
+
+                await makeTargetedPost(organisations.private, users.public);
+                await makeTargetedPost(organisations.private, users.private);
+                
+                let feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(2);
+
+                await makeTargetedPost(organisations.public, users.public);
+                await makeTargetedPost(organisations.public, users.private);                
+                
+                feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(4);
+
+                await follow(users.viewer, users.public);
+                await follow(users.viewer, users.private);
+                
+                feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(4);
+
+                await unfollow(users.viewer, users.public);
+                await unfollow(users.viewer, users.private);
+
+                await leaveOrg(users.viewer, organisations.private);
+                await leaveOrg(users.viewer, organisations.public);
+            });
+            
+            //essence: member or follower to feed
+            it('should not feed • public poster • public org • non member • non follower', async () => {			                
+                await makeTargetedPost(organisations.public, users.public);
+                let feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(0);
+            });
+
+            // //essence: no target + follower
+            it('should feed • public/private poster • no target • follower', async () => {			                
+                await makeUntargetedPost(users.private);
+                
+                await follow(users.viewer, users.private);
+                let feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(1);
+                await unfollow(users.viewer, users.private);
+                
+                await makeUntargetedPost(users.public);
+                await follow(users.viewer, users.public);
+                feed = await getFeedAsUser(users.viewer);   
+                feed.should.have.lengthOf(1);
+                await unfollow(users.viewer, users.public);
+            });
+
+            it('feed behaviour should match single post behaviour', async () => {                
+                // let postUsers = [users.public, users.private];
+                let postUsers = ['public', 'private'];
+                // let orgOptions = [organisations.public, organisations.private, null]
+                let orgOptions = ['public', 'private', null]
+                let viewerMemberOptions = [true, false]
+                let followingOptions = [true, false]
+                let viewer = users.viewer;
+                
+                for(let i in orgOptions) {
+                    let orgOption = orgOptions[i];
+                    let org = orgOption ? organisations[orgOption] : null;
+                    //if no target                    
+                    for(let j in postUsers) {
+                        let userOption = postUsers[j];
+                        let user = users[userOption];
+
+                        for(let shouldBeFollowing of followingOptions) {
+                            
+                            if(shouldBeFollowing) {
+                                await follow(viewer, user);
+                            }
+
+                            if(org === null) { 
+                                //cases to ignore: (should have access but should not feed) 
+                                //user: public, following: false          
+                                if(userOption == 'public' && !shouldBeFollowing) {
+                                    continue;
+                                }
+                                let post = await makeUntargetedPost(user);
+
+                                let feed = await getFeedAsUser(viewer);   
+                                let feedValid = feed.length != 0;
+                                
+                                let postRes = await getPostResAsUser(post._id, viewer);
+                                let postValid = (postRes.status == 200);
+                                
+                                // console.log(`user: ${userOption}, org: ${orgOption}, following: ${shouldBeFollowing}`)
+                                // console.log(`feed: ${feedValid} post: ${postValid}`);
+                                postValid.should.eql(feedValid);
+
+                                await Post.deleteMany({});
+                            }
+                            else {                        
+                                for(let shouldBeMember of viewerMemberOptions) {
+                                    //cases to ignore: (should have access but should not feed) 
+                                    //org: public, member: false                                    
+                                    if(orgOption == 'public' && !shouldBeMember) {
+                                        continue;
+                                    }
+
+                                    let post = await makeTargetedPost(org, user);
+    
+                                    if(shouldBeMember) {
+                                        await joinOrg(viewer, org);
+                                    }
+                                    
+                                    let feed = await getFeedAsUser(viewer);   
+                                    let feedValid = feed.length != 0;
+                                    
+                                    let postRes = await getPostResAsUser(post._id, viewer);
+                                    let postValid = (postRes.status == 200);
+                                                                        
+                                    postValid.should.eql(feedValid);
+                                    
+                                    if(shouldBeMember) {
+                                        await leaveOrg(viewer, org);
+                                    }
+
+                                    await Post.deleteMany({});
+                                }
+                            }
+
+                            if(shouldBeFollowing) {
+                                await unfollow(viewer, user);
+                            }
+                        }
+                    }
+                }
+            });
+
+            //TO IMPLEMENT: public org + follower + non member  to feed or not to feed??? current: no feed
+            // it('should not feed • public/private poster • public org • non member viewer • follower', async () => {			
+            //     // await follow(users.viewer, users.public);
+            //     // let post = await makeTargetedPost(organisations.private, users.public);
+            //     // let feed = await getFeedAsUser(users.viewer);   
+            //     // feed.should.have.lengthOf(0);
+            //     // await unfollow(users.viewer, users.public);
+            // });
         })        
 	});
 });
