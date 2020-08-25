@@ -85,6 +85,17 @@ const leaveOrg = async function (user, org) {
     leaveRes.should.have.status(200);
 }
 
+const follow = async function (user, toFollow) {
+    let followRes = await chai.request(server).post(`/users/${toFollow._id}/follow`).set('authorization', `Bearer ${user.token}`).send();
+    followRes.should.have.status(200);
+}
+
+const unfollow = async function (user, toUnfollow) {
+    let unfollowRes = await chai.request(server).post(`/users/${toUnfollow._id}/unfollow`).set('authorization', `Bearer ${user.token}`).send();
+    unfollowRes.should.have.status(200);
+}
+
+
 describe('Access Control', function () {
 	before(async ()=>{
 		await Organisation.deleteMany({});      
@@ -134,13 +145,43 @@ describe('Access Control', function () {
         describe('Profile Posts', function () {			        
                   
         })
-        describe('Individual Posts', function () {			
-            it('should allow: private poster • public org • viewer non member • non follower', async () => {			
+        describe('Individual Posts', function () {			    
+            //emphasis: private org => requires member (NO ACCESS 0)
+            it('should not allow: public/private poster • private org • viewer non member • follower/non follower', async () => {			
+                let privateUserPost = await makeTargetedPost(organisations.private, users.private);
+                let publicUserPost = await makeTargetedPost(organisations.private, users.public);
+                
+                let privatePostRes = await getPostResAsUser(privateUserPost._id, users.viewer);
+                let publicPostRes = await getPostResAsUser(publicUserPost._id, users.viewer);
+                privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                
+                follow(users.viewer, users.public);
+                follow(users.viewer, users.private);
+                privateUserPost = await makeTargetedPost(organisations.private, users.private);
+                publicUserPost = await makeTargetedPost(organisations.private, users.public);
+                
+                privatePostRes = await getPostResAsUser(privateUserPost._id, users.viewer);
+                publicPostRes = await getPostResAsUser(publicUserPost._id, users.viewer);
+                privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                unfollow(users.viewer, users.public);
+                unfollow(users.viewer, users.private);
+            });     
+            //emphasis: public org => public access (ACCESS 1)
+            it('should allow: private poster • public org • viewer non member • follower/non follower', async () => {			
                 let post = await makeTargetedPost(organisations.public, users.private);
                 let postRes = await getPostResAsUser(post._id, users.viewer);
                 postRes.should.have.status(200);
-            });        
-            it('should allow: private poster • private org • viewer member • non follower', async () => {		                	
+                
+                follow(users.viewer, users.private);
+                post = await makeTargetedPost(organisations.public, users.private);
+                postRes = await getPostResAsUser(post._id, users.viewer);
+                postRes.should.have.status(200);
+                unfollow(users.viewer, users.private);
+            });    
+            //emphasis: member => access (ACCESS 2)
+            it('should allow: public/private poster • private org • viewer member • non follower', async () => {		                	
                 joinOrg(users.viewer, organisations.private);
                 let privateUserPost = await makeTargetedPost(organisations.private, users.private);
                 let publicUserPost = await makeTargetedPost(organisations.private, users.public);
@@ -152,10 +193,26 @@ describe('Access Control', function () {
                 
                 leaveOrg(users.viewer, organisations.private);
             });        
-            it('should not allow: public poster • private org • viewer non member', async () => {			
-                let publicUserPost = await makeTargetedPost(organisations.private, users.public);                
+            //emphasis: public user no target => access (ACCESS 3)
+            it('should allow: public/private poster • private org • viewer member • non follower', async () => {		                	
+                joinOrg(users.viewer, organisations.private);
+                let privateUserPost = await makeTargetedPost(organisations.private, users.private);
+                let publicUserPost = await makeTargetedPost(organisations.private, users.public);
+                
+                let privatePostRes = await getPostResAsUser(privateUserPost._id, users.viewer);
                 let publicPostRes = await getPostResAsUser(publicUserPost._id, users.viewer);
-                publicPostRes.should.have.status(ERROR_NOT_AUTHORISED.status);
+                privatePostRes.should.have.status(200);
+                publicPostRes.should.have.status(200);
+                
+                leaveOrg(users.viewer, organisations.private);
+            });        
+            //emphasis: following private no target => access (ACCESS 4)
+            it('should allow: private poster • no target • follower', async () => {		                	
+                follow(users.viewer, users.private);
+                let post = await makeUntargetedPost(users.private);
+                let postRes = await getPostResAsUser(post._id, users.viewer);
+                postRes.should.have.status(200);
+                unfollow(users.viewer, users.private);  
             });        
         })
         // describe('Organisation Wall', function () {			

@@ -172,6 +172,7 @@ const userController = {
         // return sanitizedUserData(userToFollow.toJSON());
     },
     async unfollow(followerUserId, toFollowUserId) {
+
         assertRequiredParams({isFollowingUserId: followerUserId,toFollowUserId});
         assertParamTypeObjectId(followerUserId);
         assertParamTypeObjectId(toFollowUserId);
