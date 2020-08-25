@@ -42,7 +42,7 @@ const organisationController = {
         return organisationDoc.toJSON();
     },
     async createOrganisation (orgData) {
-        let { handle, name, address, contact, description, website} = orgData;
+        let { handle, name, address, contact, description, website, public} = orgData;
         assertRequiredParams({name, contact, handle});
         validateHandle(handle);
 
@@ -53,7 +53,7 @@ const organisationController = {
             throw ERROR_ORG_HANDLE_TAKEN;
         }
 
-        let newOrg = new Organisation({handle, name, address, contact, description, website});
+        let newOrg = new Organisation({handle, name, address, contact, description, website, public});
         let newOrgDoc = await newOrg.save();
         return newOrgDoc.toJSON();
     },

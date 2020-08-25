@@ -1,3 +1,17 @@
+// class APIError extends Error {
+//     constructor(status, code, message) {
+//         super();
+//         this.status = status;
+//         this.code = code;
+//         this.message= message;
+//     }
+// }
+// class InternalServerError extends APIError {
+//     constructor() {
+//         super(500, 'ERROR_INTERNAL_SERVER', 'An internal server error has occured')
+//     }
+// }
+
 exports.ERROR_INTERNAL_SERVER = {
     status: 500,
     code: 'ERROR_INTERNAL_SERVER',

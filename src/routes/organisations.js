@@ -64,7 +64,6 @@ router.post('/:orgIdOrHandle/userLeave', setAndRequireUser, async (req, res)=>{
         //check if user already joined
         let userData = await userController.getUserByIdOrHandle(userId);
         let isMember = (userData.organisationIds.findIndex((id) => id.equals(orgData._id)) != -1);
-
         if(!isMember)
         {
             throw ERROR_NOT_ORG_MEMBER;

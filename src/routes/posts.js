@@ -6,6 +6,8 @@ const { setAndRequireUser } = require('../middleware/user');
 const router = express.Router();
 const mongoose = require('mongoose');
 const postController = require('../controllers/postController');
+const { resolveParamPost } = require('../middleware/post');
+const rbac = require('../middleware/rbac');
 
 
 router.post('/', setAndRequireUser, async (req, res)=>{    
@@ -20,7 +22,7 @@ router.post('/', setAndRequireUser, async (req, res)=>{
     }
 });
 
-router.get('/:postId', setAndRequireUser, async (req, res)=>{    
+router.get('/:postId', setAndRequireUser, resolveParamPost, rbac.can('read', 'post'), async (req, res)=>{    
     let postId =  req.params.postId;
 
     try {          

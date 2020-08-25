@@ -38,8 +38,8 @@ const postController = {
         assertRequiredParams({postId});
         assertParamTypeObjectId(postId);
         let post = await Post.findOne({_id: postId})
-        .populate({path: 'user', select: 'username'})
-        .populate({path: 'target', select: 'name handle'})
+        .populate({path: 'user', select: 'username public'})
+        .populate({path: 'target', select: 'name handle public'})
         .populate({
             path: 'comments', 
             limit: 2, 
@@ -224,8 +224,8 @@ const postController = {
         let posts = await Post.find({datePosted: {$lt : DATE_BEFORE}})
         .sort('-datePosted')        
         .limit(PAGE_SIZE)
-        .populate({path: 'user', select: 'username'})
-        .populate({path: 'target', select: 'name handle'})
+        .populate({path: 'user', select: 'username public'})
+        .populate({path: 'target', select: 'name handle public'})
         .populate({
             path: 'comments', 
             perDocumentLimit: 2, 

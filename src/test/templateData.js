@@ -4,6 +4,13 @@ exports.organisationTemplateData = {
 	contact: "64001234",
 }
 
+exports.secondOrganisationTemplateData = {
+	handle: "organisationB",
+	name: "Organisation B",
+	contact: "64001234",
+	public: false
+}
+
 exports.userCredentials = {
 	username: "mooselliot",
 	fullName: "Elliot Koh",
@@ -12,6 +19,13 @@ exports.userCredentials = {
 }
 
 exports.secondUserCredentials = {
+	username: "lywjoel",
+	fullName: "Joel Lee",
+	email: "lywjoel@gmail.com",
+	password: "12345"
+}
+
+exports.thirdUserCredentials = {
 	username: "llpofwy",
 	fullName: "Tan Wanyi",
 	email: "llpofwy@gmail.com",

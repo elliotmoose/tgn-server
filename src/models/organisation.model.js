@@ -18,6 +18,11 @@ let organisationSchema = new mongoose.Schema({
         type: String,
         required: 'This field is required'
     },
+    public: {
+        type: Boolean,
+        required: true,
+        default: true
+    },
     address: {
         type: String,
         // required: 'This field is required'
