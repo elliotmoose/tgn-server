@@ -14,7 +14,16 @@ router.post('/', setAndRequireUser, async (req, res)=>{
     let userId =  req.user._id;
     let {content, postType, target} = req.body;
 
-    try {          
+    try {   
+        //check if is member       
+        if(target) {
+            let isMember = req.user.organisationIds.findIndex((id) => id.equals(target)) != -1;
+
+            if(!isMember) {
+                throw ERROR_NOT_ORG_MEMBER;
+            }
+        }
+
         let newPost = await postController.makePost({content, postType, target}, userId);
         respond(res, newPost);
     } catch (error) {

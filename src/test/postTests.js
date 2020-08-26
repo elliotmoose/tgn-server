@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let chailike = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_NOT_ORG_MEMBER } = require('../constants/errors');
 const { organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials } = require('./templateData');
 
 let User = mongoose.model('user');
@@ -63,12 +63,22 @@ describe('Posts', function () {
 			postWithoutTargetData = res.body.data;
 		});
 		
-		it('should create post with target', async () => {
+		it('should not allow create post if user is not member of target', async ()=> {
+			let templateWithTarget = {...postTemplateData, target: organisationData._id};
+			let res = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${token}`).send(templateWithTarget);
+			res.should.have.status(ERROR_NOT_ORG_MEMBER.status);
+			res.body.error.should.eql(ERROR_NOT_ORG_MEMBER);
+		});
+		it('should create post with target if member', async () => {
+			let joinRes = await chai.request(server).post(`/organisations/${organisationData._id}/userJoin`).set('authorization', `Bearer ${token}`).send();
+			
 			let templateWithTarget = {...postTemplateData, target: organisationData._id};
 			let res = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${token}`).send(templateWithTarget);
 			res.should.have.status(200);
 			res.body.data.should.be.like(templateWithTarget);
 			postWithTargetData = res.body.data;
+			
+			let leaveRes = await chai.request(server).post(`/organisations/${organisationData._id}/userLeave`).set('authorization', `Bearer ${token}`).send();
 		});
 	});
 		
@@ -101,10 +111,15 @@ describe('Posts', function () {
 			//check org populated null
 			res.body.data.should.have.property('target').eql(null);			
 		});		
-		it('should get posts by user', async () => {			
+		it('should get posts by user', async () => {	
+			let joinRes = await chai.request(server).post(`/organisations/${organisationData._id}/userJoin`).set('authorization', `Bearer ${token}`).send();
+			
+			//TODO: user loses access if he quits org
 			let res = await chai.request(server).get(`/users/${userCredentials.username}/posts`).set('authorization', `Bearer ${token}`).send();
 			res.body.data.should.have.lengthOf.at.least(2);
 			res.body.data[0].should.be.like(postTemplateData);
+
+			let leaveRes = await chai.request(server).post(`/organisations/${organisationData._id}/userLeave`).set('authorization', `Bearer ${token}`).send();
 		});				
 	});
 	

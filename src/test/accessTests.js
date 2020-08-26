@@ -40,21 +40,23 @@ const createOrganisation = async function (credentials) {
 }
 
 const makeTargetedPost = async function (targetOrg, user) {
+    await joinOrgAs(user, targetOrg);
     let userPublicStatus = user.public ? 'public' : 'private';
     let orgPublicStatus = targetOrg.public ? 'public' : 'private';
-
+    
     let makePostRes = await chai.request(server).post(`/posts/`).set('authorization', `Bearer ${user.token}`).send({
         content: `Post created by ${user.username} (${userPublicStatus}) with target ${targetOrg.handle} (${orgPublicStatus})`,
         postType: 'testimony',
         target: targetOrg._id
     });
     makePostRes.should.have.status(200);
+    await leaveOrgAs(user, targetOrg);
     return makePostRes.body.data;
 }
 
 const makeUntargetedPost = async function (user) {
     let userPublicStatus = user.public ? 'public' : 'private';
-
+    
     let makePostRes = await chai.request(server).post(`/posts/`).set('authorization', `Bearer ${user.token}`).send({
         content: `Post created by ${user.username} (${userPublicStatus}) with no target`,
         postType: 'testimony',
