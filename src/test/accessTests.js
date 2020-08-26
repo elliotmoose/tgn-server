@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let chailike = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_NOT_FOLLOWING_USER } = require('../constants/errors');
+const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
 const { secondOrganisationTemplateData, organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials, thirdUserCredentials } = require('./templateData');
 const { post } = require('../server');
 
@@ -19,7 +19,6 @@ let should = chai.should();
 
 let users = {};
 let organisations = {};
-let posts = {};
 
 const createUserAndLogin = async function(credentials) {
     let createUserRes = await chai.request(server).post('/users/').send(credentials);
@@ -82,34 +81,35 @@ const updateUser = async function (userKey, userData) {
     users[userKey] = {...user, ...updateUserRes.body.data};
 }
 
-const joinOrg = async function (user, org) {
+const joinOrgAs = async function (user, org) {
     let joinRes = await chai.request(server).post(`/organisations/${org._id}/userJoin`).set('authorization', `Bearer ${user.token}`).send();
     joinRes.should.have.status(200);
 }
 
-const leaveOrg = async function (user, org) {
+const leaveOrgAs = async function (user, org) {
     let leaveRes = await chai.request(server).post(`/organisations/${org._id}/userLeave`).set('authorization', `Bearer ${user.token}`).send();
     leaveRes.should.have.status(200);
 }
 
-const follow = async function (user, toFollow) {
+const followAs = async function (user, toFollow) {
     let followRes = await chai.request(server).post(`/users/${toFollow._id}/follow`).set('authorization', `Bearer ${user.token}`).send();
     followRes.should.have.status(200);
 }
 
-const unfollow = async function (user, toUnfollow) {
+const unfollowAs = async function (user, toUnfollow) {
     let unfollowRes = await chai.request(server).post(`/users/${toUnfollow._id}/unfollow`).set('authorization', `Bearer ${user.token}`).send();
     unfollowRes.should.have.status(200);
 }
 
 const getWallAs = async function (viewer, user) {
     let getWallRes = await chai.request(server).get(`/users/${user._id}/posts`).set('authorization', `Bearer ${viewer.token}`).send();
-
-    if(getWallRes.body.error) {
-        console.log(getWallRes.body.error)
-    }
     getWallRes.should.have.status(200);  
     return getWallRes.body.data;
+}
+const getWallShouldFail = async function (viewer, user) {
+    let getWallRes = await chai.request(server).get(`/users/${user._id}/posts`).set('authorization', `Bearer ${viewer.token}`).send();
+    getWallRes.should.have.status(ERROR_NOT_AUTHORISED.status);  
+    getWallRes.body.error.should.eql(ERROR_NOT_AUTHORISED);  
 }
 
 describe('Access Control', function () {
@@ -152,8 +152,8 @@ describe('Access Control', function () {
 		});
         it('should NOT allow ANY user to access PRIVATE user profile', async () => {			
             let res = await chai.request(server).get(`/users/${users.private._id}`).set('authorization', `Bearer ${users.public.token}`).send();
-            res.should.have.status(ERROR_NOT_FOLLOWING_USER.status);			
-            res.body.should.have.property('error').eql(ERROR_NOT_FOLLOWING_USER);			
+            res.should.have.status(ERROR_NOT_AUTHORISED.status);			
+            res.body.should.have.property('error').eql(ERROR_NOT_AUTHORISED);			
 		});
 	});
     
@@ -172,8 +172,8 @@ describe('Access Control', function () {
                 privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
                 publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
                 
-                await follow(users.viewer, users.public);
-                await follow(users.viewer, users.private);
+                await followAs(users.viewer, users.public);
+                await followAs(users.viewer, users.private);
                 privateUserPost = await makeTargetedPost(organisations.private, users.private);
                 publicUserPost = await makeTargetedPost(organisations.private, users.public);
                 
@@ -181,8 +181,8 @@ describe('Access Control', function () {
                 publicPostRes = await getPostResAsUser(publicUserPost._id, users.viewer);
                 privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
                 publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
-                await unfollow(users.viewer, users.public);
-                await unfollow(users.viewer, users.private);
+                await unfollowAs(users.viewer, users.public);
+                await unfollowAs(users.viewer, users.private);
             });     
             //emphasis: public org => public access (ACCESS 1)
             it('should allow: private poster • public org • viewer non member • follower/non follower', async () => {			
@@ -190,15 +190,15 @@ describe('Access Control', function () {
                 let postRes = await getPostResAsUser(post._id, users.viewer);
                 postRes.should.have.status(200);
                 
-                await follow(users.viewer, users.private);
+                await followAs(users.viewer, users.private);
                 post = await makeTargetedPost(organisations.public, users.private);
                 postRes = await getPostResAsUser(post._id, users.viewer);
                 postRes.should.have.status(200);
-                await unfollow(users.viewer, users.private);
+                await unfollowAs(users.viewer, users.private);
             });    
             //emphasis: member => access (ACCESS 2)
             it('should allow: public/private poster • private org • viewer member • non follower', async () => {		                	
-                await joinOrg(users.viewer, organisations.private);
+                await joinOrgAs(users.viewer, organisations.private);
                 let privateUserPost = await makeTargetedPost(organisations.private, users.private);
                 let publicUserPost = await makeTargetedPost(organisations.private, users.public);
                 
@@ -207,11 +207,11 @@ describe('Access Control', function () {
                 privatePostRes.should.have.status(200);
                 publicPostRes.should.have.status(200);
                 
-                await leaveOrg(users.viewer, organisations.private);
+                await leaveOrgAs(users.viewer, organisations.private);
             });        
             //emphasis: public user no target => access (ACCESS 3)
             it('should allow: public/private poster • private org • viewer member • non follower', async () => {		                	
-                await joinOrg(users.viewer, organisations.private);
+                await joinOrgAs(users.viewer, organisations.private);
                 let privateUserPost = await makeTargetedPost(organisations.private, users.private);
                 let publicUserPost = await makeTargetedPost(organisations.private, users.public);
                 
@@ -220,15 +220,15 @@ describe('Access Control', function () {
                 privatePostRes.should.have.status(200);
                 publicPostRes.should.have.status(200);
                 
-                await leaveOrg(users.viewer, organisations.private);
+                await leaveOrgAs(users.viewer, organisations.private);
             });        
             //emphasis: following private no target => access (ACCESS 4)
             it('should allow: private poster • no target • follower', async () => {		                	
-                await follow(users.viewer, users.private);
+                await followAs(users.viewer, users.private);
                 let post = await makeUntargetedPost(users.private);
                 let postRes = await getPostResAsUser(post._id, users.viewer);
                 postRes.should.have.status(200);
-                await unfollow(users.viewer, users.private);  
+                await unfollowAs(users.viewer, users.private);  
             });        
             // emphasis: private => requires follow (NO ACCESS 1)
             it('should not allow: private poster • no target • non follower', async () => {		                	
@@ -264,29 +264,85 @@ describe('Access Control', function () {
 
             //essence: follower => no target posts
             it('Should load • no target • follower • public/private user ', async ()=> {
-                await makeUntargetedPost(users.public);                    
-                
-                await follow(users.viewer, users.public);
+                await makeUntargetedPost(users.public);                                    
+                await followAs(users.viewer, users.public);
                 let posts = await getWallAs(users.viewer, users.public);
                 posts.should.have.lengthOf(1);
-                await unfollow(users.viewer, users.public);                               
+                await unfollowAs(users.viewer, users.public);                               
                 
-                await follow(users.viewer, users.private);
+                await makeUntargetedPost(users.private);                                    
+                await followAs(users.viewer, users.private);
                 posts = await getWallAs(users.viewer, users.private);                
                 posts.should.have.lengthOf(1);
-                await unfollow(users.viewer, users.private);                               
+                await unfollowAs(users.viewer, users.private);                               
             });
+            
+            //essence: follower => mutual org posts
+            it('Should load • public/private org • follower • member • public/private user', async ()=> {
+                await makeTargetedPost(organisations.public, users.public);                                    
+                await makeTargetedPost(organisations.private, users.public);                                    
+                
+                await makeTargetedPost(organisations.public, users.private);                                    
+                await makeTargetedPost(organisations.private, users.private);                                    
+                
+                await joinOrgAs(users.viewer, organisations.public);
+                await joinOrgAs(users.viewer, organisations.private);
+                
+                await followAs(users.viewer, users.public);                
+                let posts = await getWallAs(users.viewer, users.public);
+                posts.should.have.lengthOf(2);                                                      
+                await unfollowAs(users.viewer, users.public);                               
+                
+                await followAs(users.viewer, users.private);
+                posts = await getWallAs(users.viewer, users.private);                
+                posts.should.have.lengthOf(2);
+                await unfollowAs(users.viewer, users.private);                               
+                
+                await leaveOrgAs(users.viewer, organisations.public);
+                await leaveOrgAs(users.viewer, organisations.private);
+            });
+
+            // //essence: non member -> requires public org
+            // it('Should load • public/private org • follower • non member • public/private user', async ()=> {
+            //     await makeTargetedPost(organisations.public, users.public);                                    
+            //     await makeTargetedPost(organisations.private, users.public);                                    
+                
+            //     await makeTargetedPost(organisations.public, users.private);                                    
+            //     await makeTargetedPost(organisations.private, users.private);                                    
+                
+            //     await followAs(users.viewer, users.public);                
+            //     let posts = await getWallAs(users.viewer, users.public);
+            //     posts.should.have.lengthOf(2);                                                      
+            //     await unfollowAs(users.viewer, users.public);                               
+                
+            //     await followAs(users.viewer, users.private);
+            //     posts = await getWallAs(users.viewer, users.private);                
+            //     posts.should.have.lengthOf(2);
+            //     await unfollowAs(users.viewer, users.private);                               
+            // });
+
+            //essence: non follower => no target posts
+            //essence: org posts require mutual org
 
             // //essence: public org only requires follower 
             // it('Should load • private user • follower • public org • member/non member', async ()=> {
             //     await makeTargetedPost(organisations.public, users.private);                    
 
             //     await follow(users.viewer, users.private);
-            //     posts = await getWallAs(users.viewer, users.private);
+                
+            //     //non member
+            //     let posts = await getWallAs(users.viewer, users.private);
             //     posts.should.have.lengthOf(1);
-            //     await unfollow(users.viewer, users.private);    
+                
+            //     //member
+            //     await joinOrgAs(users.viewer, organisations.public);
+            //     posts.should.have.lengthOf(1);
+            //     await leaveOrgAs(users.viewer, organisations.public);
+
+            //     await unfollowAs(users.viewer, users.private);    
             // });
 
+            // //essence: public user, no need follower. public org post appears
             // it('Should load • public user • not follower • public org', async ()=> {
             //     await makeTargetedPost(organisations.public, users.public);                    
             //     let posts = await getWallAs(users.viewer, users.public);
@@ -298,34 +354,35 @@ describe('Access Control', function () {
             //     await makeTargetedPost(organisations.private, users.private);
 
             //     await follow(users.viewer, users.private);
-            //     await joinOrg(users.viewer, organisations.private);
+            //     await joinOrgAs(users.viewer, organisations.private);
             //     let posts = await getWallAs(users.viewer, users.private);
             //     posts.should.have.lengthOf(1);
-            //     await leaveOrg(users.viewer, organisations.private);
-            //     await unfollow(users.viewer, users.private);
+            //     await leaveOrgAs(users.viewer, organisations.private);
+            //     await unfollowAs(users.viewer, users.private);
             // });
 
             // //essence: not follower private using
             // //won't load anything (even tho access is given if same org)
-            // it('Should not load • private user • not follower • public/private org • member/non member', async ()=> {
+            // it('Should throw 403 • private user • not follower • public/private org • member/non member', async ()=> {
             //     await makeTargetedPost(organisations.public, users.private);
             //     await makeTargetedPost(organisations.private, users.private);
 
-            //     let posts = await getWallAs(users.viewer, users.private);
-            //     posts.should.have.lengthOf(0);
+            //     await getWallShouldFail(users.viewer, users.private);
             // });
 
-            // //essence: private org requires member
-            // it('Should not load • public user • follower • private org • non member', async ()=> {
-            //     await makeTargetedPost(organisations.private, users.public);
+            //essence: private org target requires member
+            it('Should not load • public user • follower • private org • non member', async ()=> {
+                await makeTargetedPost(organisations.private, users.public);
 
-            //     await follow(users.viewer, users.public);
-            //     let posts = await getWallAs(users.viewer, users.public);
-            //     posts.should.have.lengthOf(0);
-            //     await unfollow(users.viewer, users.public);
-            // });
+                await followAs(users.viewer, users.public);
+                let posts = await getWallAs(users.viewer, users.public);
+                posts.should.have.lengthOf(0);
+                await unfollowAs(users.viewer, users.public);
+            });
 
         });
+
+        return;
         describe('Organisation Wall', function () {
             it('', async ()=> {
 
@@ -340,16 +397,16 @@ describe('Access Control', function () {
                 let feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(0);
 
-                await follow(users.viewer, users.public);
+                await followAs(users.viewer, users.public);
                 feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(0);
-                await unfollow(users.viewer, users.public);
+                await unfollowAs(users.viewer, users.public);
             });
 
             //essence: member: should feed
             it('should feed • public/private poster • public/private org • member viewer • follower/non follower', async () => {			
-                await joinOrg(users.viewer, organisations.private);
-                await joinOrg(users.viewer, organisations.public);
+                await joinOrgAs(users.viewer, organisations.private);
+                await joinOrgAs(users.viewer, organisations.public);
 
                 await makeTargetedPost(organisations.private, users.public);
                 await makeTargetedPost(organisations.private, users.private);
@@ -363,17 +420,17 @@ describe('Access Control', function () {
                 feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(4);
 
-                await follow(users.viewer, users.public);
-                await follow(users.viewer, users.private);
+                await followAs(users.viewer, users.public);
+                await followAs(users.viewer, users.private);
                 
                 feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(4);
 
-                await unfollow(users.viewer, users.public);
-                await unfollow(users.viewer, users.private);
+                await unfollowAs(users.viewer, users.public);
+                await unfollowAs(users.viewer, users.private);
 
-                await leaveOrg(users.viewer, organisations.private);
-                await leaveOrg(users.viewer, organisations.public);
+                await leaveOrgAs(users.viewer, organisations.private);
+                await leaveOrgAs(users.viewer, organisations.public);
             });
             
             //essence: member or follower to feed
@@ -387,16 +444,16 @@ describe('Access Control', function () {
             it('should feed • public/private poster • no target • follower', async () => {			                
                 await makeUntargetedPost(users.private);
                 
-                await follow(users.viewer, users.private);
+                await followAs(users.viewer, users.private);
                 let feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(1);
-                await unfollow(users.viewer, users.private);
+                await unfollowAs(users.viewer, users.private);
                 
                 await makeUntargetedPost(users.public);
-                await follow(users.viewer, users.public);
+                await followAs(users.viewer, users.public);
                 feed = await getFeedAsUser(users.viewer);   
                 feed.should.have.lengthOf(1);
-                await unfollow(users.viewer, users.public);
+                await unfollowAs(users.viewer, users.public);
             });
 
             it('feed behaviour should match single post behaviour', async () => {                
@@ -419,7 +476,7 @@ describe('Access Control', function () {
                         for(let shouldBeFollowing of followingOptions) {
                             
                             if(shouldBeFollowing) {
-                                await follow(viewer, user);
+                                await followAs(viewer, user);
                             }
 
                             if(org === null) { 
@@ -453,7 +510,7 @@ describe('Access Control', function () {
                                     let post = await makeTargetedPost(org, user);
     
                                     if(shouldBeMember) {
-                                        await joinOrg(viewer, org);
+                                        await joinOrgAs(viewer, org);
                                     }
                                     
                                     let feed = await getFeedAsUser(viewer);   
@@ -465,7 +522,7 @@ describe('Access Control', function () {
                                     postValid.should.eql(feedValid);
                                     
                                     if(shouldBeMember) {
-                                        await leaveOrg(viewer, org);
+                                        await leaveOrgAs(viewer, org);
                                     }
 
                                     await Post.deleteMany({});
@@ -473,7 +530,7 @@ describe('Access Control', function () {
                             }
 
                             if(shouldBeFollowing) {
-                                await unfollow(viewer, user);
+                                await unfollowAs(viewer, user);
                             }
                         }
                     }

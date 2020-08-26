@@ -33,7 +33,7 @@ const can = (action, resource)=>{
                             let isFollowing = await userController.isFollowing(req.user._id, req.paramUser._id);
                             
                             if(!isFollowing) {
-                                throw ERROR_NOT_FOLLOWING_USER;
+                                throw ERROR_NOT_AUTHORISED;
                             }
                         }
                     }

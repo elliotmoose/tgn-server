@@ -71,8 +71,12 @@ router.get('/:userIdOrHandle/posts', setAndRequireUser, resolveParamUser, rbac.c
     let dateBefore = req.query.before; //gets comments that were before this date
     let pageSize = req.query.limit;
 
-    try {                
-        let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, dateBefore, pageSize);
+    try {                        
+        let viewerOrgIds = req.user.organisationIds; 
+        let publicOrgIds = await organisationController.filterPublicOrgs(req.paramUser.organisationIds);
+        let orgIds = [...new Set([...viewerOrgIds ,...publicOrgIds])];
+        let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, orgIds, dateBefore, pageSize);
+        // let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, dateBefore, pageSize);
 
         respond(res, posts);
     } catch (error) {

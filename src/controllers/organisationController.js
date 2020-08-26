@@ -62,6 +62,9 @@ const organisationController = {
         let orgData = await this.getOrganisationByIdOrHandle(orgIdOrHandle);
         let users = await User.find({ organisationIds: mongoose.Types.ObjectId(orgData._id)});
         return users.map((user)=>sanitizedUserData(user.toJSON()));
+    },
+    async filterPublicOrgs (organisationIds) {        
+        return await Organisation.find({_id: {$in: organisationIds}, public: true}).select('_id');
     }
 }
 

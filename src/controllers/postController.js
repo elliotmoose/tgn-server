@@ -188,14 +188,16 @@ const postController = {
 
         return updatedPostDoc.toJSON();
     },
-    async getUserPosts (viewerUserId, userId, dateBefore, pageSize) {        
+    async getUserPosts (viewerUserId, userId, targetIds, dateBefore, pageSize) {        
         
         let PAGE_SIZE = parseInt(pageSize) || 10;
         let DATE_BEFORE = dateBefore || Date.now();
         
         assertRequiredParams({userId});
         
-        let query = Post.find({user: userId, datePosted: {$lt : DATE_BEFORE}})
+        let query = Post.find({datePosted: {$lt : DATE_BEFORE}, user: userId, $or: [
+            {target: { $in: targetIds }}, {target: null}
+        ]})
         .sort('-datePosted')        
         .limit(PAGE_SIZE);
 
