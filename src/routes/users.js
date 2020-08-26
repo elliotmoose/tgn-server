@@ -72,11 +72,19 @@ router.get('/:userIdOrHandle/posts', setAndRequireUser, resolveParamUser, rbac.c
     let pageSize = req.query.limit;
 
     try {                        
+
         let viewerOrgIds = req.user.organisationIds; 
+
+        //if owner
+        if(req.user._id.equals(req.paramUser._id)) {
+            let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, viewerOrgIds, dateBefore, pageSize);
+            respond(res, posts);
+            return;
+        }
+
         let publicOrgIds = await organisationController.filterPublicOrgs(req.paramUser.organisationIds);
         let orgIds = [...new Set([...viewerOrgIds ,...publicOrgIds])];
         let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, orgIds, dateBefore, pageSize);
-        // let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, dateBefore, pageSize);
 
         respond(res, posts);
     } catch (error) {

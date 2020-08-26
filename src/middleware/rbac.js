@@ -24,15 +24,17 @@ const can = (action, resource)=>{
                     read: async () => {
                         assertParamResolved({paramUser: req.paramUser, user: req.user});
                         //if paramUser is private, and user is a follower
+                        
                         let isOwner = userController.compareEqualUserIds(req.paramUser._id, req.user._id);
                         if(isOwner) {
                             return; //can read own profile
                         }
 
+                        // console.log(req.paramUser)
                         if(!req.paramUser.public) {
                             let isFollowing = await userController.isFollowing(req.user._id, req.paramUser._id);
                             
-                            if(!isFollowing) {
+                            if(!isFollowing) {                                
                                 throw ERROR_NOT_AUTHORISED;
                             }
                         }

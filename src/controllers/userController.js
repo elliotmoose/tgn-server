@@ -192,12 +192,6 @@ const userController = {
         let isFollowedBy = await User.exists({_id: targetUserId, followers: {$eq: userId}});
         return isFollowing && isFollowedBy;
     },
-    getMutualOrganisationIds(organisationIdsA, organisationIdsB) {
-        //TODO: optimise by sorting
-        return organisationIdsA.filter((ida) => {
-            return organisationIdsB.findIndex((idb)=>ida.equals(idb)) !== -1;
-        });
-    }
 }
 
 module.exports = userController;
