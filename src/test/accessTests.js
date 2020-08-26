@@ -104,6 +104,10 @@ const unfollow = async function (user, toUnfollow) {
 
 const getWallAs = async function (viewer, user) {
     let getWallRes = await chai.request(server).get(`/users/${user._id}/posts`).set('authorization', `Bearer ${viewer.token}`).send();
+
+    if(getWallRes.body.error) {
+        console.log(getWallRes.body.error)
+    }
     getWallRes.should.have.status(200);  
     return getWallRes.body.data;
 }
@@ -250,79 +254,78 @@ describe('Access Control', function () {
                 
         //     })            
         // })
+        describe('User Wall', function () {
+            //essence: public => no target posts
+            it('Should load • no target • public user • follower/non follower • ', async ()=> {
+                await makeUntargetedPost(users.public);                    
+                let posts = await getWallAs(users.viewer, users.public);
+                posts.should.have.lengthOf(1);
+            });
 
-        // describe('User Wall', function () {
-        //     //essence: public => no target posts
-        //     it('Should load • no target • public user • follower/non follower • ', async ()=> {
-        //         await makeUntargetedPost(users.public);                    
-        //         let posts = await getWallAs(users.viewer, users.public);
-        //         posts.should.have.lengthOf(1);
-        //     });
-
-        //     //essence: follower => no target posts
-        //     it('Should load • no target • follower • public/private user ', async ()=> {
-        //         await makeUntargetedPost(users.public);                    
+            //essence: follower => no target posts
+            it('Should load • no target • follower • public/private user ', async ()=> {
+                await makeUntargetedPost(users.public);                    
                 
-        //         await follow(users.viewer, users.public);
-        //         let posts = await getWallAs(users.viewer, users.public);
-        //         posts.should.have.lengthOf(1);
-        //         await unfollow(users.viewer, users.public);                               
+                await follow(users.viewer, users.public);
+                let posts = await getWallAs(users.viewer, users.public);
+                posts.should.have.lengthOf(1);
+                await unfollow(users.viewer, users.public);                               
                 
-        //         await follow(users.viewer, users.private);
-        //         posts = await getWallAs(users.viewer, users.private);
-        //         posts.should.have.lengthOf(1);
-        //         await unfollow(users.viewer, users.private);                               
-        //     });
+                await follow(users.viewer, users.private);
+                posts = await getWallAs(users.viewer, users.private);                
+                posts.should.have.lengthOf(1);
+                await unfollow(users.viewer, users.private);                               
+            });
 
-        //     //essence: public org only requires follower 
-        //     it('Should load • private user • follower • public org • member/non member', async ()=> {
-        //         await makeTargetedPost(organisations.public, users.private);                    
+            // //essence: public org only requires follower 
+            // it('Should load • private user • follower • public org • member/non member', async ()=> {
+            //     await makeTargetedPost(organisations.public, users.private);                    
 
-        //         await follow(users.viewer, users.private);
-        //         posts = await getWallAs(users.viewer, users.private);
-        //         posts.should.have.lengthOf(1);
-        //         await unfollow(users.viewer, users.private);    
-        //     });
+            //     await follow(users.viewer, users.private);
+            //     posts = await getWallAs(users.viewer, users.private);
+            //     posts.should.have.lengthOf(1);
+            //     await unfollow(users.viewer, users.private);    
+            // });
 
-        //     it('Should load • public user • not follower • public org', async ()=> {
-        //         await makeTargetedPost(organisations.public, users.public);                    
-        //         let posts = await getWallAs(users.viewer, users.public);
-        //         posts.should.have.lengthOf(1);                
-        //     });
+            // it('Should load • public user • not follower • public org', async ()=> {
+            //     await makeTargetedPost(organisations.public, users.public);                    
+            //     let posts = await getWallAs(users.viewer, users.public);
+            //     posts.should.have.lengthOf(1);                
+            // });
             
-        //     //essence: [private org private user] requires [follower AND member]
-        //     it('Should load • private user • follower • private org • member', async ()=> {
-        //         await makeTargetedPost(organisations.private, users.private);
+            // //essence: [private org private user] requires [follower AND member]
+            // it('Should load • private user • follower • private org • member', async ()=> {
+            //     await makeTargetedPost(organisations.private, users.private);
 
-        //         await follow(users.viewer, users.private);
-        //         await joinOrg(users.viewer, organisations.private);
-        //         let posts = await getWallAs(users.viewer, users.private);
-        //         posts.should.have.lengthOf(1);
-        //         await leaveOrg(users.viewer, organisations.private);
-        //         await unfollow(users.viewer, users.private);
-        //     });
+            //     await follow(users.viewer, users.private);
+            //     await joinOrg(users.viewer, organisations.private);
+            //     let posts = await getWallAs(users.viewer, users.private);
+            //     posts.should.have.lengthOf(1);
+            //     await leaveOrg(users.viewer, organisations.private);
+            //     await unfollow(users.viewer, users.private);
+            // });
 
-        //     //essence: not follower private using
-        //     //won't load anything (even tho access is given if same org)
-        //     it('Should not load • private user • not follower • public/private org • member/non member', async ()=> {
-        //         await makeTargetedPost(organisations.public, users.private);
-        //         await makeTargetedPost(organisations.private, users.private);
+            // //essence: not follower private using
+            // //won't load anything (even tho access is given if same org)
+            // it('Should not load • private user • not follower • public/private org • member/non member', async ()=> {
+            //     await makeTargetedPost(organisations.public, users.private);
+            //     await makeTargetedPost(organisations.private, users.private);
 
-        //         let posts = await getWallAs(users.viewer, users.private);
-        //         posts.should.have.lengthOf(0);
-        //     });
+            //     let posts = await getWallAs(users.viewer, users.private);
+            //     posts.should.have.lengthOf(0);
+            // });
 
-        //     //essence: private org requires member
-        //     it('Should not load • public user • follower • private org • non member', async ()=> {
-        //         await makeTargetedPost(organisations.private, users.public);
+            // //essence: private org requires member
+            // it('Should not load • public user • follower • private org • non member', async ()=> {
+            //     await makeTargetedPost(organisations.private, users.public);
 
-        //         await follow(users.viewer, users.public);
-        //         let posts = await getWallAs(users.viewer, users.public);
-        //         posts.should.have.lengthOf(0);
-        //         await unfollow(users.viewer, users.public);
-        //     });
+            //     await follow(users.viewer, users.public);
+            //     let posts = await getWallAs(users.viewer, users.public);
+            //     posts.should.have.lengthOf(0);
+            //     await unfollow(users.viewer, users.public);
+            // });
 
-        // });
+        });
         describe('Organisation Wall', function () {
             it('', async ()=> {
 

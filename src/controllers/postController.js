@@ -38,7 +38,7 @@ const postController = {
         assertRequiredParams({postId});
         assertParamTypeObjectId(postId);
         let query = Post.findOne({_id: postId});
-        let post = await this.execAndFormatPostQuery(viewerUserId, query);
+        let post = await this.execPopulatedPostFindQuery(viewerUserId, query);
 
         if(!post) {
             throw ERROR_POST_NOT_FOUND;
@@ -189,8 +189,17 @@ const postController = {
         return updatedPostDoc.toJSON();
     },
     async getUserPosts (viewerUserId, userId, dateBefore, pageSize) {        
+        
+        let PAGE_SIZE = parseInt(pageSize) || 10;
+        let DATE_BEFORE = dateBefore || Date.now();
+        
         assertRequiredParams({userId});
-        let posts = await Post.find({user: userId}).select('-comments -reactions');
+        
+        let query = Post.find({user: userId, datePosted: {$lt : DATE_BEFORE}})
+        .sort('-datePosted')        
+        .limit(PAGE_SIZE);
+
+        let posts = this.execPopulatedPostFindQuery(viewerUserId, query);
         
         if(!posts)
         {
@@ -208,8 +217,8 @@ const postController = {
         let query = Post.find({datePosted: {$lt : DATE_BEFORE}, $or: [{target: { $in: targetIds }}, {user: { $in: userIds }, target: null}] })
         .sort('-datePosted')        
         .limit(PAGE_SIZE);
-        
-        let posts = await this.execAndFormatPostQuery(viewerUserId, query);
+
+        let posts = await this.execPopulatedPostFindQuery(viewerUserId, query);
         
         if(!posts) {
             return [];
@@ -218,7 +227,7 @@ const postController = {
         //TODO: needs to filter out posts useer does not have access to
         return posts;
     }, 
-    async execAndFormatPostQuery(viewerUserId, query) {
+    async execPopulatedPostFindQuery(viewerUserId, query) {
         let result = await (query
         .populate({path: 'user', select: 'username public'})
         .populate({path: 'target', select: 'name handle public'})

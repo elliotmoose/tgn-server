@@ -47,6 +47,15 @@ const helpers = {
             // console.log(`Invalid object id: ${param}`);
             throw ERROR_INVALID_PARAM(`ObjectId`);
         }
+    },
+    assertParamResolved(params) {
+        Object.keys(params).forEach((key)=>{
+            if(params[key] === undefined || params[key] === null || params[key] === '')
+            {
+                console.log(`Param not resolved: ${key}`);
+                throw ERROR_INTERNAL_SERVER;
+            }
+        });
     }
 }
 

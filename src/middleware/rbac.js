@@ -1,5 +1,5 @@
 const { ERROR_NOT_AUTHORISED, ERROR_NOT_FOLLOWING_USER } = require("../constants/errors");
-const { respond } = require("../helpers/apiHelper");
+const { respond, assertParamResolved } = require("../helpers/apiHelper");
 const userController = require("../controllers/userController");
 const organisationController = require("../controllers/organisationController");
 const mongoose = require("mongoose");
@@ -15,12 +15,14 @@ const can = (action, resource)=>{
             let rules = {
                 user: {
                     edit: async () => {
+                        assertParamResolved({user: req.paramUser});
                         let isOwner = userController.compareEqualUserIds(req.paramUser._id, req.user._id);
                         if(!isOwner) {
                             throw ERROR_NOT_AUTHORISED;
                         }
                     },
                     read: async () => {
+                        assertParamResolved({paramUser: req.paramUser, user: req.user});
                         //if paramUser is private, and user is a follower
                         let isOwner = userController.compareEqualUserIds(req.paramUser._id, req.user._id);
                         if(isOwner) {
@@ -28,7 +30,8 @@ const can = (action, resource)=>{
                         }
 
                         if(!req.paramUser.public) {
-                            let isFollowing = await userController.isFollowing(req.user._id, req.paramUser.id);
+                            let isFollowing = await userController.isFollowing(req.user._id, req.paramUser._id);
+                            
                             if(!isFollowing) {
                                 throw ERROR_NOT_FOLLOWING_USER;
                             }
@@ -36,13 +39,15 @@ const can = (action, resource)=>{
                     }
                 },
                 post : {
-                    edit: async () => {                        
+                    edit: async () => {      
+                        assertParamResolved({paramPost: req.paramPost});                  
                         let isOwner = userController.compareEqualUserIds(req.paramPost.user._id, req.user._id);
                         if(!isOwner) {
                             throw ERROR_NOT_AUTHORISED;
                         }
                     },
                     read: async () => { 
+                        assertParamResolved({paramPost: req.paramPost, user: req.user});                  
                         let post = req.paramPost;
                         let viewingUser = req.user;
                         let postUser = post.user;

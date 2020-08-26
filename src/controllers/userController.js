@@ -186,6 +186,8 @@ const userController = {
     },
     async isFollowing(userId, targetUserId)
     {
+        assertParamTypeObjectId(userId);
+        assertParamTypeObjectId(targetUserId);
         let isFollowing = await User.exists({_id: userId, following: {$eq: targetUserId}});
         let isFollowedBy = await User.exists({_id: targetUserId, followers: {$eq: userId}});
         return isFollowing && isFollowedBy;
