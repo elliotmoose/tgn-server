@@ -67,18 +67,12 @@ router.put('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('ed
 /**
  * Get user data by id or by handl
  */
-router.get('/:userIdOrHandle/posts', setAndRequireUser, async (req, res)=>{
-    let userIdOrHandle = req.params.userIdOrHandle;    
-    
-    try {        
-        
-        let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
-        
-        if(!userData) {
-            throw ERROR_USER_NOT_FOUND;             
-        }            
-        
-        let posts = await postController.getPostsByUserId(userData._id);
+router.get('/:userIdOrHandle/posts', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), async (req, res)=>{
+    let dateBefore = req.query.before; //gets comments that were before this date
+    let pageSize = req.query.limit;
+
+    try {                
+        let posts = await postController.getUserPosts(req.user._id, req.paramUser._id, dateBefore, pageSize);
 
         respond(res, posts);
     } catch (error) {

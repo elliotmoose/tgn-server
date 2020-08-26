@@ -195,6 +195,7 @@ describe('Posts', function () {
 			loadMoreRes.body.data[0].content.should.eql('POST 1');
 			loadMoreRes.body.data[1].content.should.eql('POST 0');
 			loadMoreRes.body.data[2].content.should.eql(postTemplateData.content);
+
 			
 			//check with epoch dates
 			let epochDateRes = await chai.request(server).get(`/feed?limit=5&before=${Date.now()}`).set('authorization', `Bearer ${token}`).send();

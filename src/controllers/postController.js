@@ -37,30 +37,14 @@ const postController = {
     async getPost (postId, viewerUserId) {
         assertRequiredParams({postId});
         assertParamTypeObjectId(postId);
-        let post = await Post.findOne({_id: postId})
-        .populate({path: 'user', select: 'username public'})
-        .populate({path: 'target', select: 'name handle public'})
-        .populate({
-            path: 'comments', 
-            limit: 2, 
-            options: { sort: { datePosted : -1 }},
-            populate : {
-                path : 'user',
-                select: 'username'
-            }
-        })        
-        .populate({
-            path: 'reactions', 
-            match: {user: viewerUserId},
-        })
+        let query = Post.findOne({_id: postId});
+        let post = await this.execAndFormatPostQuery(viewerUserId, query);
 
         if(!post) {
             throw ERROR_POST_NOT_FOUND;
         }
 
-        let json = post.toJSON();
-        json.myReactions = json.reactions.map((reaction)=>reaction.reactionType);
-        return json;
+        return post;
     },
     async getComments(postId, dateAfter, pageSize) {
         assertRequiredParams({postId});
@@ -204,7 +188,7 @@ const postController = {
 
         return updatedPostDoc.toJSON();
     },
-    async getPostsByUserId (userId) {        
+    async getUserPosts (viewerUserId, userId, dateBefore, pageSize) {        
         assertRequiredParams({userId});
         let posts = await Post.find({user: userId}).select('-comments -reactions');
         
@@ -220,9 +204,22 @@ const postController = {
         let DATE_BEFORE = dateBefore || Date.now();
         
         // let posts = await Post.find({datePosted: {$lt : DATE_BEFORE}})
-        let posts = await Post.find({datePosted: {$lt : DATE_BEFORE}, $or: [{target: { $in: targetIds }}, {user: { $in: userIds }, target: null}] })
+        // let posts = await this.getPaginatedPostsAsViewer
+        let query = Post.find({datePosted: {$lt : DATE_BEFORE}, $or: [{target: { $in: targetIds }}, {user: { $in: userIds }, target: null}] })
         .sort('-datePosted')        
-        .limit(PAGE_SIZE)
+        .limit(PAGE_SIZE);
+        
+        let posts = await this.execAndFormatPostQuery(viewerUserId, query);
+        
+        if(!posts) {
+            return [];
+        }
+
+        //TODO: needs to filter out posts useer does not have access to
+        return posts;
+    }, 
+    async execAndFormatPostQuery(viewerUserId, query) {
+        let result = await (query
         .populate({path: 'user', select: 'username public'})
         .populate({path: 'target', select: 'name handle public'})
         .populate({
@@ -237,19 +234,26 @@ const postController = {
         .populate({
             path: 'reactions', 
             match: {user: viewerUserId},
-        })
+        }))
         
-        if(!posts) {
-            return [];
+        if(!result) {
+            return null;
         }
 
-        //TODO: needs to filter out posts useer does not have access to
-        return posts.map((post)=> {
-            let json = post.toJSON();
-            json.myReactions = json.reactions.map((reaction)=>reaction.reactionType);
+        if (result instanceof Array) {
+            return result.map((post) => {
+                let json = post.toJSON();
+                json.myReactions = json.reactions.map((reaction) => reaction.reactionType);
+                json.reactions = undefined;
+                return json
+            });
+        }
+        else {
+            let json = result.toJSON();
+            json.myReactions = json.reactions.map((reaction) => reaction.reactionType);
             json.reactions = undefined;
             return json
-        });
+        }
     }
 }
 

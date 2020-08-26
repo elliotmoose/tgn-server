@@ -22,8 +22,9 @@ router.get('/', setAndRequireUser, async (req, res)=>{
         //2. follows
         //3. organisation members
         let userFollows = req.user.following.map((user)=>user._id);
+        let userIds = [...userFollows, req.user._id]; //get own posts also
         let organisationIds = req.user.organisationIds;
-        let posts = await postController.getFeed(userId, userFollows, organisationIds, dateBefore, pageSize);
+        let posts = await postController.getFeed(userId, userIds, organisationIds, dateBefore, pageSize);
         respond(res, posts);
     } catch (error) {
         respond(res, {}, error);
