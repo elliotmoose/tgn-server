@@ -51,7 +51,10 @@ let userSchema = new mongoose.Schema({
         default: []        
     },
     organisationIds: {
-        type: [mongoose.Types.ObjectId],
+        type: [{
+            type: mongoose.Types.ObjectId,
+            ref: 'organisation'
+        }],
         required: 'This field is required',
         default: []        
     },

@@ -48,6 +48,18 @@ router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('re
 });
 
 /**
+ * Get user data by id or by handl
+ */
+router.get('/:userIdOrHandle/memberOf', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), async (req, res)=>{
+    try {        
+        let organisations = await userController.memberOf(req.paramUser._id);
+        respond(res, organisations);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
+/**
  * Update user data (incomplete: only updates public status of user account)
  */
 router.put('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('edit', 'user'), async (req, res)=>{

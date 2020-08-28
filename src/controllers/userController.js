@@ -53,6 +53,20 @@ const userController = {
         
         return sanitizedUserData(userDoc.toJSON());
     },
+    async memberOf (userId) {
+        assertRequiredParams({userId});
+        assertParamTypeObjectId(userId);
+
+        console.log(await User.findOne({_id: userId}));
+        let user = await User.findOne({_id: userId})
+        .populate({path: 'organisationIds', select: 'handle name'});
+        
+        if(!user) {
+            throw ERROR_USER_NOT_FOUND;
+        }
+        
+        return user.organisationIds.map((org)=>org.toJSON());
+    },
     async createUser (userData) {
         let { username, email, fullName, password, bio } = userData;
 

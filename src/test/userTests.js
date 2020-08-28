@@ -7,6 +7,7 @@ let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_CANNOT_FOLLOW_SELF, ERROR_ALREADY_FOLLOWING_USER, ERROR_NOT_FOLLOWING_USER, ERROR_USER_NOT_FOUND } = require('../constants/errors');
 const { organisationTemplateData, userCredentials, secondUserCredentials } = require('./templateData');
 const { follow } = require('../controllers/userController');
+const { joinOrgAs } = require('./testHelper');
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
 
@@ -138,6 +139,11 @@ describe('Users', function () {
 			let res = await chai.request(server).get(`/users/${userData._id}`).set('authorization', `Bearer ${token}`).send();
 			res.should.have.status(200);
 			res.body.data.should.be.like({username: userCredentials.username, email: userCredentials.email});
+		});
+		it('should get user member of', async () => {			
+			let res = await chai.request(server).get(`/users/${userData._id}/memberOf`).set('authorization', `Bearer ${token}`).send();
+			res.should.have.status(200);
+			//TODO: join org and check if it is in the response
 		});
 	});
 	
