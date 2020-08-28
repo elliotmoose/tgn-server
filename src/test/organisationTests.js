@@ -6,6 +6,7 @@ let like = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
 const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_MISSING_PARAM, ERROR_ORG_HANDLE_TAKEN, ERROR_ORG_NOT_FOUND, ERROR_ALREADY_JOINED_ORG } = require('../constants/errors');
+const templateData = require('./templateData');
 let Organisation = mongoose.model('organisation');
 let User = mongoose.model('user');
 
@@ -13,18 +14,9 @@ chai.use(chaiHttp);
 chai.use(like);
 let should = chai.should();
 
-let userCredentials = {
-	username: "mooselliot",
-	fullName: "Elliot Koh",
-	email: "kyzelliot@gmail.com",
-	password: "12345"
-}
+let userCredentials = templateData.userCredentials;
 
-let organisationData = {
-	handle: "organisationA",
-	name: "Organisation A",
-	contact: "64001234",
-}	
+let organisationData = templateData.organisationTemplateData;
 
 
 describe('Organisation', function () {
