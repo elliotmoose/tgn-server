@@ -54,7 +54,7 @@ const userController = {
         return sanitizedUserData(userDoc.toJSON());
     },
     async createUser (userData) {
-        let { username, email, fullName, password } = userData;
+        let { username, email, fullName, password, bio } = userData;
 
         assertRequiredParams({ username, email, fullName, password });
         validateUsername(username);
@@ -62,9 +62,9 @@ const userController = {
         validatePassword(password);
 
         //check for duplicate username/email
-        let usernameTaken = await User.findOne({ username });
-        let handleTaken = await Organisation.findOne({handle: username});
-        let emailTaken = await User.findOne({ email });
+        let usernameTaken = await User.exists({ username });
+        let handleTaken = await Organisation.exists({handle: username});
+        let emailTaken = await User.exists({ email });
 
         if (usernameTaken || handleTaken) {
             throw ERROR_USERNAME_TAKEN;
@@ -78,8 +78,8 @@ const userController = {
         let hashedPassword = crypto.hashPassword(password, passwordSalt);
 
         let newUser = new User({
-            username, fullName, email,
-            password: hashedPassword,
+            username, fullName, email, bio,
+            password: hashedPassword,            
             passwordSalt,
             role: ROLES.STANDARD
         });

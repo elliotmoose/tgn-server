@@ -36,7 +36,9 @@ let userSchema = new mongoose.Schema({
         default: false 
     },
     bio : {
-        type: String
+        type: String,
+        required: 'This field is required',
+        default: '' 
     },
     following: {
         type: [mongoose.Types.ObjectId],

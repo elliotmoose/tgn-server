@@ -1,34 +1,37 @@
 exports.organisationTemplateData = {
-	handle: "organisationA",
-	name: "Organisation A",
+	handle: "organisationPublic",
+	name: "Organisation Public",
 	contact: "64001234",
 }
 
 exports.secondOrganisationTemplateData = {
-	handle: "organisationB",
-	name: "Organisation B",
+	handle: "organisationPrivate",
+	name: "OrganisationPrivate",
 	contact: "64001234",
 	public: false
 }
 
 exports.userCredentials = {
-	username: "mooselliot",
-	fullName: "Elliot Koh",
-	email: "kyzelliot@gmail.com",
+	username: "llpofwy",
+	fullName: "Tan Wanyi",
+	bio: '"Wanting to be someone else is a waste of who you are"',
+	email: "llpofwy@gmail.com",
 	password: "12345"
 }
 
 exports.secondUserCredentials = {
 	username: "lywjoel",
 	fullName: "Joel Lee",
+	bio: 'The best things come from living outside of your comfort zone.',
 	email: "lywjoel@gmail.com",
 	password: "12345"
 }
 
 exports.thirdUserCredentials = {
-	username: "llpofwy",
-	fullName: "Tan Wanyi",
-	email: "llpofwy@gmail.com",
+	username: "mooselliot",
+	fullName: "Elliot Koh",
+	bio: 'My hobbies are breakfast, lunch, and dinner topped with a chocolate dessert',
+	email: "kyzelliot@gmail.com",
 	password: "12345"
 }
 

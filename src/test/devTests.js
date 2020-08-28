@@ -31,43 +31,72 @@ async function main() {
 
     try {
         await initTestHelper(server);    
-        await followAs(users.public, users.private);
-    
-        await joinOrgAs(users.private, organisations.private);
-        await joinOrgAs(users.private, organisations.public);
-    
-        let privateToPublicPost = await makeTargetedPost(organisations.public, users.private);
-        let privateToPrivatePost = await makeTargetedPost(organisations.private, users.private);
-        let privateUntargetedPost = await makeUntargetedPost(users.private);    
-    
-        console.log(users.public)
-        await reactToPostAs(users.public, privateToPublicPost._id);
-        await reactToPostAs(users.public, privateToPrivatePost._id);        
+                
+        scenarioA();
     } catch (error) {
         console.error(error);
     }
+}
+
+
+//can see posts to organisation from users I am not following
+async function scenarioA() {
+    await followAs(users.public, users.private);
+    
+    // await followAs(users.viewer, users.public);
+    await followAs(users.viewer, users.private);
+    
+    await joinOrgAs(users.viewer, organisations.private);
+    await joinOrgAs(users.viewer, organisations.public);
+    let viewerToPublicPost = await makeTargetedPost(organisations.public, users.viewer);
+    let viewerToPrivatePost = await makeTargetedPost(organisations.private, users.viewer);
+    let viewerUntargetedPost = await makeUntargetedPost(users.viewer);    
+    
+    await joinOrgAs(users.public, organisations.private);
+    await joinOrgAs(users.public, organisations.public);
+    let publicToPublicPost = await makeTargetedPost(organisations.public, users.public);
+    let publicToPrivatePost = await makeTargetedPost(organisations.private, users.public);
+    let publicUntargetedPost = await makeUntargetedPost(users.public);    
 
     
-    // for(let i=0; i< 30; i++)
-    // {
-        
-    //     let postRes = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${tokens[0]}`).send({...postTemplateData, content: `POST ${i}`});    
-    //     let postId = postRes.body.data._id;
-        
-    //     for(let token of tokens)
-    //     {
-    //         for(let i=0; i< 2; i++)
-    //         {        
-    //             await chai.request(server).post(`/posts/${postId}/comment`).set('authorization', `Bearer ${token}`).send({...commentTemplateData, content: `COMMENT ${i}`});    
-    //         }
-            
-    //         let reactRes = await chai.request(server).post(`/posts/${postId}/react`).set('authorization', `Bearer ${token}`).send({reactionType: 'like'});            
-    //         reactRes.should.have.status(200);
-    //         let reactLoveRes = await chai.request(server).post(`/posts/${postId}/react`).set('authorization', `Bearer ${token}`).send({reactionType: 'love'});    
-    //         reactLoveRes.should.have.status(200);
-    //     }
-    // }
+    await joinOrgAs(users.private, organisations.private);
+    await joinOrgAs(users.private, organisations.public);
+    let privateToPublicPost = await makeTargetedPost(organisations.public, users.private);
+    let privateToPrivatePost = await makeTargetedPost(organisations.private, users.private);
+    let privateUntargetedPost = await makeUntargetedPost(users.private);    
+
+    await reactToPostAs(users.public, privateToPublicPost._id);
+    await reactToPostAs(users.public, privateToPrivatePost._id);       
+}
+
+//user can see post to private org, but cannot see private user unless followed
+async function scenarioB() {
+    let viewerUntargetedPost = await makeUntargetedPost(users.viewer);    
+    await joinOrgAs(users.viewer, organisations.private);
     
+    await joinOrgAs(users.private, organisations.private);
+    await joinOrgAs(users.private, organisations.public);
+    let privateToPublicPost = await makeTargetedPost(organisations.public, users.private);
+    let privateToPrivatePost = await makeTargetedPost(organisations.private, users.private);
+    let privateUntargetedPost = await makeUntargetedPost(users.private);   
+    
+    await reactToPostAs(users.viewer, privateToPublicPost._id);
+    await reactToPostAs(users.viewer, privateToPrivatePost._id);       
+}
+
+//user can see private user post to public, but won't appear on feed
+//feed is built if followed
+async function scenarioC() {
+    await followAs(users.viewer, users.private);
+    let viewerUntargetedPost = await makeUntargetedPost(users.viewer);    
+    
+    await joinOrgAs(users.private, organisations.private);
+    let privateToPublicPost = await makeTargetedPost(organisations.public, users.private);
+    let privateToPrivatePost = await makeTargetedPost(organisations.private, users.private);
+    let privateUntargetedPost = await makeUntargetedPost(users.private);    
+
+    await reactToPostAs(users.public, privateToPublicPost._id);
+    await reactToPostAs(users.public, privateToPrivatePost._id);       
 }
 
 main();
