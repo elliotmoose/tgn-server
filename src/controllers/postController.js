@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const { assertRequiredParams, assertParamTypeObjectId } = require('../helpers/apiHelper');
 const { ERROR_POST_NOT_FOUND, ERROR_REACTION_EXISTS, ERROR_INVALID_PARAM, ERROR_REACTION_NOT_FOUND } = require('../constants/errors');
 
+const User = mongoose.model('user');
 const Post = mongoose.model('post');
 const Comment = mongoose.model('comment');
 const Reaction = mongoose.model('reaction');
