@@ -1,4 +1,4 @@
-const { ERROR_MISSING_PARAM, ERROR_INTERNAL_SERVER, ERROR_INVALID_PARAM } = require("../constants/errors");
+const { ERROR_MISSING_PARAM, ERROR_INTERNAL_SERVER, ERROR_INVALID_PARAM, APIError } = require("../constants/errors");
 const mongoose = require('mongoose');
 
 const helpers = {
@@ -18,12 +18,15 @@ const helpers = {
         if(error)
         {
             //force to fit format
-            let isExternal = error.status && error.message && error.code;
-            let errorFinal = error;
+            let isExternal = error instanceof APIError;
+            let errorFinal;
             if(!isExternal)
             {
                 console.log(error.stack);
-                errorFinal = {...ERROR_INTERNAL_SERVER, err: `${error}`};
+                errorFinal = {...ERROR_INTERNAL_SERVER().toJSON(), err: `${error.toJSON()}`};
+            }
+            else {
+                errorFinal = error.toJSON();
             }
             
             body.error = errorFinal;
@@ -36,7 +39,7 @@ const helpers = {
         Object.keys(fields).forEach((key)=>{
             if(fields[key] === undefined || fields[key] === null || fields[key] === '')
             {
-                throw ERROR_MISSING_PARAM;
+                throw ERROR_MISSING_PARAM();
             }
         });
     },
@@ -53,7 +56,7 @@ const helpers = {
             if(params[key] === undefined || params[key] === null || params[key] === '')
             {
                 console.log(`Param not resolved: ${key}`);
-                throw ERROR_INTERNAL_SERVER;
+                throw ERROR_INTERNAL_SERVER();
             }
         });
     }

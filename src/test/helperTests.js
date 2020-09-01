@@ -20,7 +20,7 @@ describe('Helpers', function () {
                 crypto.decodeJsonWebToken(token);
                 assert.fail('Should have thrown ERROR_TOKEN_EXPIRED');
             } catch (error) {
-                error.should.equal(ERROR_TOKEN_EXPIRED);
+                error.toJSON().should.eql(ERROR_TOKEN_EXPIRED().toJSON());
             }
 		});
         

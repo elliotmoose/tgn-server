@@ -33,13 +33,13 @@ let crypto = {
         } catch (error) {
             switch (error.name) {
                 case 'TokenExpiredError': {
-                    throw ERROR_TOKEN_EXPIRED;
+                    throw ERROR_TOKEN_EXPIRED();
                 }
                 case 'JsonWebTokenError': {
-                    throw ERROR_INVALID_TOKEN;
+                    throw ERROR_INVALID_TOKEN();
                 }
                 default: {
-                    throw ERROR_INVALID_TOKEN;
+                    throw ERROR_INVALID_TOKEN();
                 }
             }
         }

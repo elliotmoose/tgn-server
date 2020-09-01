@@ -56,7 +56,7 @@ export const makeTargetedPost = async function (targetOrg, user) {
     
     let makePostRes = await chai.request(server).post(`/posts/`).set('authorization', `Bearer ${user.token}`).send({
         content: `Post created by ${user.username} (${userPublicStatus}) with target ${targetOrg.handle} (${orgPublicStatus})`,
-        postType: 'testimony',
+        postType: user.public ? 'testimony' : targetOrg.public ? 'pray for me' : 'announcement',
         target: targetOrg._id
     });
     makePostRes.should.have.status(200);
@@ -126,11 +126,16 @@ export const getWallAs = async function (viewer, user) {
 }
 export const getWallShouldFail = async function (viewer, user) {
     let getWallRes = await chai.request(server).get(`/users/${user._id}/posts`).set('authorization', `Bearer ${viewer.token}`).send();
-    getWallRes.should.have.status(ERROR_NOT_AUTHORISED.status);  
-    getWallRes.body.error.should.eql(ERROR_NOT_AUTHORISED);  
+    getWallRes.should.have.status(ERROR_NOT_AUTHORISED().status);  
+    getWallRes.body.error.should.eql(ERROR_NOT_AUTHORISED());  
 }
 
 export const reactToPostAs = async function (user, postId) {
     let reactRes = await chai.request(server).post(`/posts/${postId}/react`).set('authorization', `Bearer ${user.token}`).send({reactionType: 'love'});               
+    reactRes.should.have.status(200);
+}
+
+export const commentOnPostAs = async function (user, postId) {
+    let reactRes = await chai.request(server).post(`/posts/${postId}/comment`).set('authorization', `Bearer ${user.token}`).send({content: `Here's a comment by ${user.username}!`});               
     reactRes.should.have.status(200);
 }

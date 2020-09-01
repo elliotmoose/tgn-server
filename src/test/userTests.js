@@ -40,12 +40,12 @@ describe('Users', function () {
 		it('should reject invalid username ', async () => {			
 			let res = await chai.request(server).post('/users/').send({...userCredentials, username: '__usead.1!'});
 			res.should.have.status(400);
-			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('username'));
+			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('username').toJSON());
 		});
 		it('should reject invalid email ', async () => {			
 			let res = await chai.request(server).post('/users/').send({...userCredentials, email: 'kyzelliot@@gmail.com'});
 			res.should.have.status(400);
-			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('email'));
+			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('email').toJSON());
 		});
 		it('should create a new user ', async () => {			
 			let res = await chai.request(server).post('/users/').send(userCredentials);
@@ -63,17 +63,17 @@ describe('Users', function () {
 		it('should not allow duplicate username', async () => {
 			let res = await chai.request(server).post('/users/').send({...userCredentials, email: 'abcedf@gmail.com'});
 			res.should.have.status(409);
-			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
+			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN().toJSON());
 		});
 		it('should not overlap organisation handle', async () => {
 			let res = await chai.request(server).post('/users/').send({...userCredentials, username: organisationTemplateData.handle});
 			res.should.have.status(409);
-			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN);
+			res.body.should.have.property('error').eql(ERROR_USERNAME_TAKEN().toJSON());
 		});
 		it('should not allow duplicate email', async () => {
 			let res = await chai.request(server).post('/users/').send({...userCredentials, username: 'abcdefg' });
 			res.should.have.status(409);
-			res.body.should.have.property('error').eql(ERROR_EMAIL_TAKEN);
+			res.body.should.have.property('error').eql(ERROR_EMAIL_TAKEN().toJSON());
 		});		
 	});
 
@@ -81,12 +81,12 @@ describe('Users', function () {
 		it('should reject login with wrong password', async () => {
 			let res = await chai.request(server).post('/users/login').send({username: userCredentials.username, password: '54321'});
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_LOGIN_FAILED);				
+			res.body.should.have.property('error').eql(ERROR_LOGIN_FAILED().toJSON());				
 		});
 		it('should reject login with wrong username', async () => {
 			let res = await chai.request(server).post('/users/login').send({username: 'asdfghjk', password: userCredentials.password});
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_LOGIN_FAILED);				
+			res.body.should.have.property('error').eql(ERROR_LOGIN_FAILED().toJSON());				
 		});
 		
 		it('should login with correct credentials and generate jwt', async () => {
@@ -115,12 +115,12 @@ describe('Users', function () {
 		it('should reject unauthenticated get', async () => {
 			let res = await chai.request(server).get(`/users/${userData._id}`).send();
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN);
+			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN().toJSON());
 		});
 		it('should reject invalid token', async () => {
 			let res = await chai.request(server).get(`/users/${userData._id}`).set('authorization', `Bearer SomeOtherTokenValue`).send();
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_INVALID_TOKEN);
+			res.body.should.have.property('error').eql(ERROR_INVALID_TOKEN().toJSON());
 		});
 		it('should accept valid token', async () => {
 			let res = await chai.request(server).get(`/users/${userData._id}`).set('authorization', `Bearer ${token}`).send();
@@ -159,22 +159,22 @@ describe('Users', function () {
 			let res = await chai.request(server).put(`/users/${userData._id}`).send({
 				public: true
 			});
-			res.should.have.status(ERROR_MISSING_TOKEN.status);
-			res.body.error.should.eql(ERROR_MISSING_TOKEN);
+			res.should.have.status(ERROR_MISSING_TOKEN().status);
+			res.body.error.should.eql(ERROR_MISSING_TOKEN().toJSON());
 		});
 		it('should reject if requested by another user', async () => {
 			let res = await chai.request(server).put(`/users/${userData._id}`).set('authorization', `Bearer ${secondUserToken}`).send({
 				public: true
 			});
-			res.should.have.status(ERROR_NOT_AUTHORISED.status);
-			res.body.error.should.eql(ERROR_NOT_AUTHORISED);
+			res.should.have.status(ERROR_NOT_AUTHORISED().status);
+			res.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());
 		});
 		it('should reject if user does not exist', async () => {
 			let res = await chai.request(server).put(`/users/abcdefg`).set('authorization', `Bearer ${secondUserToken}`).send({
 				public: true
 			});
-			res.should.have.status(ERROR_USER_NOT_FOUND.status);
-			res.body.error.should.eql(ERROR_USER_NOT_FOUND);
+			res.should.have.status(ERROR_USER_NOT_FOUND().status);
+			res.body.error.should.eql(ERROR_USER_NOT_FOUND().toJSON());
 		});
 	});
 	
@@ -195,7 +195,7 @@ describe('Users', function () {
 		it('should be ok to follow twice with error', async () => {
 			let res = await chai.request(server).post(`/users/${secondUserCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
 			res.should.have.status(200);
-			res.body.should.have.property('data').eql(ERROR_ALREADY_FOLLOWING_USER);
+			res.body.should.have.property('data').eql(ERROR_ALREADY_FOLLOWING_USER().toJSON());
 		});
 		it('should get followers and following', async () => {			
 			let followingRes = await chai.request(server).get(`/users/${userCredentials.username}/following`).set('authorization', `Bearer ${token}`).send();
@@ -209,7 +209,7 @@ describe('Users', function () {
 		it('should not allow to follow ownself', async () => {
 			let res = await chai.request(server).post(`/users/${userCredentials.username}/follow`).set('authorization', `Bearer ${token}`).send();
 			res.should.have.status(403);
-			res.body.should.have.property('error').eql(ERROR_CANNOT_FOLLOW_SELF);
+			res.body.should.have.property('error').eql(ERROR_CANNOT_FOLLOW_SELF().toJSON());
 		});		
 		it('should unfollow', async () => {
 			let res = await chai.request(server).post(`/users/${secondUserCredentials.username}/unfollow`).set('authorization', `Bearer ${token}`).send();
@@ -222,7 +222,7 @@ describe('Users', function () {
 		it('unfollow twice should be fine', async () => {
 			let res = await chai.request(server).post(`/users/${secondUserCredentials.username}/unfollow`).set('authorization', `Bearer ${token}`).send();
 			res.should.have.status(200);
-			res.body.should.have.property('data').eql(ERROR_NOT_FOLLOWING_USER);
+			res.body.should.have.property('data').eql(ERROR_NOT_FOLLOWING_USER().toJSON());
 		});
 		
 	});

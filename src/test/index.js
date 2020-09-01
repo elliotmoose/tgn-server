@@ -1,3 +1,4 @@
+require = require('esm')(module);
 process.env.NODE_ENV = 'TEST';
 
 require('./helperTests')

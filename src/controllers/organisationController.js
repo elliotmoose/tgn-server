@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { assertRequiredParams, assertParamTypeObjectId } = require('../helpers/apiHelper');
 const { validateHandle, sanitizedUserData } = require('../helpers/userHelper');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_LOGIN_FAILED, ERROR_ORG_HANDLE_TAKEN, ERROR_ORG_NOT_FOUND, ERROR_USER_NOT_FOUND } = require('../constants/errors');
+const {ERROR_ORG_HANDLE_TAKEN, ERROR_ORG_NOT_FOUND} = require('../constants/errors');
 const { search } = require('../server');
 
 const Organisation = mongoose.model('organisation');
@@ -36,7 +36,7 @@ const organisationController = {
 
         if(!organisationDoc)
         {
-            throw ERROR_ORG_NOT_FOUND;
+            throw ERROR_ORG_NOT_FOUND();
         }
 
         return organisationDoc.toJSON();
@@ -50,7 +50,7 @@ const organisationController = {
         let orgHandleTaken = await Organisation.findOne({handle});
         if(usernameTaken || orgHandleTaken)   
         {
-            throw ERROR_ORG_HANDLE_TAKEN;
+            throw ERROR_ORG_HANDLE_TAKEN();
         }
 
         let newOrg = new Organisation({handle, name, address, contact, description, website, public});

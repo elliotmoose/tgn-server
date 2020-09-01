@@ -48,12 +48,12 @@ describe('Organisation', function () {
 		it('should reject invalid handle', async () => {			
 			let res = await chai.request(server).post('/organisations/').send({...organisationData, handle: '__usead.1!'});
 			res.should.have.status(400);
-			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('handle'));
+			res.body.should.have.property('error').eql(ERROR_INVALID_PARAM('handle').toJSON());
 		});
 		it('should reject incomplete details', async () => {			
 			let res = await chai.request(server).post('/organisations/').send({...organisationData, name: undefined});
 			res.should.have.status(400);
-			res.body.should.have.property('error').eql(ERROR_MISSING_PARAM);
+			res.body.should.have.property('error').eql(ERROR_MISSING_PARAM().toJSON());
 		});
 		// it('should reject non super user', async () => {			
 		// 	let res = await chai.request(server).post('/organisations/').send(organisationData);
@@ -83,12 +83,12 @@ describe('Organisation', function () {
 		it('should reject taken handle by org', async () => {			
 			let res = await chai.request(server).post('/organisations/').send(organisationData);
 			res.should.have.status(409);
-			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN);
+			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN().toJSON());
 		});
 		it('should reject taken handle by username', async () => {						
 			let res = await chai.request(server).post('/organisations/').send({...organisationData, handle: userCredentials.username});
 			res.should.have.status(409);
-			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN);
+			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN().toJSON());
 		});
 	});
 
@@ -112,7 +112,7 @@ describe('Organisation', function () {
 		it('should handle invalid id', async () => {
 			let getRes = await chai.request(server).get(`/organisations/${orgData._id}x`).send();
 			getRes.should.have.status(404);
-			getRes.body.should.have.property('error').eql(ERROR_ORG_NOT_FOUND);
+			getRes.body.should.have.property('error').eql(ERROR_ORG_NOT_FOUND().toJSON());
 		});
 	});
 
@@ -159,17 +159,17 @@ describe('Organisation', function () {
 		it('should reject joining twice', async ()=>{
 			let res = await chai.request(server).post(`/organisations/${orgData.handle}/userJoin/`).set('authorization', `Bearer ${token}`).send();
 			res.should.have.status(409);
-			res.body.should.have.property('error').eql(ERROR_ALREADY_JOINED_ORG);
+			res.body.should.have.property('error').eql(ERROR_ALREADY_JOINED_ORG().toJSON());
 		});
 		it('should handle invalid org id', async ()=>{
 			let res = await chai.request(server).post(`/organisations/${orgData._id}x/userJoin/`).set('authorization', `Bearer ${token}`).send();
 			res.should.have.status(404);
-			res.body.should.have.property('error').eql(ERROR_ORG_NOT_FOUND);
+			res.body.should.have.property('error').eql(ERROR_ORG_NOT_FOUND().toJSON());
 		});
 		it('should require user token', async ()=>{
 			let res = await chai.request(server).post(`/organisations/${orgData._id}/userJoin/`).send();
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN);
+			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN().toJSON());
 		});
 	});
 	
@@ -177,7 +177,7 @@ describe('Organisation', function () {
 		it('should require token', async () => {
 			let res = await chai.request(server).get(`/organisations/${orgData._id}/members/`).send();			
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN);
+			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN().toJSON());
 		})
 		it('should get all members by org id', async () => {
 			let res = await chai.request(server).get(`/organisations/${orgData._id}/members/`).set('authorization', `Bearer ${token}`).send();
@@ -197,7 +197,7 @@ describe('Organisation', function () {
 		it('should handle invalid org id', async () => {
 			let res = await chai.request(server).get(`/organisations/${orgData.handle}x/members/`).set('authorization', `Bearer ${token}`).send();			
 			res.should.have.status(404);
-			res.body.should.have.property('error').eql(ERROR_ORG_NOT_FOUND);
+			res.body.should.have.property('error').eql(ERROR_ORG_NOT_FOUND().toJSON());
 		})
 	});
 });

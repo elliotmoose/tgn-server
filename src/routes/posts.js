@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
-const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_ALREADY_JOINED_ORG, ERROR_NOT_ORG_MEMBER, ERROR_REACTION_NOT_FOUND, ERROR_REACTION_EXISTS } = require('../constants/errors');
+const { ERROR_NOT_ORG_MEMBER, ERROR_REACTION_NOT_FOUND, ERROR_REACTION_EXISTS } = require('../constants/errors');
 const { setAndRequireUser } = require('../middleware/user');
 const router = express.Router();
 const mongoose = require('mongoose');
@@ -20,7 +20,7 @@ router.post('/', setAndRequireUser, async (req, res)=>{
             let isMember = req.user.organisationIds.findIndex((id) => id.equals(target)) != -1;
 
             if(!isMember) {
-                throw ERROR_NOT_ORG_MEMBER;
+                throw ERROR_NOT_ORG_MEMBER();
             }
         }
 
@@ -38,7 +38,7 @@ router.get('/:postId', setAndRequireUser, resolveParamPost, rbac.can('read', 'po
         let post = await postController.getPost(postId);
         respond(res, post);
     } catch (error) {
-        if(error == ERROR_REACTION_EXISTS) {
+        if(error.code == 'ERROR_REACTION_EXISTS') {
             respond(res, error);            
             return;
         }
@@ -55,7 +55,7 @@ router.post('/:postId/react', setAndRequireUser, async (req, res)=>{
         await postController.reactToPost(reactionType, postId, userId);
         respond(res, {success: true});
     } catch (error) {
-        if(error == ERROR_REACTION_EXISTS) {
+        if(error.code == 'ERROR_REACTION_EXISTS') {
             respond(res, error);            
             return;
         }
@@ -72,7 +72,7 @@ router.post('/:postId/unreact', setAndRequireUser, async (req, res)=>{
         await postController.unreactToPost(reactionType, postId, userId);        
         respond(res, {success: true});
     } catch (error) {
-        if(error == ERROR_REACTION_NOT_FOUND) {
+        if(error.code == 'ERROR_REACTION_NOT_FOUND') {
             respond(res, error);            
             return;
         }

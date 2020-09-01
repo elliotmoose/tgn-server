@@ -1,7 +1,7 @@
 const express = require('express');
 const userController = require('../controllers/userController');
 const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
-const { ERROR_USER_NOT_FOUND, ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_NOT_AUTHORISED, ERROR_ALREADY_JOINED_ORG, ERROR_NOT_ORG_MEMBER } = require('../constants/errors');
+const { ERROR_ORG_NOT_FOUND, ERROR_INTERNAL_SERVER, ERROR_ALREADY_JOINED_ORG, ERROR_NOT_ORG_MEMBER } = require('../constants/errors');
 const { setAndRequireUser } = require('../middleware/user');
 const organisationController = require('../controllers/organisationController');
 const router = express.Router();
@@ -18,7 +18,7 @@ router.post('/:orgIdOrHandle/userJoin', setAndRequireUser, async (req, res)=>{
         let orgData = await organisationController.getOrganisationByIdOrHandle(orgIdOrHandle);
         if(!orgData)
         {
-            throw ERROR_ORG_NOT_FOUND;
+            throw ERROR_ORG_NOT_FOUND();
         }        
 
         //TODO: check if org is private or public, to see if it requires a pending approval process
@@ -29,7 +29,7 @@ router.post('/:orgIdOrHandle/userJoin', setAndRequireUser, async (req, res)=>{
 
         if(isMember)
         {
-            throw ERROR_ALREADY_JOINED_ORG;
+            throw ERROR_ALREADY_JOINED_ORG();
         }
         
         //user exists and update
@@ -37,11 +37,13 @@ router.post('/:orgIdOrHandle/userJoin', setAndRequireUser, async (req, res)=>{
             $push: {
                 organisationIds: orgData._id
             }
-        })     
+        })
+        
+        //TODO: update organisation members     
         
         if(!newUserData)
         {
-            throw ERROR_INTERNAL_SERVER;
+            throw ERROR_INTERNAL_SERVER();
         }
 
         respond(res, newUserData);
@@ -58,7 +60,7 @@ router.post('/:orgIdOrHandle/userLeave', setAndRequireUser, async (req, res)=>{
         let orgData = await organisationController.getOrganisationByIdOrHandle(orgIdOrHandle);
         if(!orgData)
         {
-            throw ERROR_ORG_NOT_FOUND;
+            throw ERROR_ORG_NOT_FOUND();
         }        
 
         //check if user already joined
@@ -66,7 +68,7 @@ router.post('/:orgIdOrHandle/userLeave', setAndRequireUser, async (req, res)=>{
         let isMember = (userData.organisationIds.findIndex((id) => id.equals(orgData._id)) != -1);
         if(!isMember)
         {
-            throw ERROR_NOT_ORG_MEMBER;
+            throw ERROR_NOT_ORG_MEMBER();
         }
 
         //user exists and update
@@ -78,7 +80,7 @@ router.post('/:orgIdOrHandle/userLeave', setAndRequireUser, async (req, res)=>{
         
         if(!newUserData)
         {
-            throw ERROR_INTERNAL_SERVER;
+            throw ERROR_INTERNAL_SERVER();
         }
 
         respond(res, newUserData);
@@ -97,7 +99,7 @@ router.get('/:orgIdOrHandle', async (req, res) => {
     }
 });
 
-router.get('/:orgIdOrHandle/members', setAndRequireUser, async (req, res) => {
+router.get('/:orgIdOrHandle/members', setAndRequireUser,  async (req, res) => {
     let orgIdOrHandle = req.params.orgIdOrHandle;
     try {        
         //TODO: check if org is private

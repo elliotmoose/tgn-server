@@ -42,7 +42,7 @@ const postController = {
         let post = await this.execPopulatedPostFindQuery(viewerUserId, query);
 
         if(!post) {
-            throw ERROR_POST_NOT_FOUND;
+            throw ERROR_POST_NOT_FOUND();
         }
 
         return post;
@@ -94,7 +94,7 @@ const postController = {
 
         if(existingReactionPost)
         {
-            throw ERROR_REACTION_EXISTS;
+            throw ERROR_REACTION_EXISTS();
         }
 
         let newReaction = new Reaction({
@@ -117,7 +117,7 @@ const postController = {
         
         if(!updatedPostDoc)
         {
-            throw ERROR_POST_NOT_FOUND;
+            throw ERROR_POST_NOT_FOUND();
         }
         
         return;
@@ -136,7 +136,7 @@ const postController = {
         let existingReaction = await Reaction.findOne({post: postId, user: userId, reactionType});
         if(!existingReaction)
         {
-            throw ERROR_REACTION_NOT_FOUND;
+            throw ERROR_REACTION_NOT_FOUND();
         }
 
         await existingReaction.deleteOne();
@@ -152,7 +152,7 @@ const postController = {
         
         if(!updatedPostDoc)
         {
-            throw ERROR_POST_NOT_FOUND;
+            throw ERROR_POST_NOT_FOUND();
         }
         
         return;
@@ -184,7 +184,7 @@ const postController = {
         
         if(!updatedPostDoc)
         {
-            throw ERROR_POST_NOT_FOUND;
+            throw ERROR_POST_NOT_FOUND();
         }
 
         return updatedPostDoc.toJSON();

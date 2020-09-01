@@ -53,7 +53,7 @@ describe('Posts', function () {
 		it('should require token to make post', async () => {			
 			let res = await chai.request(server).post('/posts').send(postTemplateData);
 			res.should.have.status(401);
-			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN);
+			res.body.should.have.property('error').eql(ERROR_MISSING_TOKEN().toJSON());
 		});
 		
 		it('should create post without target', async () => {
@@ -66,8 +66,8 @@ describe('Posts', function () {
 		it('should not allow create post if user is not member of target', async ()=> {
 			let templateWithTarget = {...postTemplateData, target: organisationData._id};
 			let res = await chai.request(server).post(`/posts`).set('authorization', `Bearer ${token}`).send(templateWithTarget);
-			res.should.have.status(ERROR_NOT_ORG_MEMBER.status);
-			res.body.error.should.eql(ERROR_NOT_ORG_MEMBER);
+			res.should.have.status(ERROR_NOT_ORG_MEMBER().status);
+			res.body.error.should.eql(ERROR_NOT_ORG_MEMBER().toJSON());
 		});
 		it('should create post with target if member', async () => {
 			let joinRes = await chai.request(server).post(`/organisations/${organisationData._id}/userJoin`).set('authorization', `Bearer ${token}`).send();

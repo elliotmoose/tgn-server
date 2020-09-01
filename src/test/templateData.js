@@ -1,12 +1,12 @@
 exports.organisationTemplateData = {
 	handle: "organisationPublic",
-	name: "Organisation Public",
+	name: "A Public Organisation",
 	contact: "64001234",
 }
 
 exports.secondOrganisationTemplateData = {
 	handle: "organisationPrivate",
-	name: "OrganisationPrivate",
+	name: "A Private Organisation",
 	contact: "64001234",
 	public: false
 }

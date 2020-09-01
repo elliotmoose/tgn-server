@@ -11,9 +11,7 @@ let chaiHttp = require('chai-http');
 let chaiLike = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
-const { organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials } = require('./templateData');
-const { initTestHelper, users, organisations, followAs, makeTargetedPost, joinOrgAs, makeUntargetedPost, reactToPostAs } = require('./testHelper');
+const { initTestHelper, users, organisations, followAs, makeTargetedPost, joinOrgAs, makeUntargetedPost, reactToPostAs, commentOnPostAs } = require('./testHelper');
 
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
@@ -66,7 +64,12 @@ async function scenarioA() {
     let privateUntargetedPost = await makeUntargetedPost(users.private);    
 
     await reactToPostAs(users.public, privateToPublicPost._id);
-    await reactToPostAs(users.public, privateToPrivatePost._id);       
+    await reactToPostAs(users.public, privateToPrivatePost._id);   
+    
+    await commentOnPostAs(users.public, privateToPublicPost._id);
+    await commentOnPostAs(users.viewer, privateToPublicPost._id);
+    await commentOnPostAs(users.private, privateToPublicPost._id);
+       
 }
 
 //user can see post to private org, but cannot see private user unless followed

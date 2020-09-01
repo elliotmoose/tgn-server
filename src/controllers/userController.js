@@ -47,7 +47,7 @@ const userController = {
         
         if(!userDoc)
         {
-            throw ERROR_USER_NOT_FOUND;
+            throw ERROR_USER_NOT_FOUND();
         }        
         
         
@@ -57,12 +57,11 @@ const userController = {
         assertRequiredParams({userId});
         assertParamTypeObjectId(userId);
 
-        console.log(await User.findOne({_id: userId}));
         let user = await User.findOne({_id: userId})
         .populate({path: 'organisationIds', select: 'handle name'});
         
         if(!user) {
-            throw ERROR_USER_NOT_FOUND;
+            throw ERROR_USER_NOT_FOUND();
         }
         
         return user.organisationIds.map((org)=>org.toJSON());
@@ -81,11 +80,11 @@ const userController = {
         let emailTaken = await User.exists({ email });
 
         if (usernameTaken || handleTaken) {
-            throw ERROR_USERNAME_TAKEN;
+            throw ERROR_USERNAME_TAKEN();
         }
 
         if (emailTaken) {
-            throw ERROR_EMAIL_TAKEN;
+            throw ERROR_EMAIL_TAKEN();
         }
 
         let passwordSalt = crypto.generateSalt(16);
@@ -111,12 +110,12 @@ const userController = {
             
             if(!userDoc)
             {
-                throw ERROR_LOGIN_FAILED;
+                throw ERROR_LOGIN_FAILED();
             }  
             
             if(!crypto.verifyPassword(password, userDoc.password, userDoc.passwordSalt))
             {
-                throw ERROR_LOGIN_FAILED;                
+                throw ERROR_LOGIN_FAILED();                
             }
             
             let userData = sanitizedUserData(userDoc.toJSON())
@@ -148,14 +147,14 @@ const userController = {
         assertParamTypeObjectId(toFollowUserId);
         
         if(mongoose.Types.ObjectId(followerUserId).equals(toFollowUserId)) {
-            throw ERROR_CANNOT_FOLLOW_SELF;
+            throw ERROR_CANNOT_FOLLOW_SELF();
         }
 
         let followingUserExists = await User.exists({_id: followerUserId});
         let toFollowUserExists = await User.exists({_id: toFollowUserId});
         
         if(!followingUserExists || !toFollowUserExists) {
-            throw ERROR_USER_NOT_FOUND;
+            throw ERROR_USER_NOT_FOUND();
         }
         
         // let alreadyFollowing = await User.exists({_id: toFollowUserId, following: {$eq: isFollowingUserId}});
@@ -164,7 +163,7 @@ const userController = {
         
         if(alreadyFollowing)
         {
-            throw ERROR_ALREADY_FOLLOWING_USER;
+            throw ERROR_ALREADY_FOLLOWING_USER();
         }
         
         await User.findOneAndUpdate({_id: followerUserId}, {$push: {following: toFollowUserId}});
@@ -178,21 +177,21 @@ const userController = {
         assertParamTypeObjectId(toFollowUserId);
         
         if(mongoose.Types.ObjectId(followerUserId).equals(toFollowUserId)) {
-            throw ERROR_CANNOT_FOLLOW_SELF;
+            throw ERROR_CANNOT_FOLLOW_SELF();
         }
 
         let followingUserExists = await User.exists({_id: followerUserId});
         let toFollowUserExists = await User.exists({_id: toFollowUserId});
         
         if(!followingUserExists || !toFollowUserExists) {
-            throw ERROR_USER_NOT_FOUND;
+            throw ERROR_USER_NOT_FOUND();
         }
         
         let alreadyFollowing = await this.isFollowing(followerUserId, toFollowUserId);
         
         if(!alreadyFollowing)
         {
-            throw ERROR_NOT_FOLLOWING_USER; 
+            throw ERROR_NOT_FOLLOWING_USER(); 
         }
         
         let user = await User.findOneAndUpdate({_id: followerUserId}, {$pull: {following: toFollowUserId}});

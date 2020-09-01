@@ -1,17 +1,17 @@
 const { respond, checkRequiredFields } = require('../helpers/apiHelper');
 const crypto = require('../helpers/crypto');
 const userController = require('../controllers/userController');
-const { ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED, ERROR_USER_NOT_FOUND } = require('../constants/errors');
+const { ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_USER_NOT_FOUND } = require('../constants/errors');
 
 // Middleware
 exports.setAndRequireUser = async (req, res, next) => {
     try {
         let authorization = req.headers.authorization || null;
         if (!authorization) {
-            throw ERROR_MISSING_TOKEN;
+            throw ERROR_MISSING_TOKEN();
         }
         if (!(typeof authorization === 'string')) {
-            throw ERROR_INVALID_TOKEN;
+            throw ERROR_INVALID_TOKEN();
         }
 
         //Bearer <jwt>
@@ -25,7 +25,7 @@ exports.setAndRequireUser = async (req, res, next) => {
             next();
         }
         else {
-            throw ERROR_INVALID_TOKEN;
+            throw ERROR_INVALID_TOKEN();
         }
     } catch (error) {
         respond(res, {}, error);
@@ -38,7 +38,7 @@ exports.resolveParamUser = async (req, res, next) => {
         let userIdOrHandle = req.params.userIdOrHandle;
         let userData = await userController.getUserByIdOrHandle(userIdOrHandle);
         if (!userData) {
-            throw ERROR_USER_NOT_FOUND;
+            throw ERROR_USER_NOT_FOUND();
         }
 
         req.paramUser = userData;

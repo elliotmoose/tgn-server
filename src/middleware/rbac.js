@@ -18,7 +18,7 @@ const can = (action, resource)=>{
                         assertParamResolved({user: req.paramUser});
                         let isOwner = userController.compareEqualUserIds(req.paramUser._id, req.user._id);
                         if(!isOwner) {
-                            throw ERROR_NOT_AUTHORISED;
+                            throw ERROR_NOT_AUTHORISED();
                         }
                     },
                     read: async () => {
@@ -35,7 +35,7 @@ const can = (action, resource)=>{
                             let isFollowing = await userController.isFollowing(req.user._id, req.paramUser._id);
                             
                             if(!isFollowing) {                                
-                                throw ERROR_NOT_AUTHORISED;
+                                throw ERROR_NOT_AUTHORISED();
                             }
                         }
                     }
@@ -45,7 +45,7 @@ const can = (action, resource)=>{
                         assertParamResolved({paramPost: req.paramPost});                  
                         let isOwner = userController.compareEqualUserIds(req.paramPost.user._id, req.user._id);
                         if(!isOwner) {
-                            throw ERROR_NOT_AUTHORISED;
+                            throw ERROR_NOT_AUTHORISED();
                         }
                     },
                     read: async () => { 
@@ -69,7 +69,7 @@ const can = (action, resource)=>{
                                 let isMember = viewingUser.organisationIds.findIndex((id)=>id.equals(target._id)) != -1;
                                 
                                 if (!isMember) {
-                                    throw ERROR_NOT_AUTHORISED;
+                                    throw ERROR_NOT_AUTHORISED();
                                 }
                                 
                                 //allow access: is member of org
@@ -89,7 +89,7 @@ const can = (action, resource)=>{
                                     return;
                                 }
                                 else {
-                                    throw ERROR_NOT_AUTHORISED;
+                                    throw ERROR_NOT_AUTHORISED();
                                 }
                             }
                         }

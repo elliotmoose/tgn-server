@@ -5,7 +5,7 @@ let chaiHttp = require('chai-http');
 let chailike = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGIN_FAILED, ERROR_INVALID_TOKEN, ERROR_MISSING_TOKEN, ERROR_NOT_AUTHORISED } = require('../constants/errors');
+const { ERROR_NOT_AUTHORISED } = require('../constants/errors');
 const { secondOrganisationTemplateData, organisationTemplateData, userCredentials, postTemplateData, commentTemplateData, secondUserCredentials, thirdUserCredentials } = require('./templateData');
 const { post } = require('../server');
 
@@ -113,8 +113,8 @@ const getWallAs = async function (viewer, user) {
 }
 const getWallShouldFail = async function (viewer, user) {
     let getWallRes = await chai.request(server).get(`/users/${user._id}/posts`).set('authorization', `Bearer ${viewer.token}`).send();
-    getWallRes.should.have.status(ERROR_NOT_AUTHORISED.status);  
-    getWallRes.body.error.should.eql(ERROR_NOT_AUTHORISED);  
+    getWallRes.should.have.status(ERROR_NOT_AUTHORISED().status);  
+    getWallRes.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());  
 }
 
 describe('Access Control', function () {
@@ -157,8 +157,8 @@ describe('Access Control', function () {
 		});
         it('should NOT allow ANY user to access PRIVATE user profile', async () => {			
             let res = await chai.request(server).get(`/users/${users.private._id}`).set('authorization', `Bearer ${users.public.token}`).send();
-            res.should.have.status(ERROR_NOT_AUTHORISED.status);			
-            res.body.should.have.property('error').eql(ERROR_NOT_AUTHORISED);			
+            res.should.have.status(ERROR_NOT_AUTHORISED().status);			
+            res.body.should.have.property('error').eql(ERROR_NOT_AUTHORISED().toJSON());			
 		});
 	});
     
@@ -174,8 +174,8 @@ describe('Access Control', function () {
                 
                 let privatePostRes = await getPostResAsUser(privateUserPost._id, users.viewer);
                 let publicPostRes = await getPostResAsUser(publicUserPost._id, users.viewer);
-                privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
-                publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());
+                publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());
                 
                 await followAs(users.viewer, users.public);
                 await followAs(users.viewer, users.private);
@@ -184,8 +184,8 @@ describe('Access Control', function () {
                 
                 privatePostRes = await getPostResAsUser(privateUserPost._id, users.viewer);
                 publicPostRes = await getPostResAsUser(publicUserPost._id, users.viewer);
-                privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
-                publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                privatePostRes.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());
+                publicPostRes.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());
                 await unfollowAs(users.viewer, users.public);
                 await unfollowAs(users.viewer, users.private);
             });     
@@ -239,8 +239,8 @@ describe('Access Control', function () {
             it('should not allow: private poster • no target • non follower', async () => {		                	
                 let post = await makeUntargetedPost(users.private);
                 let postRes = await getPostResAsUser(post._id, users.viewer);
-                postRes.should.have.status(ERROR_NOT_AUTHORISED.status);
-                postRes.body.error.should.eql(ERROR_NOT_AUTHORISED);
+                postRes.should.have.status(ERROR_NOT_AUTHORISED().status);
+                postRes.body.error.should.eql(ERROR_NOT_AUTHORISED().toJSON());
             });        
         })
 
