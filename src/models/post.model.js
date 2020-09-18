@@ -17,11 +17,6 @@ let postSchema = new mongoose.Schema({
         type: String,
         required: 'This field is required'
     },
-    public: {
-        type: Boolean,
-        required: 'This field is required',
-        default: false 
-    },
     commentCount: {
         type: Number,
         default: 0

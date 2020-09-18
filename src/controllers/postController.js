@@ -87,7 +87,10 @@ const postController = {
     },
     async reactToPost (reactionType, postId, userId) {
         assertRequiredParams({reactionType, postId, userId});
+        assertParamTypeObjectId(postId)
+        assertParamTypeObjectId(userId)
         this.assertValidReactionType(reactionType);
+        
         
         //should not react the same type twice, but can react other types
         let existingReactionPost = await Reaction.findOne({post: postId, user: userId, reactionType});
@@ -132,6 +135,8 @@ const postController = {
     async unreactToPost (reactionType, postId, userId) {
         assertRequiredParams({reaction: reactionType, postId, userId});
         this.assertValidReactionType(reactionType);
+        assertParamTypeObjectId(postId)
+        assertParamTypeObjectId(userId)
 
         let existingReaction = await Reaction.findOne({post: postId, user: userId, reactionType});
         if(!existingReaction)
