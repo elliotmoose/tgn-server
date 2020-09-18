@@ -18,7 +18,7 @@ const helpers = {
         if(error)
         {
             //force to fit format
-            let isExternal = error instanceof APIError;
+            let isExternal = error && error.status && error.message && error.code && error.toJSON;
             let errorFinal;
             if(!isExternal)
             {

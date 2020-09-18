@@ -72,7 +72,7 @@ async function scenarioA() {
        
 }
 
-//user can see post to private org, but cannot see private user unless followed
+//user can see post to private org (viewer member), but cannot see private user unless followed
 async function scenarioB() {
     let viewerUntargetedPost = await makeUntargetedPost(users.viewer);    
     await joinOrgAs(users.viewer, organisations.private);
@@ -100,6 +100,15 @@ async function scenarioC() {
 
     await reactToPostAs(users.public, privateToPublicPost._id);
     await reactToPostAs(users.public, privateToPrivatePost._id);       
+}
+
+
+//user cannot access public user post to private org (non member) on profile
+async function scenarioD() {
+    await followAs(users.viewer, users.public);
+    await joinOrgAs(users.private, organisations.private);
+    let publicToPrivatePost = await makeTargetedPost(organisations.private, users.public);
+    let publicUntargetedPost = await makeUntargetedPost(users.private);   
 }
 
 main();
