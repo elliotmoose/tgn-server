@@ -18,7 +18,7 @@ let organisationSchema = new mongoose.Schema({
         type: String,
         required: 'This field is required'
     },
-    public: {
+    isPublic: {
         type: Boolean,
         required: true,
         default: true

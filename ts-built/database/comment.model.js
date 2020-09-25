@@ -34,3 +34,4 @@ var commentSchema = new mongoose_1.default.Schema({
     },
 });
 mongoose_1.default.model('comment', commentSchema);
+//# sourceMappingURL=comment.model.js.map

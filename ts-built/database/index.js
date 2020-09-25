@@ -20,3 +20,4 @@ require('./organisation.model');
 require('./reaction.model');
 require('./comment.model');
 require('./post.model');
+//# sourceMappingURL=index.js.map

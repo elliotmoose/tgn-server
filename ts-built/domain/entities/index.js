@@ -39,3 +39,4 @@ exports.makePost = post_entity_1.default({ Ids: Ids_1.default, Errors: Errors })
 exports.makeReaction = reaction_entity_1.default({ Ids: Ids_1.default, Errors: Errors });
 //expose entities
 exports.default = { makeUser: exports.makeUser, makeOrganisation: exports.makeOrganisation, makePost: exports.makePost, makeReaction: exports.makeReaction };
+//# sourceMappingURL=index.js.map

@@ -30,14 +30,13 @@ let userSchema = new mongoose.Schema({
         type: String,
         required: 'This field is required'
     },
-    public: {
+    isPublic: {
         type: Boolean,
         required: 'This field is required',
         default: false 
     },
     bio : {
         type: String,
-        required: 'This field is required',
         default: '' 
     },
     following: {

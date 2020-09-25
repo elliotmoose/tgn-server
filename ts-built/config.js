@@ -30,3 +30,4 @@ var config = (function () {
     }
 })();
 exports.default = config;
+//# sourceMappingURL=config.js.map

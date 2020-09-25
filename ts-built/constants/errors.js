@@ -34,15 +34,15 @@ var APIError = /** @class */ (function (_super) {
         _this.status = status;
         _this.code = code;
         _this.message = message;
+        _this.toJSON = function () {
+            return {
+                status: this.status,
+                code: this.code,
+                message: this.message
+            };
+        };
         return _this;
     }
-    APIError.prototype.toJSON = function () {
-        return {
-            status: this.status,
-            code: this.code,
-            message: this.message
-        };
-    };
     return APIError;
 }(Error));
 exports.APIError = APIError;
@@ -233,3 +233,4 @@ exports.REACTION_NOT_FOUND = function () {
 exports.MALFORMED_DATA = function (name) {
     return new APIError('ERROR_MALFORMED_DATA', name + " has invalid structure", 500);
 };
+//# sourceMappingURL=Errors.js.map

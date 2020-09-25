@@ -225,3 +225,4 @@ router.post('/', function (req, res) { return __awaiter(void 0, void 0, void 0, 
     });
 }); });
 module.exports = router;
+//# sourceMappingURL=organisations.js.map

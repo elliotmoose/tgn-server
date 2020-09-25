@@ -199,3 +199,4 @@ router.get('/:postId/comments', setAndRequireUser, function (req, res) { return 
     });
 }); });
 module.exports = router;
+//# sourceMappingURL=posts.js.map

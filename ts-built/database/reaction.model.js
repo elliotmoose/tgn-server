@@ -26,3 +26,4 @@ var reactionSchema = new mongoose_1.default.Schema({
     },
 });
 mongoose_1.default.model('reaction', reactionSchema);
+//# sourceMappingURL=reaction.model.js.map

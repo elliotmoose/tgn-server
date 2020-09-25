@@ -28,15 +28,15 @@ export default function buildMakeUser({ Ids, Errors, Validation } : Dependencies
         username,
         fullName,
         email,
-        bio,
+        bio = "no bio",
         isPublic = false,
-        password = null,
-        passwordSalt = null,
+        password = null as string | null,
+        passwordSalt = null as string | null,
         organisations = [],
         following = [],
         followers = [],
-        role
-    } : User) {
+        role = 'STANDARD'
+    }) {
         if(!Ids.isValidId(id)) {
             throw Errors.INVALID_PARAM("User Id");
         }
@@ -44,6 +44,8 @@ export default function buildMakeUser({ Ids, Errors, Validation } : Dependencies
         if(!(Validation.isValidHandle(username) && Validation.isNonEmpty(username))) {
             throw Errors.MALFORMED_DATA("Invalid or missing username")
         }
+
+        console.log(bio);
 
         return Object.freeze({
             id,

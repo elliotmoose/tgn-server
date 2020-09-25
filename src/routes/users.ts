@@ -1,23 +1,21 @@
-import { APIError } from './../constants/errors';
 import express from 'express';
-const userController = require('../controllers/userController');
-const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
-import * as Errors from "../constants/Errors";
-import { makeExpressCallback } from '../helpers/expressCallback';
-const { setAndRequireUser, resolveParamUser } = require('../middleware/user');
-const organisationController = require('../controllers/organisationController');
 const router = express.Router();
-const postController = require('../controllers/postController');
-const rbac = require('../middleware/rbac');
-import { signup, login, getUser } from '../controllers/user';
-router.get('/', (req,res)=>{
 
-});
+import { signup, login, getUser } from '../controllers/user';
+
+// const userController = require('../controllers/userController');
+// const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
+// import * as Errors from "../constants/Errors";
+import { makeExpressCallback } from '../helpers/expressCallback';
+// const { setAndRequireUser, resolveParamUser } = require('../middleware/user');
+// const organisationController = require('../controllers/organisationController');
+// const postController = require('../controllers/postController');
+// const rbac = require('../middleware/rbac');
 
 // router.post('/', makeExpressCallback(signup));
 router.post('/', makeExpressCallback(signup));
 router.post('/login', makeExpressCallback(login));
-router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), makeExpressCallback(getUser));
+// router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), makeExpressCallback(getUser));
 
 // /**
 //  * Get user data by id or by handl
@@ -188,4 +186,4 @@ router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('re
 //     }
 // });
 
-// module.exports = router;
+export default router;

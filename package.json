@@ -24,6 +24,7 @@
     "jsonwebtoken": "^8.5.1",
     "mocha": "^8.1.1",
     "mongoose": "^5.10.0",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "source-map-support": "^0.5.19"
   }
 }

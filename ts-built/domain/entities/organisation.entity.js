@@ -23,3 +23,4 @@ function buildMakeOrganisation(_a) {
     };
 }
 exports.default = buildMakeOrganisation;
+//# sourceMappingURL=organisation.entity.js.map

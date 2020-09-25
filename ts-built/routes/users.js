@@ -4,21 +4,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
-var userController = require('../controllers/userController');
-var _a = require('../helpers/apiHelper'), respond = _a.respond, checkRequiredFields = _a.checkRequiredFields, assertRequiredParams = _a.assertRequiredParams;
-var expressCallback_1 = require("../helpers/expressCallback");
-var _b = require('../middleware/user'), setAndRequireUser = _b.setAndRequireUser, resolveParamUser = _b.resolveParamUser;
-var organisationController = require('../controllers/organisationController');
 var router = express_1.default.Router();
-var postController = require('../controllers/postController');
-var rbac = require('../middleware/rbac');
 var user_1 = require("../controllers/user");
-router.get('/', function (req, res) {
-});
+// const userController = require('../controllers/userController');
+// const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
+// import * as Errors from "../constants/Errors";
+var expressCallback_1 = require("../helpers/expressCallback");
+// const { setAndRequireUser, resolveParamUser } = require('../middleware/user');
+// const organisationController = require('../controllers/organisationController');
+// const postController = require('../controllers/postController');
+// const rbac = require('../middleware/rbac');
 // router.post('/', makeExpressCallback(signup));
 router.post('/', expressCallback_1.makeExpressCallback(user_1.signup));
 router.post('/login', expressCallback_1.makeExpressCallback(user_1.login));
-router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), expressCallback_1.makeExpressCallback(user_1.getUser));
+// router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), makeExpressCallback(getUser));
 // /**
 //  * Get user data by id or by handl
 //  */
@@ -157,4 +156,5 @@ router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('re
 //         respond(res, {}, error);
 //     }
 // });
-// module.exports = router;
+exports.default = router;
+//# sourceMappingURL=users.js.map

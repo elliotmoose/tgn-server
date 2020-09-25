@@ -97,3 +97,4 @@ router.get('/', setAndRequireUser, function (req, res) { return __awaiter(void 0
     });
 }); });
 module.exports = router;
+//# sourceMappingURL=feed.js.map

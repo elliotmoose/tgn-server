@@ -41,11 +41,11 @@ function makeCreateUser(_a) {
     var userRepo = _a.userRepo, organisationRepo = _a.organisationRepo, crypto = _a.crypto, Validation = _a.Validation, Errors = _a.Errors;
     return function createUser(userData) {
         return __awaiter(this, void 0, void 0, function () {
-            var username, password, fullName, email, bio, usernameTaken, handleTaken, emailTaken, passwordSalt, hashedPassword, user, newUser;
+            var username, password, fullName, email, usernameTaken, handleTaken, emailTaken, passwordSalt, hashedPassword, user, newUser;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        username = userData.username, password = userData.password, fullName = userData.fullName, email = userData.email, bio = userData.bio;
+                        username = userData.username, password = userData.password, fullName = userData.fullName, email = userData.email;
                         //validation
                         if (!Validation.isValidEmail(email)) {
                             throw Errors.INVALID_PARAM("Email");
@@ -59,7 +59,7 @@ function makeCreateUser(_a) {
                         if (!fullName) {
                             throw Errors.INVALID_PARAM("Full Name");
                         }
-                        return [4 /*yield*/, userRepo.exists(username)];
+                        return [4 /*yield*/, userRepo.exists({ username: username })];
                     case 1:
                         usernameTaken = _a.sent();
                         return [4 /*yield*/, organisationRepo.exists({ username: username })];
@@ -76,8 +76,27 @@ function makeCreateUser(_a) {
                         }
                         passwordSalt = crypto.generateSalt(16);
                         hashedPassword = crypto.hashPassword(password, passwordSalt);
-                        user = entities_1.makeUser(userData);
-                        return [4 /*yield*/, userRepo.insert(user)];
+                        user = entities_1.makeUser({
+                            username: username,
+                            fullName: fullName,
+                            password: hashedPassword,
+                            passwordSalt: passwordSalt,
+                            email: email,
+                        });
+                        return [4 /*yield*/, userRepo.insert({
+                                id: user.id,
+                                username: user.username,
+                                fullName: user.fullName,
+                                password: user.password,
+                                passwordSalt: user.passwordSalt,
+                                email: user.email,
+                                bio: user.bio,
+                                isPublic: user.isPublic,
+                                organisations: user.organisations,
+                                followers: user.followers,
+                                following: user.following,
+                                role: user.role
+                            })];
                     case 4:
                         newUser = _a.sent();
                         return [2 /*return*/, newUser];
@@ -87,3 +106,4 @@ function makeCreateUser(_a) {
     };
 }
 exports.default = makeCreateUser;
+//# sourceMappingURL=create-user.uc.js.map

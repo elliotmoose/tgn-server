@@ -1,8 +1,9 @@
-import { APIError } from '../constants/Errors';
-const { ERROR_INTERNAL_SERVER } = require("../constants/errors");
+import { APIError } from './../constants/errors';
+import * as Errors from './../constants/Errors';
+
 
 export function makeExpressCallback(controllerMethod) {
-    return (req, res) => {
+    return async (req, res) => {
 
         function respond(data: any, error: any = undefined) {
             let body = {
@@ -16,8 +17,8 @@ export function makeExpressCallback(controllerMethod) {
                 let isExternal = error && error.status && error.message && error.code && error.toJSON;
                 let errorFinal;
                 if (!isExternal) {
-                    console.log(error.stack);
-                    errorFinal = { ...ERROR_INTERNAL_SERVER().toJSON(), err: `${error.toJSON()}` };
+                    console.log(error.stack)
+                    errorFinal = { ...Errors.INTERNAL_SERVER().toJSON(), err: `${error}` };
                 }
                 else {
                     errorFinal = error.toJSON();
@@ -30,8 +31,11 @@ export function makeExpressCallback(controllerMethod) {
             res.status(status).send(body);
         }
 
-        controllerMethod(req)
-            .then((responseData: any) => respond(responseData))
-            .catch((error: any) => respond({}, error))
+        try {
+            const responseData = await controllerMethod(req);
+            respond(responseData);
+        } catch (error) {
+            respond({}, error);
+        }
     }
 }

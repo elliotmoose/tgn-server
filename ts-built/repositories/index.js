@@ -15,3 +15,4 @@ exports.userRepo = user_repo_1.default({ UserModel: UserModel });
 exports.postRepo = post_repo_1.default({ PostModel: PostModel });
 exports.organisationRepo = organisation_repo_1.default({ OrganisationModel: OrganisationModel });
 exports.default = { userRepo: exports.userRepo, postRepo: exports.postRepo, organisationRepo: exports.organisationRepo };
+//# sourceMappingURL=index.js.map

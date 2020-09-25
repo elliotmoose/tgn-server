@@ -55,3 +55,4 @@ function makeSignUp(_a) {
     };
 }
 exports.default = makeSignUp;
+//# sourceMappingURL=signup.controller.js.map

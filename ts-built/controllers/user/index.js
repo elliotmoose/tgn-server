@@ -31,3 +31,4 @@ exports.default = {
     login: exports.login,
     getUser: exports.getUser,
 };
+//# sourceMappingURL=index.js.map

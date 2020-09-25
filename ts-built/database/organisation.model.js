@@ -21,7 +21,7 @@ var organisationSchema = new mongoose_1.default.Schema({
         type: String,
         required: 'This field is required'
     },
-    public: {
+    isPublic: {
         type: Boolean,
         required: true,
         default: true
@@ -45,3 +45,4 @@ var organisationSchema = new mongoose_1.default.Schema({
     },
 });
 mongoose_1.default.model('organisation', organisationSchema);
+//# sourceMappingURL=organisation.model.js.map

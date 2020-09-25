@@ -70,3 +70,4 @@ var postSchema = new mongoose_1.default.Schema({
     },
 });
 mongoose_1.default.model('post', postSchema);
+//# sourceMappingURL=post.model.js.map

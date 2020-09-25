@@ -4,3 +4,4 @@ var ROLES = {
     ADMIN: 'ADMIN',
 };
 module.exports = ROLES;
+//# sourceMappingURL=roles.js.map

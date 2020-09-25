@@ -18,7 +18,6 @@ export default function makeCreateUser({ userRepo, organisationRepo, crypto, Val
             password, 
             fullName,
             email,
-            bio
         } = userData;
 
         //validation
@@ -38,7 +37,7 @@ export default function makeCreateUser({ userRepo, organisationRepo, crypto, Val
             throw Errors.INVALID_PARAM("Full Name");
         }
 
-        let usernameTaken = await userRepo.exists(username);
+        let usernameTaken = await userRepo.exists({ username });
         let handleTaken = await organisationRepo.exists({ username });
         let emailTaken = await userRepo.exists({ email })
 
@@ -53,19 +52,29 @@ export default function makeCreateUser({ userRepo, organisationRepo, crypto, Val
         let passwordSalt = crypto.generateSalt(16);
         let hashedPassword = crypto.hashPassword(password, passwordSalt);
         
-        // await userRepo.insert({
-        //     username, 
-        //     fullName, 
-        //     email, 
-        //     bio,
-        //     password: hashedPassword,            
-        //     passwordSalt,
-        //     // role: ROLES.STANDARD
-        // })
+        let user = makeUser({
+            username,
+            fullName,
+            password: hashedPassword,
+            passwordSalt,
+            email,
+        })
 
-      
-        const user = makeUser(userData);
-        let newUser = await userRepo.insert(user);
+        let newUser = await userRepo.insert({
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName,
+            password: user.password,
+            passwordSalt: user.passwordSalt,
+            email: user.email,
+            bio: user.bio,
+            isPublic: user.isPublic,
+            organisations: user.organisations,
+            followers: user.followers,
+            following: user.following,
+            role: user.role
+        });
+
         return newUser;
     }
 }

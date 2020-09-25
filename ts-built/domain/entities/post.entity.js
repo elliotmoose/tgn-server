@@ -29,3 +29,4 @@ function buildMakePost(_a) {
     };
 }
 exports.default = buildMakePost;
+//# sourceMappingURL=post.entity.js.map

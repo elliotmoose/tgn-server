@@ -15,19 +15,19 @@ export class APIError extends Error {
     status;
     code;
     message;
-
+    toJSON;
+    
     constructor(code, message, status) {
         super(message);
         this.status = status;
         this.code = code;
         this.message= message;
-    }
-
-    toJSON() {
-        return {
-            status: this.status,
-            code: this.code,
-            message: this.message
+        this.toJSON = function(){
+            return {
+                status: this.status,
+                code: this.code,
+                message: this.message
+            }
         }
     }
 }
