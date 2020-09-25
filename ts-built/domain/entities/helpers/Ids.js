@@ -9,7 +9,7 @@ var Ids = {
         return mongoose_1.default.Types.ObjectId.isValid(value);
     },
     makeId: function () {
-        return mongoose_1.default.Types.ObjectId();
+        return "" + mongoose_1.default.Types.ObjectId();
     }
 };
 exports.default = Ids;

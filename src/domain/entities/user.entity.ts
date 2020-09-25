@@ -1,3 +1,4 @@
+import { Id } from '../../helpers/Ids';
 import { Ids, Errors, Validation } from './entity.depend.interfaces';
 
 interface Dependencies {
@@ -6,36 +7,57 @@ interface Dependencies {
     Validation : Validation
 }
 
+export interface User {
+    id: Id,
+    username: string,
+    fullName: string,
+    email: string,
+    bio: string,
+    isPublic: Boolean,
+    password: string | null,
+    passwordSalt: string | null,
+    organisations: Array<Id>,
+    following: Array<Id>,
+    followers: Array<Id>,
+    role: string
+}
+
 export default function buildMakeUser({ Ids, Errors, Validation } : Dependencies) {
     return function makeUser({
-        id,
+        id = Ids.makeId(),
         username,
-        name,
+        fullName,
         email,
-        isPublic,
-        password,
-        organisations,
-        following,
-        followers
-    }) {
+        bio,
+        isPublic = false,
+        password = null,
+        passwordSalt = null,
+        organisations = [],
+        following = [],
+        followers = [],
+        role
+    } : User) {
         if(!Ids.isValidId(id)) {
             throw Errors.INVALID_PARAM("User Id");
         }
 
-        if (!username) {
-            throw Errors.MALFORMED_DATA("Missing Username");
+        if(!(Validation.isValidHandle(username) && Validation.isNonEmpty(username))) {
+            throw Errors.MALFORMED_DATA("Invalid or missing username")
         }
 
         return Object.freeze({
             id,
             username,
-            name,
+            fullName,
             email,
+            bio,
             isPublic,
             password,
+            passwordSalt,
             organisations,
             following,
-            followers
+            followers,
+            role
         });
     }
 }

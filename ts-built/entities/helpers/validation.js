@@ -13,6 +13,9 @@ var helpers = {
         //TODO: validation for password
         var re = /.+/;
         return re.test(password);
-    }
+    },
+    isNonEmpty: function (value) {
+        return value !== undefined && value !== null && value !== '';
+    },
 };
 exports.default = helpers;

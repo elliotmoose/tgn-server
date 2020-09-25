@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 function buildMakeUser(_a) {
     var Ids = _a.Ids, Errors = _a.Errors, Validation = _a.Validation;
     return function makeUser(_a) {
-        var id = _a.id, username = _a.username, name = _a.name, email = _a.email, isPublic = _a.isPublic, password = _a.password, organisations = _a.organisations, following = _a.following, followers = _a.followers;
+        var _b = _a.id, id = _b === void 0 ? Ids.makeId() : _b, username = _a.username, name = _a.name, email = _a.email, isPublic = _a.isPublic, password = _a.password, organisations = _a.organisations, following = _a.following, followers = _a.followers;
         if (!Ids.isValidId(id)) {
             throw Errors.INVALID_PARAM("User Id");
         }

@@ -1,14 +1,15 @@
 //dependencies
-import Ids from "./helpers/Ids";
-import * as Errors from "../constants/Errors";
-import Validation from "./helpers/Validation"
-//entities
-import buildMakeOrganisation from "./organisation";
-import buildMakePost from "./post";
-import buildMakeReaction from "./reaction";
-import buildMakeUser from "./user";
+import Ids from "../../helpers/Ids";
+import * as Errors from "../../constants/Errors";
+import Validation from "../../helpers/Validation"
 
-//init entity maker functions
+//entities
+import buildMakeOrganisation from "./organisation.entity";
+import buildMakePost from "./post.entity";
+import buildMakeReaction from "./reaction.entity";
+import buildMakeUser from "./user.entity";
+
+//initialise entity makers
 export const makeUser = buildMakeUser({Ids, Errors, Validation});
 export const makeOrganisation = buildMakeOrganisation({Ids, Errors, Validation});
 export const makePost = buildMakePost({Ids, Errors});

@@ -24,17 +24,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.makeReaction = exports.makePost = exports.makeOrganisation = exports.makeUser = void 0;
 //dependencies
-var Ids_1 = __importDefault(require("./helpers/Ids"));
-var Errors = __importStar(require("../constants/Errors"));
-var Validation_1 = __importDefault(require("./helpers/Validation"));
+var Ids_1 = __importDefault(require("../../helpers/Ids"));
+var Errors = __importStar(require("../../constants/Errors"));
+var Validation_1 = __importDefault(require("../../helpers/Validation"));
 //entities
-var organisation_1 = __importDefault(require("./organisation"));
-var post_1 = __importDefault(require("./post"));
-var reaction_1 = __importDefault(require("./reaction"));
-var user_1 = __importDefault(require("./user"));
-exports.makeUser = user_1.default({ Ids: Ids_1.default, Errors: Errors, Validation: Validation_1.default });
-exports.makeOrganisation = organisation_1.default({ Ids: Ids_1.default, Errors: Errors, Validation: Validation_1.default });
-exports.makePost = post_1.default({ Ids: Ids_1.default, Errors: Errors });
-exports.makeReaction = reaction_1.default({ Ids: Ids_1.default, Errors: Errors });
+var organisation_entity_1 = __importDefault(require("./organisation.entity"));
+var post_entity_1 = __importDefault(require("./post.entity"));
+var reaction_entity_1 = __importDefault(require("./reaction.entity"));
+var user_entity_1 = __importDefault(require("./user.entity"));
+//initialise entity makers
+exports.makeUser = user_entity_1.default({ Ids: Ids_1.default, Errors: Errors, Validation: Validation_1.default });
+exports.makeOrganisation = organisation_entity_1.default({ Ids: Ids_1.default, Errors: Errors, Validation: Validation_1.default });
+exports.makePost = post_entity_1.default({ Ids: Ids_1.default, Errors: Errors });
+exports.makeReaction = reaction_entity_1.default({ Ids: Ids_1.default, Errors: Errors });
 //expose entities
 exports.default = { makeUser: exports.makeUser, makeOrganisation: exports.makeOrganisation, makePost: exports.makePost, makeReaction: exports.makeReaction };
