@@ -90,6 +90,14 @@ describe('Organisation', function () {
 			res.should.have.status(409);
 			res.body.should.have.property('error').eql(ERROR_ORG_HANDLE_TAKEN().toJSON());
 		});
+		it('should update organisation public', async () => {						
+			let updateOrgRes = await chai.request(server).put(`/organisations/${orgData._id}`).set('authorization', `Bearer ${token}`).send({public: true});
+			updateOrgRes.should.have.status(200);
+			updateOrgRes.body.data.should.have.property('public').eql(true)
+			updateOrgRes = await chai.request(server).put(`/organisations/${orgData._id}`).set('authorization', `Bearer ${token}`).send({public: false});
+			updateOrgRes.should.have.status(200);
+			updateOrgRes.body.data.should.have.property('public').eql(false)
+		});
 	});
 
 	describe('Get Organisation', function() {

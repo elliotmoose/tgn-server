@@ -1,10 +1,14 @@
-const { default: makeCreatePost } = require("./create-post");
-const { addPost } = require('../../use-cases/post/');
-const createPost = makeCreatePost({addPost});
+import makeCreatePost from "./create-post";
+import makeReactPost from "./react-post";
+import { addPost, addReaction } from '../../use-cases/post/';
+
+const createPost = makeCreatePost({ addPost });
+const reactToPost = makeReactPost({ addReaction });
 
 const postController = Object.freeze({
-    createPost
+    createPost,
+    reactToPost
 })
 
 export default postController;
-export { createPost };
+export { createPost, reactToPost };

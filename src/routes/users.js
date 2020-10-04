@@ -9,11 +9,13 @@ const mongoose = require('mongoose');
 const postController = require('../controllers/postController');
 const { isOwner } = require('../middleware/access');
 const rbac = require('../middleware/rbac');
-
+import { signup } from '../controllers/user';
+import { makeExpressCallback } from '../helpers/expressCallback';
 router.get('/', (req,res)=>{
 
 });
 
+// router.post('/', makeExpressCallback(signup));
 router.post('/', async (req, res)=>{
     try {        
         let newUser = await userController.createUser(req.body);      
@@ -60,15 +62,15 @@ router.get('/:userIdOrHandle/memberOf', setAndRequireUser, resolveParamUser, rba
 });
 
 /**
- * Update user data (incomplete: only updates public status of user account)
+ * Update user data (TODO: incomplete: only updates public status of user account)
  */
 router.put('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('edit', 'user'), async (req, res)=>{
     let userData = req.body;
     //incomplete
-    let { public } = userData;
+    let { public: isPublic } = userData;
     
     try {                
-        let newUserData = await userController.update(req.paramUser._id, { public });
+        let newUserData = await userController.update(req.paramUser._id, { public: isPublic });
         respond(res, newUserData);
     } catch (error) {
         respond(res, {}, error);

@@ -9,7 +9,7 @@
     "test:dev": "node src/test/devTests.js",
     "test:min": "nodemon --exec \"mocha min src/test/index.js\"",
     "dev": "NODE_ENV=DEV nodemon src/server.js",
-    "prod": "NODE_ENV=PROD nodemon src/server.js"
+    "prod": "NODE_ENV=PROD forever start src/server.js"
   },
   "author": "",
   "license": "ISC",

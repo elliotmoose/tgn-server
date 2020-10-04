@@ -99,6 +99,22 @@ router.get('/:orgIdOrHandle', async (req, res) => {
     }
 });
 
+
+//TODO: NOT SECURE!!!!!
+router.put('/:orgIdOrHandle', setAndRequireUser, async (req, res) => {
+    let orgIdOrHandle = req.params.orgIdOrHandle;
+    let { public: isPublic } = req.body;
+    
+    try {                
+        let orgData = await organisationController.getOrganisationByIdOrHandle(orgIdOrHandle);
+        let { _id: orgId } = orgData;
+        let newOrgData = await organisationController.update(orgId, { public: isPublic });
+        respond(res, newOrgData);       
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
+
 router.get('/:orgIdOrHandle/members', setAndRequireUser,  async (req, res) => {
     let orgIdOrHandle = req.params.orgIdOrHandle;
     try {        

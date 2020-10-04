@@ -1,4 +1,4 @@
-function makeCreatePost({addPost}) {
+export default function makeCreatePost({addPost}) {
     return async function createPost (httpReq) {
         const postData = httpReq.body;
         const {_id: userId, organisationIds} = httpReq.user;        
@@ -6,5 +6,3 @@ function makeCreatePost({addPost}) {
         return newPost;
     }
 }
-
-export default makeCreatePost;

@@ -1,11 +1,18 @@
-export default function buildMakeUser ({}) {
+import { ObjectId } from "bson";
+
+/**
+ * 
+ * @param {import(".").EntityDependancies} dependancies 
+ * @returns {makeUser} makeUser
+ */
+export default function buildMakeUser({ Ids }) {
     return function makeUser({
-        username, 
+        id,
+        username,
         name,
         email,
         isPublic,
         password,
-        id,
         organisations,
         following,
         followers
@@ -15,15 +22,40 @@ export default function buildMakeUser ({}) {
         }
 
         return Object.freeze({
-            username, 
+            id,
+            username,
             name,
             email,
             isPublic,
             password,
-            id,
             organisations,
             following,
-            followers         
+            followers
         });
     }
 }
+
+// export interface User {
+//     id?: String,
+//     username: String,
+//     password?: String,
+//     name?: String,
+//     email?: String,
+//     isPublic?: Boolean,
+//     organisations?: [ObjectId | String],
+//     following?: [ObjectId | String],
+//     followers?: [ObjectId | String],
+// }
+// export interface makeUser {
+//     (parameters: {
+//         id?: String,
+//         username: String,
+//         password?: String,
+//         name?: String,
+//         email?: String,
+//         isPublic?: Boolean,
+//         organisations?: [ObjectId | String],
+//         following?: [ObjectId | String],
+//         followers?: [ObjectId | String],
+//     }): User
+// }

@@ -1,5 +1,10 @@
-export default function buildMakePost ({}) {
+/**
+ * 
+ * @param {import(".").EntityDependancies} dependancies 
+ */
+export default function buildMakePost ({ Ids }) {
     return function makePost({
+        id = Ids.makeId(),
         user,
         content,
         postType,
@@ -23,6 +28,7 @@ export default function buildMakePost ({}) {
         // }
 
         return Object.freeze({
+            id, 
             user,
             postType,
             content,

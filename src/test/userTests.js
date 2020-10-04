@@ -8,10 +8,12 @@ const { ERROR_USERNAME_TAKEN, ERROR_EMAIL_TAKEN, ERROR_INVALID_PARAM, ERROR_LOGI
 const { organisationTemplateData, userCredentials, secondUserCredentials } = require('./templateData');
 const { follow } = require('../controllers/userController');
 const { joinOrgAs } = require('./testHelper');
+const like = require('chai-like');
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
 
 chai.use(chaiHttp);
+chai.use(like);
 let should = chai.should();
 
 

@@ -57,6 +57,16 @@ const organisationController = {
         let newOrgDoc = await newOrg.save();
         return newOrgDoc.toJSON();
     },
+    async update (orgId, newOrgData) {
+        try {
+            let updatedOrgDoc = await Organisation.findOneAndUpdate({_id: orgId}, newOrgData, {new: true}); 
+            return sanitizedUserData(updatedOrgDoc.toJSON());
+        } catch (error) {
+            console.log('====== to find out what error formating is for mongoose when cannot find relevant doc');
+            console.log(error);
+            throw error;
+        }
+    },
     async getOrgMembers (orgIdOrHandle) {
         assertRequiredParams(orgIdOrHandle);        
         let orgData = await this.getOrganisationByIdOrHandle(orgIdOrHandle);
