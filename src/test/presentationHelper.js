@@ -1,5 +1,5 @@
 import { ERROR_NOT_AUTHORISED } from "../constants/errors";
-// import { organisationTemplateData, secondOrganisationTemplateData, userCredentials, secondUserCredentials, thirdUserCredentials } from "./templateData";
+import { organisationTemplateData, secondOrganisationTemplateData, userCredentials, secondUserCredentials, thirdUserCredentials } from "./templateData";
 
 let chai = require('chai');
 let chaiHttp = require('chai-http');
@@ -11,7 +11,7 @@ let Post = mongoose.model('post');
 let Comment = mongoose.model('comment');
 
 
-const organisationTemplateData = {
+const orgChurchTemplateData = {
 	handle: "church",
 	name: "A Church",
 	contact: "64001234",
@@ -32,15 +32,6 @@ const johnsonCredentials = {
 	password: "12345"
 }
 
-const postTemplateData = {
-	content: "Hi everyone!! Nice to finally catch up with all of you. ",
-	postType: 'testimony'
-}
-
-const commentTemplateData = {
-	content: "Hey I'm just here to comment",
-}
-
 // module.exports = {organisationData, userCredentials, postTemplateData, commentTemplateData};
 
 let server;
@@ -50,6 +41,19 @@ export let organisations = {};
 export const init = function (initServer) {
     server = initServer;
 }
+
+
+export const createSceneA = async function () {  
+    organisations.public = await createOrganisation(organisationTemplateData);
+    organisations.private = await createOrganisation(secondOrganisationTemplateData);
+
+    users.private = await createUserAndLogin(userCredentials);
+    users.public = await createUserAndLogin(secondUserCredentials); //public
+    users.viewer = await createUserAndLogin(thirdUserCredentials);
+
+    updateUser('public', {public: true});
+}
+
 export const clearDB = async function () {
     await Organisation.deleteMany({});      
     await User.deleteMany({});      
@@ -59,7 +63,7 @@ export const clearDB = async function () {
 
 export const createUsersAndOrganisations = async function () {
     
-    organisations.church = await createOrganisation(organisationTemplateData);
+    organisations.church = await createOrganisation(orgChurchTemplateData);
 
     users.john = await createUserAndLogin(johnCredentials);
     users.johnson = await createUserAndLogin(johnsonCredentials); 
@@ -191,6 +195,6 @@ export const canViewPostAs = async function (user, post) {
     return (res.status == 200);
 }
 
-export const printCanView = function(canView) {
-    console.log(`${canView ? 'Can' : 'Cannot'} view: ${canView ? '✓' : '✕'}`);
+export const printCanView = function(canView, test) {
+    console.log(`SCENARIO ${test.toUpperCase()}: ${canView ? 'Can' : 'Cannot'} view: ${canView ? '✓' : '✕'}`);
 }

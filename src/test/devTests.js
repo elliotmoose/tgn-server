@@ -11,7 +11,7 @@ let chaiHttp = require('chai-http');
 let chaiLike = require('chai-like');
 let server = require('../server');
 let mongoose = require('mongoose');
-const { clearDB, init, createUsersAndOrganisations, users, organisations, followAs, makeTargetedPost, joinOrgAs, makeUntargetedPost, reactToPostAs, commentOnPostAs, updateUser, updateOrganisation, canViewPostAs, printCanView } = require('./presentationHelper');
+const { clearDB, init, createUsersAndOrganisations, users, organisations, followAs, makeTargetedPost, joinOrgAs, makeUntargetedPost, reactToPostAs, commentOnPostAs, updateUser, updateOrganisation, canViewPostAs, printCanView, createSceneA } = require('./presentationHelper');
 
 let User = mongoose.model('user');
 let Organisation = mongoose.model('organisation');
@@ -41,14 +41,14 @@ async function main() {
                         await updateUser('johnson', { public: true });
                         let post = await makeUntargetedPost(users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "b":
                     {
                         let post = await makeUntargetedPost(users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "c":
@@ -56,7 +56,7 @@ async function main() {
                         let post = await makeUntargetedPost(users.johnson);
                         await followAs(users.john, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "d":
@@ -66,7 +66,7 @@ async function main() {
                         await updateOrganisation('church', { public: true }, users.john);
                         let post = await makeTargetedPost(organisations.church, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "e":
@@ -76,7 +76,7 @@ async function main() {
                         await updateOrganisation('church', { public: true }, users.john);
                         let post = await makeTargetedPost(organisations.church, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "f":
@@ -86,7 +86,7 @@ async function main() {
                         await updateOrganisation('church', { public: false }, users.john);
                         let post = await makeTargetedPost(organisations.church, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "g":
@@ -96,7 +96,7 @@ async function main() {
                         await updateOrganisation('church', { public: false }, users.john);
                         let post = await makeTargetedPost(organisations.church, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "h":
@@ -107,7 +107,7 @@ async function main() {
                         await joinOrgAs(users.john, organisations.church);
                         let post = await makeTargetedPost(organisations.church, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
                 case "i":
@@ -115,11 +115,10 @@ async function main() {
                         await updateUser('johnson', { public: false });
                         await updateOrganisation('church', { public: false }, users.john);
                         await joinOrgAs(users.johnson, organisations.church);
-                        await joinOrgAs(users.john, organisations.church);
                         await followAs(users.john, users.johnson);
                         let post = await makeTargetedPost(organisations.church, users.johnson);
                         let access = await canViewPostAs(users.john, post);
-                        printCanView(access);
+                        printCanView(access, test);
                         break;
                     }
 
@@ -127,6 +126,9 @@ async function main() {
                     break;
             }
         }
+
+        await createSceneA()
+        await scenarioB()
     } catch (error) {
         console.error(error);
     }
@@ -201,9 +203,9 @@ async function scenarioC() {
 //user cannot access public user post to private org (non member) on profile
 async function scenarioD() {
     await followAs(users.viewer, users.public);
-    await joinOrgAs(users.private, organisations.private);
+    await joinOrgAs(users.public, organisations.private);
     let publicToPrivatePost = await makeTargetedPost(organisations.private, users.public);
-    let publicUntargetedPost = await makeUntargetedPost(users.private);
+    let publicUntargetedPost = await makeUntargetedPost(users.public);
 }
 
 main();

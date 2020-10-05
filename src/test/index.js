@@ -1,9 +1,9 @@
 require = require('esm')(module);
 process.env.NODE_ENV = 'TEST';
 
-// require('./helperTests')
+require('./helperTests')
 require('./organisationTests')
-// require('./userTests')
-// require('./postTests')
-// require('./accessTests')
+require('./userTests')
+require('./postTests')
+require('./accessTests')
 // require('./sandbox')

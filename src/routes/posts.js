@@ -9,30 +9,29 @@ const postController = require('../controllers/postController');
 const { resolveParamPost } = require('../middleware/post');
 const rbac = require('../middleware/rbac');
 const { makeExpressCallback } = require('../helpers/expressCallback');
-const { createPost } = require('../controllers/post');
 
-router.post('/', setAndRequireUser, makeExpressCallback(createPost));
+// router.post('/', setAndRequireUser, makeExpressCallback(createPost));
 
-// router.post('/', setAndRequireUser, async (req, res)=>{    
-//     let userId =  req.user._id;
-//     let {content, postType, target} = req.body;
+router.post('/', setAndRequireUser, async (req, res)=>{    
+    let userId =  req.user._id;
+    let {content, postType, target} = req.body;
 
-//     try {   
-//         //check if is member       
-//         if(target) {
-//             let isMember = req.user.organisationIds.findIndex((id) => id.equals(target)) != -1;
+    try {   
+        //check if is member       
+        if(target) {
+            let isMember = req.user.organisationIds.findIndex((id) => id.equals(target)) != -1;
 
-//             if(!isMember) {
-//                 throw ERROR_NOT_ORG_MEMBER();
-//             }
-//         }
+            if(!isMember) {
+                throw ERROR_NOT_ORG_MEMBER();
+            }
+        }
 
-//         let newPost = await postController.makePost({content, postType, target}, userId);
-//         respond(res, newPost);
-//     } catch (error) {
-//         respond(res, {}, error);
-//     }
-// });
+        let newPost = await postController.makePost({content, postType, target}, userId);
+        respond(res, newPost);
+    } catch (error) {
+        respond(res, {}, error);
+    }
+});
 
 router.get('/:postId', setAndRequireUser, resolveParamPost, rbac.can('read', 'post'), async (req, res)=>{    
     let postId =  req.params.postId;

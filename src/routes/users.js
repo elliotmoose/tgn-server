@@ -9,7 +9,6 @@ const mongoose = require('mongoose');
 const postController = require('../controllers/postController');
 const { isOwner } = require('../middleware/access');
 const rbac = require('../middleware/rbac');
-import { signup } from '../controllers/user';
 import { makeExpressCallback } from '../helpers/expressCallback';
 router.get('/', (req,res)=>{
 
@@ -41,9 +40,13 @@ router.post('/login', async (req, res)=>{
 /**
  * Get user data by id or by handl
  */
-router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), async (req, res)=>{
+router.get('/:userIdOrHandle', setAndRequireUser, async (req, res)=>{
+    const { userIdOrHandle } = req.params;
     try {        
-        respond(res, req.paramUser);
+        //TODO: decide what can be seen and what can't
+        let user = await userController.getUserByIdOrHandle(userIdOrHandle);
+        respond(res, user);
+        // respond(res, req.paramUser);
     } catch (error) {
         respond(res, {}, error);
     }

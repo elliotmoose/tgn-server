@@ -154,11 +154,13 @@ describe('Access Control', function () {
             
             res = await chai.request(server).get(`/users/${users.public._id}`).set('authorization', `Bearer ${users.private.token}`).send();
             res.should.have.status(200);			
-		});
-        it('should NOT allow ANY user to access PRIVATE user profile', async () => {			
+        });
+        //updated: user profile can load basic details
+        it('should allow ANY user to access PRIVATE user profile', async () => {			
             let res = await chai.request(server).get(`/users/${users.private._id}`).set('authorization', `Bearer ${users.public.token}`).send();
-            res.should.have.status(ERROR_NOT_AUTHORISED().status);			
-            res.body.should.have.property('error').eql(ERROR_NOT_AUTHORISED().toJSON());			
+            res.should.have.status(200);			
+            // res.should.have.status(ERROR_NOT_AUTHORISED().status);			
+            // res.body.should.have.property('error').eql(ERROR_NOT_AUTHORISED().toJSON());			
 		});
 	});
     
@@ -501,7 +503,7 @@ describe('Access Control', function () {
                             else {                        
                                 for(let shouldBeMember of viewerMemberOptions) {
                                     //cases to ignore: (should have access but should not feed) 
-                                    //org: public, member: false                                    
+                                    //org: public, member: false (as long as viewer is not a member, it is not fed (even though following). As long as org public, access is granted)                      
                                     if(orgOption == 'public' && !shouldBeMember) {
                                         continue;
                                     }
@@ -518,7 +520,11 @@ describe('Access Control', function () {
                                     let postRes = await getPostResAsUser(post._id, viewer);
                                     let postValid = (postRes.status == 200);
                                                                         
+                                    if(postValid != feedValid) {
+                                        console.log(`org: ${orgOption} user: ${userOption} following: ${shouldBeFollowing} member: ${shouldBeMember} feedValid:${feedValid} postValid: ${postValid}`)
+                                    }
                                     postValid.should.eql(feedValid);
+
                                     
                                     if(shouldBeMember) {
                                         await leaveOrgAs(viewer, org);
