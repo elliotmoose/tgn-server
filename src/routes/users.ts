@@ -1,21 +1,27 @@
 import express from 'express';
 const router = express.Router();
 
-import { signup, login, getUser } from '../controllers/user';
+import { makeExpressCallback } from '../helpers/expressCallback';
+import { makeExpressMiddleware } from '../helpers/expressMiddleware';
+
+import { signup, login, getUser, setUserMiddleware, setParamUserMiddleware  } from '../controllers/user';
+import access from '../controllers/access';
 
 // const userController = require('../controllers/userController');
 // const { respond, checkRequiredFields, assertRequiredParams } = require('../helpers/apiHelper');
 // import * as Errors from "../constants/Errors";
-import { makeExpressCallback } from '../helpers/expressCallback';
 // const { setAndRequireUser, resolveParamUser } = require('../middleware/user');
 // const organisationController = require('../controllers/organisationController');
 // const postController = require('../controllers/postController');
 // const rbac = require('../middleware/rbac');
 
-// router.post('/', makeExpressCallback(signup));
-router.post('/', makeExpressCallback(signup));
 router.post('/login', makeExpressCallback(login));
-// router.get('/:userIdOrHandle', setAndRequireUser, resolveParamUser, rbac.can('read', 'user'), makeExpressCallback(getUser));
+router.post('/', makeExpressCallback(signup));
+router.get('/:userIdOrHandle', 
+makeExpressMiddleware(setUserMiddleware), 
+makeExpressMiddleware(setParamUserMiddleware), 
+makeExpressMiddleware(access.can('read', 'user')), 
+makeExpressCallback(getUser));
 
 // /**
 //  * Get user data by id or by handl

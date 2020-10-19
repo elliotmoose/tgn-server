@@ -1,36 +1,33 @@
-import { Validation, Errors } from './user.usecase.depend.interfaces';
-import { UserRepository, Crypto } from './user.usecase.depend.interfaces';
+import { Crypto } from './../../helpers/crypto';
+import { UserRepository } from './../../repositories/user.repo';
+import Errors from '../../constants/Errors';
 
 import { makeUser } from "../../domain/entities";
 
 interface Dependencies {
     userRepo : UserRepository,
     crypto: Crypto,
-    Errors: Errors
 }
 
-export default function makeLoginUser({ userRepo, crypto, Errors } : Dependencies) {
+export default function makeLoginUser({ userRepo, crypto } : Dependencies) {
     return async function loginUser(userData) {
         const {
             username, 
             password, 
         } = userData;
 
-        // const user = makeUser(userData);
+        const passwordData = await userRepo.retrievePasswordHashAndSalt(username);
 
-        const user = await userRepo.find({ username }, ['username', 'password', 'passwordSalt']);
-
-        if(!user) {
+        if(!passwordData) {
             throw Errors.LOGIN_FAILED();
         }
 
-        const correctPassword = crypto.verifyPassword(password, user.password as string, user.passwordSalt as string);
+        const correctPassword = crypto.verifyPassword(password, passwordData.password, passwordData.passwordSalt);
 
         if(!correctPassword) {
             throw Errors.LOGIN_FAILED();
         }
 
-        const newUser = await userRepo.insert(user);
-        return newUser;
+        return await userRepo.find({ username });
     }
 }

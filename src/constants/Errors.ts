@@ -16,7 +16,7 @@ export class APIError extends Error {
     code;
     message;
     toJSON;
-    
+
     constructor(code, message, status) {
         super(message);
         this.status = status;
@@ -270,20 +270,73 @@ export const REACTION_EXISTS = function() {
     return new APIError('ERROR_REACTION_EXISTS', 'You have already given this reaction to this post', 409);
 }
 
-export const INVALID_PARAM = function(param) {
-    return new APIError('ERROR_INVALID_PARAM', `Invalid ${param}`, 400);
-}
 
 export const ALREADY_REACTED_TO_POST = function() {
     return new APIError('ERROR_ALREADY_REACTED_TO_POST', 'You have already given this reaction to this post', 409);
 }
 
-
 export const REACTION_NOT_FOUND = function() {
     return new APIError('ERROR_REACTION_NOT_FOUND', 'Reaction not found', 404);
 }
 
+export const INVALID_PARAM = function(param) {
+    return new APIError('ERROR_INVALID_PARAM', `Invalid ${param}`, 400);
+}
 
 export const MALFORMED_DATA = function(name) {
     return new APIError('ERROR_MALFORMED_DATA', `${name} has invalid structure`, 500);
+}
+
+export default {
+    INTERNAL_SERVER,
+    MISSING_PARAM,
+    USERNAME_TAKEN,
+    ORG_HANDLE_TAKEN,
+    EMAIL_TAKEN,
+    LOGIN_FAILED,
+    MISSING_TOKEN,
+    INVALID_TOKEN,
+    TOKEN_EXPIRED,
+    NOT_AUTHORISED,
+    USER_NOT_FOUND,
+    CANNOT_FOLLOW_SELF,
+    CANNOT_UNFOLLOW_SELF,
+    ALREADY_FOLLOWING_USER,
+    NOT_FOLLOWING_USER,
+    ALREADY_JOINED_ORG,
+    NOT_ORG_MEMBER,
+    ORG_NOT_FOUND,
+    POST_NOT_FOUND,
+    REACTION_EXISTS,
+    ALREADY_REACTED_TO_POST,
+    REACTION_NOT_FOUND,
+    INVALID_PARAM,
+    MALFORMED_DATA,
+}
+
+export interface Errors {
+    INTERNAL_SERVER() : APIError
+    MISSING_PARAM() : APIError
+    USERNAME_TAKEN() : APIError
+    ORG_HANDLE_TAKEN() : APIError
+    EMAIL_TAKEN() : APIError
+    LOGIN_FAILED() : APIError
+    MISSING_TOKEN() : APIError
+    INVALID_TOKEN() : APIError
+    TOKEN_EXPIRED() : APIError
+    NOT_AUTHORISED() : APIError
+    USER_NOT_FOUND() : APIError
+    CANNOT_FOLLOW_SELF() : APIError
+    CANNOT_UNFOLLOW_SELF() : APIError
+    ALREADY_FOLLOWING_USER() : APIError
+    NOT_FOLLOWING_USER() : APIError
+    ALREADY_JOINED_ORG() : APIError
+    ORG_NOT_FOUND() : APIError
+    NOT_ORG_MEMBER() : APIError
+    POST_NOT_FOUND() : APIError
+    REACTION_EXISTS() : APIError
+    ALREADY_REACTED_TO_POST() : APIError
+    REACTION_NOT_FOUND() : APIError
+    INVALID_PARAM(label: string) : APIError
+    MALFORMED_DATA(label: string) : APIError
 }

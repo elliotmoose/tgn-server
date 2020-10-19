@@ -1,15 +1,17 @@
-import { Ids, Errors } from './user.usecase.depend.interfaces';
-import { UserRepository, Crypto } from './user.usecase.depend.interfaces';
+import { Ids } from './../../helpers/Ids';
+import { UserRepository } from './../../repositories/user.repo';
+import { User } from './../../domain/entities/user.entity';
+// import { UserRepository, Crypto } from './user.input.port';
 
 import { makeUser } from "../../domain/entities";
+import Errors from '../../constants/Errors';
 
 interface Dependencies {
     userRepo : UserRepository,
     Ids: Ids,
-    Errors: Errors
 }
 
-export default function makeFindUser({ userRepo, Ids, Errors } : Dependencies) {
+export default function makeFindUser({ userRepo, Ids } : Dependencies) {
     return async function findUser(userIdOrUsername) {    
         let user;
 
@@ -26,4 +28,8 @@ export default function makeFindUser({ userRepo, Ids, Errors } : Dependencies) {
 
         return makeUser(user);
     }
+}
+
+export interface FindUser {
+    (userIdOrUsername: string) : Promise<User>
 }

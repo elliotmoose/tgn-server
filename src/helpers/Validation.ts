@@ -1,4 +1,4 @@
-const helpers = {
+const helpers : Validation = {
     isValidEmail(email: string) : Boolean {
         const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
@@ -19,3 +19,10 @@ const helpers = {
 }
 
 export default helpers;
+
+export interface Validation {
+    isValidHandle: (handle: string) => Boolean,
+    isValidEmail: (email: string) => Boolean,
+    isValidPassword: (password: string) => Boolean,
+    isNonEmpty(value: string) : Boolean
+}

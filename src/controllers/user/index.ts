@@ -2,13 +2,16 @@
 import {
     createUser, 
     loginUser, 
-    findUser, 
+    findUser,
+    verifyUserToken 
     // updateUser, 
     // findUserOrganisations, 
     // findUserPosts, 
     // findUserFollowers, 
     // findUserFollowing
 } from "../../use-cases/user";
+
+import * as Errors from '../../constants/Errors';
 
 //import controllers
 import makeSignUp from "./signup.controller";
@@ -19,10 +22,19 @@ import makeGetUser from "./get-user.controller";
 // import makeGetFollowing from "./get-following.controller";
 // import makeGetIsFollowing from "./get-is-following.controller";
 
+//import middleware controllers
+import makeSetUserMiddleware from "./set-user.middleware";
+import makeSetParamUserMiddleware from "./set-param-user.middleware";
+
 //initialise user controller makers
 export const signup = makeSignUp({ createUser });
 export const login = makeLogin({ loginUser });
-export const getUser = makeGetUser({ findUser });
+export const getUser = makeGetUser({ findUser, Errors });
+
+
+//init middleware controllers
+export const setUserMiddleware = makeSetUserMiddleware({ verifyUserToken, Errors });
+export const setParamUserMiddleware = makeSetParamUserMiddleware({ findUser, Errors });
 // export const editUser = makeGetUser({ updateUser });
 // export const getUserOrganisations = makeGetUser({ findUserOrganisations });
 // export const getUserPosts = makeGetUser({ findUserPosts });
@@ -36,6 +48,8 @@ export default {
     signup, 
     login, 
     getUser, 
+    setUserMiddleware,
+    setParamUserMiddleware
     // editUser, 
     // getUserOrganisations, 
     // getUserPosts, 

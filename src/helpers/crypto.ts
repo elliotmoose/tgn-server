@@ -2,7 +2,7 @@ let jwt = require('jsonwebtoken');
 const { ERROR_TOKEN_EXPIRED, ERROR_INVALID_TOKEN } = require("../constants/errors");
 let cryptoLib = require('crypto');
 
-export default function makeCrypto(secret : string) {
+export default function makeCrypto(secret : string) : Crypto {
     return {
         secret,
         generateSalt(saltLength: number) {
@@ -54,4 +54,14 @@ export default function makeCrypto(secret : string) {
             return verifyHash === hash;
         }
     }
+}
+
+export interface Crypto {
+    secret: string,
+    checkInitialized: () => void,
+    generateJsonWebToken: (tokenData: any, expiresIn: any) => string,
+    generateSalt: (saltLength: number) => string,
+    hashPassword: (password: string, salt: string) => string,
+    verifyPassword: (password: string, hash: string, salt: string) => Boolean,
+    decodeJsonWebToken: ( token: string ) => { userId: string }
 }

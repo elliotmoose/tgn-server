@@ -1,17 +1,18 @@
-import { Validation, Errors, Crypto } from './user.usecase.depend.interfaces';
-import { UserRepository, OrganisationRepo } from './user.usecase.depend.interfaces';
-
+import { Crypto } from './../../helpers/crypto';
+import { OrganisationRepository } from './../../repositories/organisation.repo';
+import { Validation } from './../../helpers/Validation';
+import { UserRepository } from './../../repositories/user.repo';
 import { makeUser } from "../../domain/entities";
+import Errors from '../../constants/Errors';
 
 interface Dependencies {
     userRepo : UserRepository
-    organisationRepo : OrganisationRepo,
+    organisationRepo : OrganisationRepository,
     crypto: Crypto
     Validation: Validation,
-    Errors: Errors
 }
 
-export default function makeCreateUser({ userRepo, organisationRepo, crypto, Validation, Errors } : Dependencies) {
+export default function makeCreateUser({ userRepo, organisationRepo, crypto, Validation } : Dependencies) {
     return async function createUser(userData) {
         const {
             username, 

@@ -45,8 +45,6 @@ export default function buildMakeUser({ Ids, Errors, Validation } : Dependencies
             throw Errors.MALFORMED_DATA("Invalid or missing username")
         }
 
-        console.log(bio);
-
         return Object.freeze({
             id,
             username,

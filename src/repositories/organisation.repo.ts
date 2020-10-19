@@ -62,3 +62,7 @@ export default function makeOrganisationRepo({ OrganisationModel } : Dependencie
         return exists;
     }
 }
+
+export interface OrganisationRepository {
+    exists: (match : Object) => Promise<Boolean>,
+}
