@@ -1,4 +1,4 @@
-import { Id } from '../../helpers/Ids';
+import { Id } from '../../helpers/ids';
 import { User } from '../../domain/entities/user.entity';
 
 // export interface LoginUser {

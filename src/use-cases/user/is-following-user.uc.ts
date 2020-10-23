@@ -1,5 +1,5 @@
 import { UserRepository } from './../../repositories/user.repo';
-import { Ids } from './../../helpers/Ids';
+import { Ids } from '../../helpers/ids';
 import { User } from '../../domain/entities/user.entity';
 import Errors from '../../constants/Errors';
 
@@ -17,7 +17,7 @@ export default function makeIsFollowingUser({ userRepo, Ids } : Dependencies) {
         const validTargetUserId = Ids.isValidId(targetUserId);
 
         if(!validUserId || !validTargetUserId) {
-            throw Errors.INVALID_PARAM("User Id");
+            throw Errors.INVALID_PARAM("userId");
         }
 
         const isFollowing = await userRepo.userHasFollower(userId, targetUserId);

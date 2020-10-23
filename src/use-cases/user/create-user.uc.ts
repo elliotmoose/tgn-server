@@ -1,6 +1,6 @@
 import { Crypto } from './../../helpers/crypto';
 import { OrganisationRepository } from './../../repositories/organisation.repo';
-import { Validation } from './../../helpers/Validation';
+import { Validation } from '../../helpers/validation';
 import { UserRepository } from './../../repositories/user.repo';
 import { makeUser } from "../../domain/entities";
 import Errors from '../../constants/Errors';
@@ -23,19 +23,19 @@ export default function makeCreateUser({ userRepo, organisationRepo, crypto, Val
 
         //validation
         if(!Validation.isValidEmail(email)) {
-            throw Errors.INVALID_PARAM("Email");
+            throw Errors.INVALID_PARAM("email");
         }
 
         if(!Validation.isValidHandle(username)) {
-            throw Errors.INVALID_PARAM("Username");
+            throw Errors.INVALID_PARAM("username");
         }
 
         if(!Validation.isValidPassword(password)) {
-            throw Errors.INVALID_PARAM("Password");
+            throw Errors.INVALID_PARAM("password");
         }
 
         if(!fullName) {
-            throw Errors.INVALID_PARAM("Full Name");
+            throw Errors.INVALID_PARAM("fullName");
         }
 
         let usernameTaken = await userRepo.exists({ username });

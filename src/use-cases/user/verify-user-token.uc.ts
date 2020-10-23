@@ -1,6 +1,6 @@
 import { Crypto } from './../../helpers/crypto';
 import { UserRepository } from './../../repositories/user.repo';
-import { Ids } from './../../helpers/Ids';
+import { Ids } from '../../helpers/ids';
 import { User } from './../../domain/entities/user.entity';
 
 import { makeUser } from "../../domain/entities";

@@ -1,7 +1,7 @@
 //dependencies
-import Ids from "../../helpers/Ids";
+import Ids from "../../helpers/ids";
 import * as Errors from "../../constants/Errors";
-import Validation from "../../helpers/Validation"
+import Validation from "../../helpers/validation"
 
 //entities
 import buildMakeOrganisation from "./organisation.entity";

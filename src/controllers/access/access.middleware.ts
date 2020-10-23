@@ -1,6 +1,6 @@
 import { IsFollowingUser } from './../../use-cases/user/is-following-user.uc';
 import { Errors } from './../../constants/Errors';
-import { Ids } from './../../helpers/Ids';
+import { Ids } from '../../helpers/ids';
 
 interface Dependencies {
     Ids: Ids,

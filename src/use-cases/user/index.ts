@@ -4,8 +4,8 @@ import { userRepo, organisationRepo } from './../../repositories/index';
 
 //helper dependencies
 import * as Errors from '../../constants/Errors';
-import Validation from '../../helpers/Validation';
-import Ids from '../../helpers/Ids';
+import Validation from '../../helpers/validation';
+import Ids from '../../helpers/ids';
 
 //use cases
 import makeCreateUser from "./create-user.uc";

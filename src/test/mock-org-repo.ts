@@ -3,7 +3,7 @@ import { User } from '../domain/entities/user.entity';
 
 const organisations: {[key : string]: User} = {};
 
-const mockUserRepo : OrganisationRepository = {        
+const mockOrgRepo : OrganisationRepository = {        
         // async findById(userId, select) {
         //     const user = organisations[userId];
 
@@ -58,7 +58,11 @@ const mockUserRepo : OrganisationRepository = {
             })
 
             return org !== undefined;
+        },
+
+        async clearAll() {
+            
         }
 }
 
-export default mockUserRepo;
+export default mockOrgRepo;

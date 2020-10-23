@@ -1,6 +1,7 @@
 import { User } from '../domain/entities/user.entity';
 import { UserRepository } from '../repositories/user.repo';
 
+
 const users: {[key : string]: User} = {};
 
 const mockUserRepo : UserRepository = {        
@@ -75,6 +76,12 @@ const mockUserRepo : UserRepository = {
 
             return user.followers.find((id) => id.equals(targetUserId)) !== undefined;
         },
+
+        async clearAll() {
+            for(let key of Object.keys(users)) {
+                delete users[key];
+            }
+        }
 }
 
 export default mockUserRepo;

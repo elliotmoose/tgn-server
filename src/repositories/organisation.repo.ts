@@ -8,7 +8,8 @@ export default function makeOrganisationRepo({ OrganisationModel } : Dependencie
     return Object.freeze({
         findById,
         find,
-        exists
+        exists,
+        clearAll
     })
 
     async function findById(userId, select) {
@@ -61,8 +62,13 @@ export default function makeOrganisationRepo({ OrganisationModel } : Dependencie
         let exists = await OrganisationModel.exists(match);
         return exists;
     }
+
+    async function clearAll() {
+        await OrganisationModel.remove({});
+    }
 }
 
 export interface OrganisationRepository {
     exists: (match : Object) => Promise<Boolean>,
+    clearAll: ()=>void
 }

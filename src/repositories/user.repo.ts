@@ -12,7 +12,8 @@ export default function makeUserRepo({ UserModel } : Dependencies) : UserReposit
         insert,
         exists,
         retrievePasswordHashAndSalt,
-        userHasFollower
+        userHasFollower,
+        clearAll
     })
 
     async function findById(userId, select) {
@@ -112,6 +113,10 @@ export default function makeUserRepo({ UserModel } : Dependencies) : UserReposit
         const hasFollower = await UserModel.exists({_id: targetUserId, followers: {$eq: userId}});
         return isFollowing && hasFollower;
     }
+
+    async function clearAll() {
+        await UserModel.remove({});
+    }
 }
 
 
@@ -122,4 +127,5 @@ export interface UserRepository {
     insert: (userData: User) => Promise<User>,
     exists: (match : Object) => Promise<Boolean>,
     userHasFollower: (userId: string, targetUserId: string) => Promise<Boolean>,
+    clearAll : () => void
 }

@@ -1,4 +1,4 @@
-import { Id } from './../../helpers/Ids';
+import { Id } from '../../helpers/ids';
 import { APIError } from './../../constants/Errors';
 import { Types } from 'mongoose';
 
