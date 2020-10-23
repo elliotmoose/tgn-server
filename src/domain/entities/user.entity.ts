@@ -1,5 +1,7 @@
+import { Validation } from './../../helpers/Validation';
+import { Errors } from './../../constants/Errors';
+import { Ids } from './../../helpers/Ids';
 import { Id } from '../../helpers/ids';
-import { Ids, Errors, Validation } from './entity.depend.interfaces';
 
 interface Dependencies {
     Ids: Ids,
@@ -16,9 +18,9 @@ export interface User {
     isPublic: Boolean,
     password: string | null,
     passwordSalt: string | null,
-    organisations: Array<Id>,
-    following: Array<Id>,
-    followers: Array<Id>,
+    organisations: Array<string>,
+    following: Array<string>,
+    followers: Array<string>,
     role: string
 }
 
@@ -30,15 +32,13 @@ export default function buildMakeUser({ Ids, Errors, Validation } : Dependencies
         email,
         bio = "no bio",
         isPublic = false,
-        password = null as string | null,
-        passwordSalt = null as string | null,
         organisations = [],
         following = [],
         followers = [],
         role = 'STANDARD'
     }) {
         if(!Ids.isValidId(id)) {
-            throw Errors.INVALID_PARAM("User Id");
+            throw Errors.INVALID_PARAM("userId");
         }
 
         if(!(Validation.isValidHandle(username) && Validation.isNonEmpty(username))) {
@@ -51,9 +51,7 @@ export default function buildMakeUser({ Ids, Errors, Validation } : Dependencies
             fullName,
             email,
             bio,
-            isPublic,
-            password,
-            passwordSalt,
+            isPublic,            
             organisations,
             following,
             followers,

@@ -1,4 +1,5 @@
-import { Ids, Errors } from './entity.depend.interfaces';
+import { Errors } from './../../constants/Errors';
+import { Ids } from './../../helpers/Ids';
 const reactionTypes = ['love', 'like', 'pray', 'praise'];
 
 interface Dependencies {

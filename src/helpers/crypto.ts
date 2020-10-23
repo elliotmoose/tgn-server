@@ -59,7 +59,7 @@ export default function makeCrypto(secret : string) : Crypto {
 export interface Crypto {
     secret: string,
     checkInitialized: () => void,
-    generateJsonWebToken: (tokenData: any, expiresIn: any) => string,
+    generateJsonWebToken: (tokenData: any, expiresIn?: any) => string,
     generateSalt: (saltLength: number) => string,
     hashPassword: (password: string, salt: string) => string,
     verifyPassword: (password: string, hash: string, salt: string) => Boolean,

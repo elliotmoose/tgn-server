@@ -121,11 +121,11 @@ export default function makeUserRepo({ UserModel } : Dependencies) : UserReposit
 
 
 export interface UserRepository {
-    findById: (id: string, select?: Array<string> | undefined) => Promise<User>,
-    find: (match: Object, select?: Array<string> | undefined) => Promise<User>,
+    findById: (id: string, select?: Array<string> | undefined) => Promise<User | null>,
+    find: (match: Object, select?: Array<string> | undefined) => Promise<User | null>,
     retrievePasswordHashAndSalt: (username) => Promise<{password: string, passwordSalt: string} | undefined>
     insert: (userData: User) => Promise<User>,
     exists: (match : Object) => Promise<Boolean>,
     userHasFollower: (userId: string, targetUserId: string) => Promise<Boolean>,
-    clearAll : () => void
+    clearAll : () => Promise<void>
 }

@@ -17,7 +17,7 @@ export default function makeLoginUser({ userRepo, crypto } : Dependencies) {
         } = userData;
 
         const passwordData = await userRepo.retrievePasswordHashAndSalt(username);
-
+        
         if(!passwordData) {
             throw Errors.LOGIN_FAILED();
         }
@@ -27,7 +27,17 @@ export default function makeLoginUser({ userRepo, crypto } : Dependencies) {
         if(!correctPassword) {
             throw Errors.LOGIN_FAILED();
         }
+    
+        const user = await userRepo.find({ username });
+        
+        if(!user) {
+            throw Errors.LOGIN_FAILED();
+        }
 
-        return await userRepo.find({ username });
+        const jwt = crypto.generateJsonWebToken({userId: user.id});
+        return {
+            user,
+            token: jwt
+        };
     }
 }

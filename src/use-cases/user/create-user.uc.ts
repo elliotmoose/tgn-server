@@ -56,8 +56,6 @@ export default function makeCreateUser({ userRepo, organisationRepo, crypto, Val
         let user = makeUser({
             username,
             fullName,
-            password: hashedPassword,
-            passwordSalt,
             email,
         })
 
@@ -65,8 +63,8 @@ export default function makeCreateUser({ userRepo, organisationRepo, crypto, Val
             id: user.id,
             username: user.username,
             fullName: user.fullName,
-            password: user.password,
-            passwordSalt: user.passwordSalt,
+            password: hashedPassword,
+            passwordSalt,
             email: user.email,
             bio: user.bio,
             isPublic: user.isPublic,

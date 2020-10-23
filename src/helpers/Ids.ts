@@ -5,18 +5,20 @@ const Ids = {
         return mongoose.Types.ObjectId.isValid(value);
     },    
     makeId() {
-        return mongoose.Types.ObjectId();  
+        let id = mongoose.Types.ObjectId();
+        return `${id}`;  
     },
-    equal(a: string, b: string | Id) : Boolean {
+    equal(a: string, b: string) : Boolean {
         return mongoose.Types.ObjectId.isValid(a) && mongoose.Types.ObjectId(a).equals(b);
     }
 }
 
-export interface Id extends mongoose.Types.ObjectId {}
+// export interface Id extends mongoose.Types.ObjectId {}
+export interface Id extends String {}
 export interface Ids {
     isValidId(value: string) : Boolean
-    makeId(value: string) : Id
-    equal(a: string | Id, b: string | Id) : Boolean
+    makeId() : string
+    equal(a: string, b: string) : Boolean
 }
 
 export default Ids;

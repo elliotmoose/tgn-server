@@ -10,12 +10,13 @@ import makeCrypto from '../../helpers/crypto';
 import makeFindUser from './find-user.uc';
 import makeIsFollowingUser from './is-following-user.uc';
 import makeLoginUser from './login-user.uc';
+import makeMockUserRepo from '../../test/mock-user-repo';
 
 const like = require('chai-like');
 const should = chai.should();
 chai.use(like);
 
-const userRepo = mockUserRepo;
+const userRepo = makeMockUserRepo({ Ids });
 const organisationRepo = mockOrganisationRepo;
 
 const crypto = makeCrypto('mooselliot');
@@ -25,9 +26,9 @@ const findUser = makeFindUser({ userRepo, Ids });
 
 
 
-describe('Find User', () => {
+describe('Find User', async () => {
     it('should find by username and id', async () => {
-        await mockUserRepo.clearAll();
+        await userRepo.clearAll();
         const newUser = await createUser({
             username: 'mooselliot',
             password: '12321',

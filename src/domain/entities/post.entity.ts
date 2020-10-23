@@ -1,5 +1,5 @@
-import { Ids, Errors } from './entity.depend.interfaces';
-
+import { Errors } from './../../constants/Errors';
+import { Ids } from './../../helpers/Ids';
 interface Dependencies {
     Ids: Ids,
     Errors: Errors

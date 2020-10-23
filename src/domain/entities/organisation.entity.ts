@@ -1,5 +1,6 @@
-import { Ids, Errors, Validation } from './entity.depend.interfaces';
-
+import { Validation } from './../../helpers/Validation';
+import { Errors } from './../../constants/Errors';
+import { Ids } from './../../helpers/Ids';
 interface Dependencies {
     Ids: Ids,
     Errors: Errors,
