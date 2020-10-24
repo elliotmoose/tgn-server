@@ -5,7 +5,7 @@ import Validation from '../../helpers/validation';
 import makeCreateUser from "./create-user.uc"
 import Errors from '../../constants/Errors';
 import mockUserRepo from "../../test/mock-user-repo";
-import mockOrganisationRepo from "../../test/mock-org-repo";
+import makeMockOrgRepo from "../../test/mock-org-repo";
 import makeCrypto from '../../helpers/crypto';
 import makeFindUser from './find-user.uc';
 import makeIsFollowingUser from './is-following-user.uc';
@@ -17,7 +17,7 @@ const should = chai.should();
 chai.use(like);
 
 const userRepo = makeMockUserRepo({ Ids });
-const organisationRepo = mockOrganisationRepo;
+const organisationRepo = makeMockOrgRepo();
 
 const crypto = makeCrypto('mooselliot');
 
@@ -43,14 +43,14 @@ describe('Find User', async () => {
     });
 
     it('should not find user that doesn\'t exist', async () => {
-        await expectThrowsAsync(findUser('hello'), Errors.USER_NOT_FOUND().toJSON());
+        await expectThrowsAsync(findUser('hello'), Errors.USER_NOT_FOUND());
     })
     
     it('should not fail on empty request', async () => {
-        await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND().toJSON());
+        await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND());
     })
     
     it('should find by ', async () => {
-        await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND().toJSON());
+        await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND());
     })
 })

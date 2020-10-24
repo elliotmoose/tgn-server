@@ -1,6 +1,5 @@
 import { FindUser } from './../../use-cases/user/find-user.uc';
 import { Errors } from '../../constants/Errors';
-import { VerifyUserToken } from "../../use-cases/user/verify-user-token.uc";
 
 interface Dependencies {
     Errors: Errors

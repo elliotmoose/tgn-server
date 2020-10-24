@@ -1,7 +1,6 @@
+import Errors from './../constants/Errors';
 let jwt = require('jsonwebtoken');
-const { ERROR_TOKEN_EXPIRED, ERROR_INVALID_TOKEN } = require("../constants/errors");
 let cryptoLib = require('crypto');
-
 export default function makeCrypto(secret : string) : Crypto {
     return {
         secret,
@@ -30,13 +29,13 @@ export default function makeCrypto(secret : string) : Crypto {
             } catch (error) {
                 switch (error.name) {
                     case 'TokenExpiredError': {
-                        throw ERROR_TOKEN_EXPIRED();
+                        throw Errors.TOKEN_EXPIRED();
                     }
                     case 'JsonWebTokenError': {
-                        throw ERROR_INVALID_TOKEN();
+                        throw Errors.INVALID_TOKEN();
                     }
                     default: {
-                        throw ERROR_INVALID_TOKEN();
+                        throw Errors.INVALID_TOKEN();
                     }
                 }
             }

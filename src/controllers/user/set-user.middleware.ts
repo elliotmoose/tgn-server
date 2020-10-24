@@ -18,7 +18,8 @@ export default function makeSetUserMiddleware ({ verifyUserToken, Errors } : Dep
             throw Errors.INVALID_TOKEN();
         }
 
-        const user = await verifyUserToken(authorization);       
+        const token = authorization.split(' ')[1];
+        const user = await verifyUserToken(token);       
  
         if (!user) {
             throw Errors.INVALID_TOKEN();            

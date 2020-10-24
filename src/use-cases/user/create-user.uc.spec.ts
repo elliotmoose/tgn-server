@@ -5,7 +5,7 @@ import chai, { assert, expect } from "chai"
 import Validation from '../../helpers/validation';
 import makeCreateUser from "./create-user.uc"
 import Errors from '../../constants/Errors';
-import mockOrganisationRepo from "../../test/mock-org-repo";
+import makeMockOrgRepo from "../../test/mock-org-repo";
 import makeCrypto from '../../helpers/crypto';
 import makeFindUser from './find-user.uc';
 import makeMockUserRepo from '../../test/mock-user-repo';
@@ -15,7 +15,7 @@ const should = chai.should();
 chai.use(like);
 
 const userRepo = makeMockUserRepo({ Ids });
-const organisationRepo = mockOrganisationRepo;
+const organisationRepo = makeMockOrgRepo();;
 
 const crypto = makeCrypto('mooselliot');
 
@@ -41,19 +41,19 @@ describe('Create User', async () => {
             username: 'othermoose',
             email: 'othermoose@gmail.com',
             fullName: 'Elliot Koh'
-        }), Errors.INVALID_PARAM('password').toJSON());
+        }), Errors.INVALID_PARAM('password'));
         
         await expectThrowsAsync(createUser({
             password: '12345',
             email: 'othermoose@gmail.com',
             fullName: 'Elliot Koh'
-        }), Errors.INVALID_PARAM('username').toJSON());
+        }), Errors.INVALID_PARAM('username'));
         
         await expectThrowsAsync(createUser({
             username: 'othermoose',
             password: '12345',
             fullName: 'Elliot Koh'
-        }), Errors.INVALID_PARAM('email').toJSON());
+        }), Errors.INVALID_PARAM('email'));
     });
     
 
@@ -63,14 +63,14 @@ describe('Create User', async () => {
             password: '12345', 
             email: 'othermoose@gmail.com',
             fullName: 'Elliot Koh'
-        }), Errors.INVALID_PARAM('username').toJSON());
+        }), Errors.INVALID_PARAM('username'));
         
         await expectThrowsAsync(createUser({
             username: '!hi%moose', //invalid characters
             password: '12345', 
             email: 'othermoose@gmail.com',
             fullName: 'Elliot Koh'
-        }), Errors.INVALID_PARAM('username').toJSON());
+        }), Errors.INVALID_PARAM('username'));
     });
     
     it('should fail with invalid password', async () => {
@@ -79,6 +79,6 @@ describe('Create User', async () => {
             password: '123', //too short
             email: 'othermoose@gmail.com',
             fullName: 'Elliot Koh'
-        }), Errors.INVALID_PARAM('password').toJSON());
+        }), Errors.INVALID_PARAM('password'));
     });
 })

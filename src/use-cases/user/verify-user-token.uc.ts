@@ -1,9 +1,8 @@
+import Errors from './../../constants/Errors';
 import { Crypto } from './../../helpers/crypto';
 import { UserRepository } from './../../repositories/user.repo';
 import { Ids } from '../../helpers/ids';
 import { User } from './../../domain/entities/user.entity';
-
-import { makeUser } from "../../domain/entities";
 
 interface Dependencies {
     userRepo: UserRepository
@@ -14,27 +13,28 @@ interface Dependencies {
 export default function makeVerifyUserToken({ userRepo, Ids, crypto } : Dependencies) : VerifyUserToken {
     return async function verifyUserToken(token: string){
         if (!token) {
-            return null;
+            throw Errors.INVALID_TOKEN();
         }
         if (typeof token !== 'string') {
-            return null;
+            throw Errors.INVALID_TOKEN();
         }
-
-        //Bearer <jwt>
-        let encryptedJwt = token.split(' ')[1];
-        // let decodeJwt
-        let { userId } = crypto.decodeJsonWebToken(encryptedJwt);
-
+        
+        let { userId } = crypto.decodeJsonWebToken(token);
+        
         if(!(userId && Ids.isValidId(userId))) {
-            return null;
+            throw Errors.INVALID_TOKEN();
         }
 
         let user = await userRepo.findById(userId);
-        
+
+        if(!user) {
+            throw Errors.USER_NOT_FOUND();
+        }
+
         return user;
     }
 }
 
 export interface VerifyUserToken {
-    (token: string) : Promise<User | null>
+    (token: string) : Promise<User>
 }

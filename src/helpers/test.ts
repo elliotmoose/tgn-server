@@ -7,8 +7,8 @@ export const expectThrowsAsync = async (method, expected) => {
         if(!error.toJSON) {
             throw error;
         }
-        
-        expect(error.toJSON()).to.eql(expected);
+
+        expect(error.toJSON()).to.eql(expected.toJSON());
         return;
     }
 

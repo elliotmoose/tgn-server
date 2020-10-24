@@ -5,7 +5,7 @@ import Validation from '../../helpers/validation';
 import makeCreateUser from "./create-user.uc"
 import Errors from '../../constants/Errors';
 import mockUserRepo from "../../test/mock-user-repo";
-import mockOrganisationRepo from "../../test/mock-org-repo";
+import makeMockOrgRepo from "../../test/mock-org-repo";
 import makeCrypto from '../../helpers/crypto';
 import makeFindUser from './find-user.uc';
 import makeIsFollowingUser from './is-following-user.uc';
@@ -18,7 +18,7 @@ const should = chai.should();
 chai.use(like);
 
 const userRepo = makeMockUserRepo({ Ids });
-const organisationRepo = mockOrganisationRepo;
+const organisationRepo = makeMockOrgRepo();
 
 // option A: implement database methods in mock repo
 // option B: implement model database in mock model
@@ -57,16 +57,16 @@ describe('Login User', async () => {
         await expectThrowsAsync(loginUser({
             username: mockUserData.username,
             password: mockUserData.password + '1'
-        }), Errors.LOGIN_FAILED().toJSON());
+        }), Errors.LOGIN_FAILED());
     })
     
     it('should not fail on empty request', async () => {
         await expectThrowsAsync(loginUser({
             username: mockUserData.username,
-        }), Errors.INVALID_PARAM('password').toJSON());
+        }), Errors.INVALID_PARAM('password'));
         
         await expectThrowsAsync(loginUser({
             password: mockUserData.password,
-        }), Errors.INVALID_PARAM('username').toJSON());
+        }), Errors.INVALID_PARAM('username'));
     })
 })
