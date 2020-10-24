@@ -34,17 +34,17 @@ const loginUser = makeLoginUser({ userRepo, crypto });
 describe('Login User', async () => {
     it('should find by username and id', async () => {
         await userRepo.clearAll();
-        const newUser = await createUser(mockUserData)
+        const newUser = await createUser(mockUserData.elliot)
         
         const response = await loginUser({
-            username: mockUserData.username,
-            password: mockUserData.password
+            username: mockUserData.elliot.username,
+            password: mockUserData.elliot.password
         });        
 
         response.should.have.property('user');
         let user = response.user;
-        user.should.have.property('username').eql(mockUserData.username)
-        user.should.have.property('fullName').eql(mockUserData.fullName)
+        user.should.have.property('username').eql(mockUserData.elliot.username)
+        user.should.have.property('fullName').eql(mockUserData.elliot.fullName)
         user.should.have.property('id').eql(newUser.id);
         
 
@@ -55,18 +55,18 @@ describe('Login User', async () => {
 
     it('should reject wrong credentials', async () => {
         await expectThrowsAsync(loginUser({
-            username: mockUserData.username,
-            password: mockUserData.password + '1'
+            username: mockUserData.elliot.username,
+            password: mockUserData.elliot.password + '1'
         }), Errors.LOGIN_FAILED());
     })
     
     it('should not fail on empty request', async () => {
         await expectThrowsAsync(loginUser({
-            username: mockUserData.username,
+            username: mockUserData.elliot.username,
         }), Errors.INVALID_PARAM('password'));
         
         await expectThrowsAsync(loginUser({
-            password: mockUserData.password,
+            password: mockUserData.elliot.password,
         }), Errors.INVALID_PARAM('username'));
     })
 })

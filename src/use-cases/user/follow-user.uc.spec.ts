@@ -26,27 +26,10 @@ const createUser = makeCreateUser({ userRepo, crypto, Validation, organisationRe
 const findUser = makeFindUser({ userRepo, Ids });
 
 
-
-describe('Find User', async () => {
-    it('should find by username and id', async () => {
+describe('Following User', async () => {
+    it('should follow user', async () => {
         await userRepo.clearAll();
         const newUser = await createUser(mockUserData.elliot)
-
-        const userById = await findUser(newUser.id);        
-        newUser.should.be.like(userById);
-        const userByUsername = await findUser(mockUserData.elliot.username);        
-        newUser.should.be.like(userByUsername);
+        const followedUser = await createUser(mockUserData.joel)
     });
-
-    it('should not find user that doesn\'t exist', async () => {
-        await expectThrowsAsync(findUser('hello'), Errors.USER_NOT_FOUND());
-    })
-    
-    it('should not fail on empty request', async () => {
-        await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND());
-    })
-    
-    it('should find by ', async () => {
-        await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND());
-    })
 })

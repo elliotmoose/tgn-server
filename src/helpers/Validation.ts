@@ -11,7 +11,7 @@ const helpers : Validation = {
             return false;
         }
 
-        const re = /^([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){6,28}(?:[A-Za-z0-9_]))?)$/;
+        const re = /^([A-Za-z0-9_](?:(?:[A-Za-z0-9_]|(?:\.(?!\.))){4,28}(?:[A-Za-z0-9_]))?)$/;
         return re.test(handle);
     },
     isValidPassword(password: string) : Boolean {

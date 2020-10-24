@@ -24,7 +24,7 @@ const verifyUserToken = makeVerifyUserToken({ userRepo, Ids, crypto});
 describe('Verify User Token', async () => {
     it('should verify token and return user', async () => {
         await userRepo.clearAll();
-        const newUser = await createUser(mockUserData)
+        const newUser = await createUser(mockUserData.elliot)
         let token = crypto.generateJsonWebToken({userId: newUser.id});
         let verifiedUser = await verifyUserToken(token);        
         verifiedUser.should.be.like(newUser)
@@ -32,7 +32,7 @@ describe('Verify User Token', async () => {
     
     it('should reject invalid token', async () => {
         await userRepo.clearAll();
-        const newUser = await createUser(mockUserData);
+        const newUser = await createUser(mockUserData.elliot);
         let token = crypto.generateJsonWebToken({userId: newUser.id});
         await expectThrowsAsync(verifyUserToken(token + '1'), Errors.INVALID_TOKEN());
         await expectThrowsAsync(verifyUserToken(''), Errors.INVALID_TOKEN());
@@ -45,7 +45,7 @@ describe('Verify User Token', async () => {
     
     it('should throw if user does not exist', async () => {
         await userRepo.clearAll();
-        const newUser = await createUser(mockUserData);
+        const newUser = await createUser(mockUserData.elliot);
         await userRepo.clearAll();
         let token = crypto.generateJsonWebToken({userId: newUser.id});
         await expectThrowsAsync(verifyUserToken(token), Errors.USER_NOT_FOUND());
