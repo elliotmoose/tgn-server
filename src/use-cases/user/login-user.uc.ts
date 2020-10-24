@@ -2,8 +2,6 @@ import { Crypto } from './../../helpers/crypto';
 import { UserRepository } from './../../repositories/user.repo';
 import Errors from '../../constants/Errors';
 
-import { makeUser } from "../../domain/entities";
-
 interface Dependencies {
     userRepo : UserRepository,
     crypto: Crypto,
@@ -16,11 +14,20 @@ export default function makeLoginUser({ userRepo, crypto } : Dependencies) {
             password, 
         } = userData;
 
+        if(!username) {
+            throw Errors.INVALID_PARAM('username');
+        }
+        
+        if(!password) {
+            throw Errors.INVALID_PARAM('password');
+        }
+
         const passwordData = await userRepo.retrievePasswordHashAndSalt(username);
         
-        if(!passwordData) {
+        if(!passwordData || !passwordData.password || !passwordData.passwordSalt) {
             throw Errors.LOGIN_FAILED();
         }
+
 
         const correctPassword = crypto.verifyPassword(password, passwordData.password, passwordData.passwordSalt);
 

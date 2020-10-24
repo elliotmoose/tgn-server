@@ -35,29 +35,38 @@ describe('Login User', async () => {
     it('should find by username and id', async () => {
         await userRepo.clearAll();
         const newUser = await createUser(mockUserData)
+        
         const response = await loginUser({
             username: mockUserData.username,
             password: mockUserData.password
         });        
 
-        // response.should.have.property('user');
-        // let user = response.user;
-
-        // user.should.have.property('username')
-        // user.should.have.property('fullName')
-        // user.should.have.property('id')
+        response.should.have.property('user');
+        let user = response.user;
+        user.should.have.property('username').eql(mockUserData.username)
+        user.should.have.property('fullName').eql(mockUserData.fullName)
+        user.should.have.property('id').eql(newUser.id);
         
-        // response.should.be.like({
-        //     user: mockUserData
-        // });
+
+        response.should.have.property('token');
+        assert(response.token.length > 5);
      
     });
 
-    // it('should reject wrong credentials', async () => {
-    //     await expectThrowsAsync(findUser('hello'), Errors.USER_NOT_FOUND().toJSON());
-    // })
+    it('should reject wrong credentials', async () => {
+        await expectThrowsAsync(loginUser({
+            username: mockUserData.username,
+            password: mockUserData.password + '1'
+        }), Errors.LOGIN_FAILED().toJSON());
+    })
     
-    // it('should not fail on empty request', async () => {
-    //     await expectThrowsAsync(findUser(null), Errors.USER_NOT_FOUND().toJSON());
-    // })
+    it('should not fail on empty request', async () => {
+        await expectThrowsAsync(loginUser({
+            username: mockUserData.username,
+        }), Errors.INVALID_PARAM('password').toJSON());
+        
+        await expectThrowsAsync(loginUser({
+            password: mockUserData.password,
+        }), Errors.INVALID_PARAM('username').toJSON());
+    })
 })
